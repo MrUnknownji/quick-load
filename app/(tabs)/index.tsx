@@ -1,70 +1,307 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Dimensions,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  ScrollView,
+  Animated,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+} from "react-native";
+import SearchHeader from "@/components/SearchHeader";
+import { Image } from "expo-image";
+import { ThemedText } from "@/components/ThemedText";
+import useTabChangeListener from "@/hooks/useTabChangeListener";
+import { Colors } from "@/constants/Colors";
+import ListItem from "@/components/ListItem";
+import {
+  CATEGORIES,
+  BRICK_ITEMS,
+  BAJRI_ITEMS,
+  GRIT_ITEMS,
+  CEMENT_ITEMS,
+  SAND_ITEMS,
+} from "@/assets/data/DATA";
+import { Category, ListItemProps } from "@/assets/types/types";
+import { useTheme } from "@react-navigation/native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+
+const MAX_ITEMS = Math.max(
+  BRICK_ITEMS.length,
+  BAJRI_ITEMS.length,
+  GRIT_ITEMS.length,
+  CEMENT_ITEMS.length,
+  SAND_ITEMS.length
+);
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const heroScaleAnim = useRef(new Animated.Value(0.9)).current;
+  const categoriesTranslateY = useRef(new Animated.Value(50)).current;
+  const fastDeliveryScaleAnim = useRef(new Animated.Value(0.9)).current;
+  const listItemsAnim = useRef(
+    Array(MAX_ITEMS)
+      .fill(0)
+      .map(() => new Animated.Value(0))
+  ).current;
+  const { activeTab } = useTabChangeListener();
+
+  const resetAnimations = () => {
+    heroScaleAnim.setValue(0.9);
+    categoriesTranslateY.setValue(50);
+    fastDeliveryScaleAnim.setValue(0.9);
+    listItemsAnim.forEach((anim) => anim.setValue(0));
+  };
+
+  const playAnimations = (includeListItems = true) => {
+    const animations = [
+      Animated.spring(heroScaleAnim, {
+        toValue: 1,
+        tension: 10,
+        friction: 2,
+        useNativeDriver: true,
+      }),
+      Animated.spring(categoriesTranslateY, {
+        toValue: 0,
+        tension: 10,
+        friction: 2,
+        useNativeDriver: true,
+      }),
+      Animated.spring(fastDeliveryScaleAnim, {
+        toValue: 1,
+        tension: 10,
+        friction: 2,
+        useNativeDriver: true,
+      }),
+    ];
+
+    if (includeListItems) {
+      listItemsAnim.forEach((anim, index) => {
+        animations.push(
+          Animated.spring(anim, {
+            toValue: 1,
+            tension: 50,
+            friction: 7,
+            delay: index * 100,
+            useNativeDriver: true,
+          })
+        );
+      });
+    }
+
+    Animated.parallel(animations).start();
+  };
+
+  useEffect(() => {
+    if (activeTab === "index") {
+      resetAnimations();
+      playAnimations();
+    }
+  }, [activeTab]);
+
+  const handleCategoryPress = (category: Category) => {
+    if (selectedCategory !== category.name) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setSelectedCategory(category.name);
+      listItemsAnim.forEach((anim) => anim.setValue(0));
+      playAnimations(false);
+      setTimeout(() => {
+        Animated.stagger(
+          100,
+          listItemsAnim.map((anim) =>
+            Animated.spring(anim, {
+              toValue: 1,
+              tension: 50,
+              friction: 7,
+              useNativeDriver: true,
+            })
+          )
+        ).start();
+      }, 300);
+    } else {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setSelectedCategory("");
+    }
+  };
+
+  const renderCategoryItems = (items: ListItemProps[]) => {
+    return items.map((item, index) => (
+      <Animated.ScrollView
+        key={index}
+        style={{ transform: [{ scale: listItemsAnim[index] }] }}
+      >
+        <ListItem
+          {...item}
+          mesurementType={getMeasurementType(selectedCategory)}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </Animated.ScrollView>
+    ));
+  };
+
+  const getMeasurementType = (category: string) => {
+    switch (category) {
+      case "Bricks":
+        return "piece";
+      case "Cement":
+        return "packet";
+      default:
+        return "qui";
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <SearchHeader />
+      <View>
+        {selectedCategory === "" && (
+          <Animated.View
+            style={[
+              styles.heroContainer,
+              { transform: [{ scale: heroScaleAnim }] },
+            ]}
+          >
+            <Image
+              source={`https://placehold.co/${
+                SCREEN_WIDTH - 40
+              }x200?text=Hero+Image`}
+              style={styles.heroImage}
+              contentFit="cover"
+            />
+          </Animated.View>
+        )}
+        <Animated.ScrollView
+          horizontal
+          contentContainerStyle={[
+            styles.categories,
+            { backgroundColor: useTheme().colors.background },
+          ]}
+          style={{ transform: [{ translateY: categoriesTranslateY }] }}
+        >
+          {CATEGORIES.map((category, index) => (
+            <View key={index} style={styles.category}>
+              <TouchableOpacity onPress={() => handleCategoryPress(category)}>
+                <View
+                  style={[
+                    styles.categoryImageContainer,
+                    selectedCategory === category.name &&
+                      styles.selectedCategory,
+                  ]}
+                >
+                  <Image source={category.url} style={styles.categoryImage} />
+                </View>
+              </TouchableOpacity>
+              <ThemedText style={styles.categoryLabel}>
+                {category.name}
+              </ThemedText>
+            </View>
+          ))}
+        </Animated.ScrollView>
+      </View>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <SafeAreaView>
+          {selectedCategory === "" && (
+            <Animated.View
+              style={[
+                styles.fastDeliveryContainer,
+                { transform: [{ scale: fastDeliveryScaleAnim }] },
+              ]}
+            >
+              <Image
+                source={`https://placehold.co/${
+                  SCREEN_WIDTH - 40
+                }x200?text=Fast-delivery`}
+                style={styles.fastDeliveryImage}
+                contentFit="cover"
+              />
+            </Animated.View>
+          )}
+          <View style={styles.itemsContainer}>
+            {selectedCategory === "Bricks" && renderCategoryItems(BRICK_ITEMS)}
+            {selectedCategory === "Bajri" && renderCategoryItems(BAJRI_ITEMS)}
+            {selectedCategory === "Grit" && renderCategoryItems(GRIT_ITEMS)}
+            {selectedCategory === "Cement" && renderCategoryItems(CEMENT_ITEMS)}
+            {selectedCategory === "Sand" && renderCategoryItems(SAND_ITEMS)}
+          </View>
+        </SafeAreaView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  scrollViewContent: {
+    paddingBottom: 80,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  heroContainer: {
+    marginTop: 20,
+    marginHorizontal: 20,
+    height: 200,
+    borderRadius: 25,
+    overflow: "hidden",
+  },
+  heroImage: {
+    width: "100%",
+    height: "100%",
+  },
+  categories: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  category: {
+    alignItems: "center",
+    marginHorizontal: 10,
+  },
+  categoryImageContainer: {
+    borderRadius: 30,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  selectedCategory: {
+    borderColor: Colors.light.primary,
+  },
+  categoryImage: {
+    width: 60,
+    height: 60,
+  },
+  categoryLabel: {
+    fontSize: 14,
+    textAlign: "center",
+    fontWeight: "bold",
+    marginVertical: 4,
+  },
+  fastDeliveryContainer: {
+    marginVertical: 20,
+    marginHorizontal: 20,
+    height: 200,
+    borderRadius: 25,
+    overflow: "hidden",
+    elevation: 3,
+  },
+  fastDeliveryImage: {
+    width: "100%",
+    height: "100%",
+  },
+  bricksContainer: {
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
+  itemsContainer: {
+    marginTop: 20,
+    marginHorizontal: 20,
   },
 });

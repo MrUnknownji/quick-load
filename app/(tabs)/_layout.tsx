@@ -1,37 +1,349 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  Pressable,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+  BackHandler,
+} from "react-native";
+import { Tabs } from "expo-router";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import * as NavigationBar from "expo-navigation-bar";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+  withSpring,
+  runOnJS,
+  Extrapolation,
+} from "react-native-reanimated";
+import { GestureDetector, Gesture } from "react-native-gesture-handler";
+import { EventArg } from "@react-navigation/native";
+import Create from "./create";
+import { StatusBar as StatusBarExpo } from "expo-status-bar";
+import useTabChangeListener from "@/hooks/useTabChangeListener";
+import { Colors } from "@/constants/Colors";
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
+const MIN_TRANSLATE_Y = 50;
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+
+function CustomTabBarButton({
+  children,
+  onPress,
+}: {
+  children: React.ReactNode;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable style={styles.customButton} onPress={onPress}>
+      <View style={styles.customButtonInner}>{children}</View>
+    </Pressable>
+  );
+}
+
+function RotatingIcon({ focused }: { focused: boolean }) {
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    rotation.value = withTiming(focused ? 1 : 0, { duration: 300 });
+  }, [focused]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const rotate = interpolate(rotation.value, [0, 1], [0, 45]);
+    return { transform: [{ rotate: `${rotate}deg` }] };
+  });
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <Animated.View style={animatedStyle}>
+      <Ionicons name="add-circle" color="white" size={62} />
+    </Animated.View>
   );
+}
+
+function AnimatedTabBarIcon({
+  name,
+  label,
+  color,
+  focused,
+}: {
+  name: IconName;
+  label: string;
+  color: string;
+  focused: boolean;
+}) {
+  const animation = useSharedValue(0);
+
+  useEffect(() => {
+    animation.value = withSpring(focused ? 1 : 0, { duration: 200 });
+  }, [focused]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(animation.value, [0, 1], [0.8, 1]);
+    const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
+    const translateY = interpolate(animation.value, [0, 1], [10, 0]);
+    return { opacity, transform: [{ scale }, { translateY }] };
+  });
+
+  return (
+    <View style={styles.iconContainer}>
+      <Animated.View style={animatedStyle}>
+        <MaterialCommunityIcons
+          name={focused ? name : (`${name}-outline` as IconName)}
+          color={color}
+          size={32}
+        />
+      </Animated.View>
+      <AnimatedTabBarLabel label={label} color={color} focused={focused} />
+    </View>
+  );
+}
+
+function AnimatedTabBarLabel({
+  label,
+  color,
+  focused,
+}: {
+  label: string;
+  color: string;
+  focused: boolean;
+}) {
+  const animation = useSharedValue(0);
+
+  useEffect(() => {
+    animation.value = withTiming(focused ? 1 : 0, { duration: 200 });
+  }, [focused]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(animation.value, [0, 1], [0, 1]);
+    const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
+    return { opacity, transform: [{ scale }] };
+  });
+
+  return (
+    <Animated.Text
+      style={[styles.label, { color }, animatedStyle]}
+      numberOfLines={1}
+      ellipsizeMode="tail"
+    >
+      {label}
+    </Animated.Text>
+  );
+}
+
+export default function TabLayout() {
+  const [isCreateActive, setIsCreateActive] = useState(false);
+  const translateY = useSharedValue(MIN_TRANSLATE_Y);
+  const context = useSharedValue({ y: MIN_TRANSLATE_Y });
+  const { activeTab, setActiveTab } = useTabChangeListener();
+
+  useEffect(() => {
+    NavigationBar.setBackgroundColorAsync(Colors.light.primary);
+  }, []);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (isCreateActive) {
+          closeBottomSheet();
+          return true;
+        }
+        return false;
+      }
+    );
+    return () => backHandler.remove();
+  }, [isCreateActive]);
+
+  const scrollTo = (destination: number) => {
+    "worklet";
+    translateY.value = withTiming(destination);
+  };
+
+  const closeBottomSheet = useCallback(() => {
+    scrollTo(MIN_TRANSLATE_Y);
+    setIsCreateActive(false);
+  }, []);
+
+  const gesture = Gesture.Pan()
+    .onStart(() => {
+      context.value = { y: translateY.value };
+    })
+    .onUpdate((event) => {
+      translateY.value = Math.max(
+        Math.min(event.translationY + context.value.y, MIN_TRANSLATE_Y),
+        MAX_TRANSLATE_Y
+      );
+    })
+    .onEnd(() => {
+      if (translateY.value > -SCREEN_HEIGHT / 1.5) {
+        scrollTo(MIN_TRANSLATE_Y);
+        runOnJS(setIsCreateActive)(false);
+      } else {
+        scrollTo(MAX_TRANSLATE_Y);
+      }
+    });
+
+  const rBottomSheetStyle = useAnimatedStyle(() => {
+    const borderRadius = interpolate(
+      translateY.value,
+      [MAX_TRANSLATE_Y + 50, MAX_TRANSLATE_Y],
+      [25, 5],
+      Extrapolation.CLAMP
+    );
+    return { borderRadius, transform: [{ translateY: translateY.value }] };
+  });
+
+  const handleCreatePress = () => {
+    if (!isCreateActive) {
+      setIsCreateActive(true);
+      scrollTo(MAX_TRANSLATE_Y);
+    } else {
+      closeBottomSheet();
+    }
+  };
+
+  return (
+    <>
+      <StatusBarExpo style="auto" />
+      <Tabs
+        screenOptions={({ route }) => ({
+          tabBarActiveTintColor: "#FFFFFF",
+          tabBarShowLabel: false,
+          headerShown: false,
+          tabBarStyle: styles.tabBar,
+          tabBarIcon: ({ color, focused }) =>
+            route.name === "create" ? (
+              <RotatingIcon focused={isCreateActive} />
+            ) : (
+              <AnimatedTabBarIcon
+                name={getIconName(route.name)}
+                color={color}
+                focused={activeTab.includes(route.name)}
+                label={getLabelName(route.name)}
+              />
+            ),
+          tabBarButton:
+            route.name === "create"
+              ? (props) => (
+                  <CustomTabBarButton {...props} onPress={handleCreatePress} />
+                )
+              : undefined,
+        })}
+      >
+        <Tabs.Screen name="index" listeners={{ tabPress: preventTabPress }} />
+        <Tabs.Screen
+          name="transport"
+          listeners={{ tabPress: preventTabPress }}
+        />
+        <Tabs.Screen name="create" options={{ tabBarShowLabel: false }} />
+        <Tabs.Screen
+          name="contact-us"
+          listeners={{ tabPress: preventTabPress }}
+        />
+        <Tabs.Screen name="profile" listeners={{ tabPress: preventTabPress }} />
+      </Tabs>
+      <GestureDetector gesture={gesture}>
+        <Animated.View style={[styles.createScreen, rBottomSheetStyle]}>
+          <View style={styles.line} />
+          <View style={styles.createContent}>
+            <Create />
+          </View>
+        </Animated.View>
+      </GestureDetector>
+    </>
+  );
+
+  function preventTabPress(
+    e: EventArg<"tabPress", true, undefined> & { target?: string }
+  ) {
+    if (isCreateActive) e.preventDefault();
+    else if (e.target) setActiveTab(e.target);
+  }
+}
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: "absolute",
+    backgroundColor: Colors.light.primary,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    height: 60,
+  },
+  customButton: {
+    top: -30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  customButtonInner: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: Colors.light.primary,
+  },
+  iconContainer: {
+    alignItems: "center",
+  },
+  label: {
+    fontSize: 12,
+    maxWidth: 60,
+    textAlign: "center",
+  },
+  createScreen: {
+    height: SCREEN_HEIGHT,
+    width: "100%",
+    backgroundColor: Colors.light.primary,
+    position: "absolute",
+    top: SCREEN_HEIGHT,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+  },
+  createContent: {
+    flex: 1,
+    padding: 20,
+  },
+  line: {
+    width: 75,
+    height: 4,
+    backgroundColor: "grey",
+    alignSelf: "center",
+    marginVertical: 15,
+    borderRadius: 2,
+  },
+});
+
+function getIconName(routeName: string): IconName {
+  switch (routeName) {
+    case "index":
+      return "home";
+    case "transport":
+      return "truck";
+    case "contact-us":
+      return "phone";
+    case "profile":
+      return "account";
+    default:
+      return "help-circle";
+  }
+}
+
+function getLabelName(routeName: string): string {
+  switch (routeName) {
+    case "index":
+      return "Home";
+    case "transport":
+      return "Transport";
+    case "contact-us":
+      return "Contact Us";
+    case "profile":
+      return "Profile";
+    default:
+      return "Other";
+  }
 }
