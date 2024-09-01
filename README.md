@@ -1,51 +1,105 @@
-# Welcome to your Expo app 👋
+# Welcome to Our Expo Project 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This guide will help you set up and run our project, even if you're new to software development. Let's get started!
 
-## Get started
+## Step 1: Install Required Tools
 
-1. Install dependencies
+### 1.1 Install Node.js and npm
 
-   ```bash
+Node.js is a JavaScript runtime, and npm is a package manager that comes with it.
+
+1. Visit the [Node.js website](https://nodejs.org/)
+2. Download the LTS (Long Term Support) version for your operating system
+3. Run the installer and follow the prompts
+4. To verify installation, open a command prompt or terminal and type:
+   ```
+   node --version
+   npm --version
+   ```
+   You should see version numbers if the installation was successful.
+
+### 1.2 Install Git
+
+Git is a version control system that helps manage code.
+
+1. Visit the [Git website](https://git-scm.com/)
+2. Download the version for your operating system
+3. Run the installer and follow the prompts
+4. To verify installation, open a command prompt or terminal and type:
+   ```
+   git --version
+   ```
+   You should see a version number if the installation was successful.
+
+## Step 2: Set Up the Project
+
+### 2.1 Clone the Repository
+
+1. Open a command prompt or terminal
+2. Navigate to where you want to store the project. For example:
+   - On Windows: `cd C:\Projects`
+   - On macOS/Linux: `cd ~/Projects`
+3. Clone the repository by typing:
+   ```
+   git clone https://github.com/your-username/your-repo-name.git
+   ```
+4. Navigate into the project folder:
+   ```
+   cd your-repo-name
+   ```
+
+### 2.2 Install Project Dependencies
+
+1. In the project folder, install dependencies by typing:
+   ```
    npm install
    ```
+   This may take a few minutes.
 
-2. Start the app
+## Step 3: Run the Project
 
-   ```bash
-    npx expo start
+### 3.1 Start the Development Server
+
+1. In the project folder, start the Expo development server:
    ```
+   npx expo start
+   ```
+2. This will display a QR code in your terminal and open a new tab in your web browser with Expo Dev Tools.
 
-In the output, you'll find options to open the app in a
+### 3.2 Run on Your Mobile Device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+1. Install the Expo Go app on your smartphone:
+   - [Expo Go for Android](https://play.google.com/store/apps/details?id=host.exp.exponent)
+   - [Expo Go for iOS](https://apps.apple.com/app/expo-go/id982107779)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+2. Ensure your computer and smartphone are on the same Wi-Fi network.
 
-## Get a fresh project
+3. Open the Expo Go app on your smartphone.
 
-When you're ready, run:
+4. Use your smartphone's camera to scan the QR code displayed in your terminal or Expo Dev Tools.
 
-```bash
-npm run reset-project
-```
+5. The app should now load and run on your device!
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+6. You may need to click r key in terminal where QR code is being displayed to render everything properly(This happens due to caching, won't happen in final build)
 
-## Learn more
+## Troubleshooting
 
-To learn more about developing your project with Expo, look at the following resources:
+- If the QR code doesn't scan, make sure your phone's camera is focused on it.
+- If you see "Unable to connect" errors:
+  1. Check that your computer and phone are on the same Wi-Fi network.
+  2. Try closing and reopening the Expo Go app.
+  3. Ensure your computer's firewall isn't blocking the connection.
+  4. Try clicking r key on keyboard to reload application.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- If you encounter any error messages, try googling the exact error text. Many common issues have solutions online.
 
-## Join the community
+## Learn More
 
-Join our community of developers creating universal apps.
+- [Expo Documentation](https://docs.expo.dev/): Learn more about building apps with Expo.
+- [React Native Documentation](https://reactnative.dev/docs/getting-started): Understand the framework our app is built on.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-"# quick-load" 
+## Questions or Issues?
+
+If you run into any problems or have questions, please open an issue in this GitHub repository. We're here to help!
+
+Happy exploring! 🚀
