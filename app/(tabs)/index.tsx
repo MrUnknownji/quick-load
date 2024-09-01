@@ -11,12 +11,12 @@ import {
   UIManager,
   Platform,
 } from "react-native";
-import SearchHeader from "@/components/SearchHeader";
+import SearchHeader from "@/components/input-fields/SearchHeader";
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import useTabChangeListener from "@/hooks/useTabChangeListener";
 import { Colors } from "@/constants/Colors";
-import ListItem from "@/components/ListItem";
+import LargeListItem from "@/components/list-items/LargeListItem";
 import {
   CATEGORIES,
   BRICK_ITEMS,
@@ -142,7 +142,7 @@ export default function HomeScreen() {
         key={index}
         style={{ transform: [{ scale: listItemsAnim[index] }] }}
       >
-        <ListItem
+        <LargeListItem
           {...item}
           mesurementType={getMeasurementType(selectedCategory)}
         />
