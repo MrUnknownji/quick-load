@@ -119,7 +119,7 @@ import { Image } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Sizes from "@/constants/Sizes";
-import { ListItemProps } from "@/assets/types/types";
+import { ListItemProps } from "@/constants/types/types";
 import Colors from "@/constants/Colors";
 
 const ListItem: React.FC<ListItemProps> = memo(

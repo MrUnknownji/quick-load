@@ -1,4 +1,4 @@
-import { Category } from "@/assets/types/types";
+import { Category } from "@/constants/types/types";
 
 const CATEGORIES: Category[] = [
   { name: "Bricks", url: "https://placehold.co/200x200?text=Bricks" },

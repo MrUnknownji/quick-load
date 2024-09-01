@@ -25,7 +25,7 @@ import {
   CEMENT_ITEMS,
   SAND_ITEMS,
 } from "@/assets/data/DATA";
-import { Category, ListItemProps } from "@/assets/types/types";
+import { Category, ListItemProps } from "@/constants/types/types";
 import { useTheme } from "@react-navigation/native";
 import Sizes from "@/constants/Sizes";
 
