@@ -80,6 +80,8 @@ Git is a version control system that helps manage code.
 
 5. The app should now load and run on your device!
 
+6. You may need to click r key in terminal where QR code is being displayed to render everything properly(This happens due to caching, won't happen in final build)
+
 ## Troubleshooting
 
 - If the QR code doesn't scan, make sure your phone's camera is focused on it.
@@ -87,16 +89,9 @@ Git is a version control system that helps manage code.
   1. Check that your computer and phone are on the same Wi-Fi network.
   2. Try closing and reopening the Expo Go app.
   3. Ensure your computer's firewall isn't blocking the connection.
+  4. Try clicking r key on keyboard to reload application.
 
 - If you encounter any error messages, try googling the exact error text. Many common issues have solutions online.
-
-## Next Steps
-
-Congratulations! You've set up and run the project. To start making changes:
-
-1. Open the project folder in a text editor (like Notepad++ or Visual Studio Code).
-2. Look for files ending in `.js` or `.jsx`. These contain the app's code.
-3. Make small changes and save the file. The app should automatically update on your phone.
 
 ## Learn More
 
