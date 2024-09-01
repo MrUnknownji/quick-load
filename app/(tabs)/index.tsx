@@ -27,6 +27,7 @@ import {
 } from "@/assets/data/DATA";
 import { Category, ListItemProps } from "@/assets/types/types";
 import { useTheme } from "@react-navigation/native";
+import Sizes from "@/constants/Sizes";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -173,7 +174,7 @@ export default function HomeScreen() {
           >
             <Image
               source={`https://placehold.co/${
-                SCREEN_WIDTH - 40
+                SCREEN_WIDTH - Sizes.marginHorizontal * 2
               }x200?text=Hero+Image`}
               style={styles.heroImage}
               contentFit="cover"
@@ -247,10 +248,10 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   heroContainer: {
-    marginTop: 20,
-    marginHorizontal: 20,
-    height: 200,
-    borderRadius: 25,
+    marginHorizontal: Sizes.marginHorizontal,
+    marginTop: Sizes.marginMedium,
+    height: Sizes.carouselHeight,
+    borderRadius: Sizes.borderRadiusLarge,
     overflow: "hidden",
   },
   heroImage: {
@@ -258,15 +259,15 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   categories: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: Sizes.paddingHorizontal,
+    paddingTop: Sizes.paddingMedium,
   },
   category: {
     alignItems: "center",
-    marginHorizontal: 10,
+    marginHorizontal: Sizes.marginSmall,
   },
   categoryImageContainer: {
-    borderRadius: 30,
+    borderRadius: Sizes.borderRadiusFull,
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "transparent",
@@ -279,16 +280,16 @@ const styles = StyleSheet.create({
     height: 60,
   },
   categoryLabel: {
-    fontSize: 14,
+    fontSize: Sizes.textSmall,
     textAlign: "center",
     fontWeight: "bold",
     marginVertical: 4,
   },
   fastDeliveryContainer: {
-    marginVertical: 20,
-    marginHorizontal: 20,
-    height: 200,
-    borderRadius: 25,
+    marginVertical: Sizes.marginVertical,
+    marginHorizontal: Sizes.marginHorizontal,
+    height: Sizes.carouselHeight,
+    borderRadius: Sizes.borderRadiusLarge,
     overflow: "hidden",
     elevation: 3,
   },
@@ -297,11 +298,11 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   bricksContainer: {
-    marginTop: 20,
-    marginHorizontal: 20,
+    marginTop: Sizes.marginLarge,
+    marginHorizontal: Sizes.marginHorizontal,
   },
   itemsContainer: {
-    marginTop: 20,
-    marginHorizontal: 20,
+    marginTop: Sizes.marginLarge,
+    marginHorizontal: Sizes.marginHorizontal,
   },
 });

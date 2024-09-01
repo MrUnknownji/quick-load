@@ -24,11 +24,12 @@ import { EventArg } from "@react-navigation/native";
 import Create from "./create";
 import { StatusBar as StatusBarExpo } from "expo-status-bar";
 import useTabChangeListener from "@/hooks/useTabChangeListener";
-import { Colors } from "@/constants/Colors";
+import Colors from "@/constants/Colors";
+import Sizes from "@/constants/Sizes";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
-const MIN_TRANSLATE_Y = 50;
+const MIN_TRANSLATE_Y = Sizes.tabBarHeight;
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
 
@@ -50,7 +51,9 @@ function RotatingIcon({ focused }: { focused: boolean }) {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
-    rotation.value = withTiming(focused ? 1 : 0, { duration: 300 });
+    rotation.value = withTiming(focused ? 1 : 0, {
+      duration: Sizes.animationDurationShort,
+    });
   }, [focused]);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -60,7 +63,11 @@ function RotatingIcon({ focused }: { focused: boolean }) {
 
   return (
     <Animated.View style={animatedStyle}>
-      <Ionicons name="add-circle" color="white" size={62} />
+      <Ionicons
+        name="add-circle"
+        color={Colors.light.backgroundSecondary}
+        size={Sizes.iconExtraLarge}
+      />
     </Animated.View>
   );
 }
@@ -79,7 +86,9 @@ function AnimatedTabBarIcon({
   const animation = useSharedValue(0);
 
   useEffect(() => {
-    animation.value = withSpring(focused ? 1 : 0, { duration: 200 });
+    animation.value = withSpring(focused ? 1 : 0, {
+      duration: Sizes.animationDurationMedium,
+    });
   }, [focused]);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -95,7 +104,7 @@ function AnimatedTabBarIcon({
         <MaterialCommunityIcons
           name={focused ? name : (`${name}-outline` as IconName)}
           color={color}
-          size={32}
+          size={Sizes.iconMedium}
         />
       </Animated.View>
       <AnimatedTabBarLabel label={label} color={color} focused={focused} />
@@ -115,12 +124,14 @@ function AnimatedTabBarLabel({
   const animation = useSharedValue(0);
 
   useEffect(() => {
-    animation.value = withTiming(focused ? 1 : 0, { duration: 200 });
+    animation.value = withTiming(focused ? 1 : 0, {
+      duration: Sizes.animationDurationMedium,
+    });
   }, [focused]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(animation.value, [0, 1], [0, 1]);
-    const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
+    const opacity = interpolate(animation.value, [0, 1], [0.8, 1]);
+    const scale = interpolate(animation.value, [0, 1], [0, 1]);
     return { opacity, transform: [{ scale }] };
   });
 
@@ -191,8 +202,8 @@ export default function TabLayout() {
   const rBottomSheetStyle = useAnimatedStyle(() => {
     const borderRadius = interpolate(
       translateY.value,
-      [MAX_TRANSLATE_Y + 50, MAX_TRANSLATE_Y],
-      [25, 5],
+      [MAX_TRANSLATE_Y + Sizes.borderRadiusSmall, MAX_TRANSLATE_Y],
+      [Sizes.borderRadiusMedium, Sizes.borderRadiusSmall],
       Extrapolation.CLAMP
     );
     return { borderRadius, transform: [{ translateY: translateY.value }] };
@@ -212,7 +223,7 @@ export default function TabLayout() {
       <StatusBarExpo style="auto" />
       <Tabs
         screenOptions={({ route }) => ({
-          tabBarActiveTintColor: "#FFFFFF",
+          tabBarActiveTintColor: Colors.light.backgroundSecondary,
           tabBarShowLabel: false,
           headerShown: false,
           tabBarStyle: styles.tabBar,
@@ -270,29 +281,29 @@ const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
     backgroundColor: Colors.light.primary,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-    height: 60,
+    borderTopLeftRadius: Sizes.borderRadiusMedium,
+    borderTopRightRadius: Sizes.borderRadiusMedium,
+    paddingVertical: Sizes.paddingSmall,
+    paddingHorizontal: Sizes.paddingExtraSmall,
+    height: Sizes.tabBarHeight,
   },
   customButton: {
-    top: -30,
+    top: -Sizes.customButtonOffset,
     justifyContent: "center",
     alignItems: "center",
   },
   customButtonInner: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: Sizes.customButtonSize,
+    height: Sizes.customButtonSize,
+    borderRadius: Sizes.customButtonSize / 2,
     backgroundColor: Colors.light.primary,
   },
   iconContainer: {
     alignItems: "center",
   },
   label: {
-    fontSize: 12,
-    maxWidth: 60,
+    fontSize: Sizes.textSmall,
+    maxWidth: Sizes.tabLabelMaxWidth,
     textAlign: "center",
   },
   createScreen: {
@@ -301,20 +312,20 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.primary,
     position: "absolute",
     top: SCREEN_HEIGHT,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+    borderTopLeftRadius: Sizes.borderRadiusMedium,
+    borderTopRightRadius: Sizes.borderRadiusMedium,
   },
   createContent: {
     flex: 1,
-    padding: 20,
+    padding: Sizes.paddingMedium,
   },
   line: {
-    width: 75,
-    height: 4,
-    backgroundColor: "grey",
+    width: Sizes.bottomSheetLineWidth,
+    height: Sizes.bottomSheetLineHeight,
+    backgroundColor: Colors.light.backgroundSecondary,
     alignSelf: "center",
-    marginVertical: 15,
-    borderRadius: 2,
+    marginVertical: Sizes.marginVertical,
+    borderRadius: Sizes.bottomSheetLineHeight / 2,
   },
 });
 

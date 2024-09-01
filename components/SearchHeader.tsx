@@ -9,42 +9,92 @@ import {
 } from "react-native";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import Colors from "@/constants/Colors";
+import Sizes from "@/constants/Sizes";
 
 const SearchHeader = ({
   isPaddingNeeded = true,
 }: {
   isPaddingNeeded?: boolean;
 }) => {
-  const colors = useThemeColor({ light: "white", dark: "#3C0B0B" }, "text");
+  const backgroundColor = useThemeColor(
+    { light: Colors.light.background, dark: Colors.dark.background },
+    "background"
+  );
+  const searchBackgroundColor = useThemeColor(
+    {
+      light: Colors.light.backgroundSecondary,
+      dark: Colors.dark.backgroundSecondary,
+    },
+    "backgroundSecondary"
+  );
+  const borderColor = useThemeColor(
+    { light: Colors.light.border, dark: Colors.dark.border },
+    "border"
+  );
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+  const iconColor = useThemeColor(
+    { light: Colors.light.icon, dark: Colors.dark.icon },
+    "icon"
+  );
+  const notificationIconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.primary },
+    "primary"
+  );
+
   return (
     <View
       style={[
         styles.container,
-        { backgroundColor: colors },
+        { backgroundColor },
         isPaddingNeeded && {
           paddingTop:
             Platform.OS === "android"
-              ? (StatusBar.currentHeight ?? 0) + 10
-              : 10,
+              ? (StatusBar.currentHeight ?? 0) + Sizes.paddingSmall
+              : Sizes.paddingSmall,
         },
       ]}
     >
-      <View style={styles.searchContainer}>
-        <FontAwesome name="search" size={24} style={styles.searchIcon} />
+      <View
+        style={[
+          styles.searchContainer,
+          {
+            backgroundColor: searchBackgroundColor,
+            borderColor,
+          },
+        ]}
+      >
+        <FontAwesome
+          name="search"
+          size={Sizes.iconSmall}
+          style={[styles.searchIcon, { color: iconColor }]}
+        />
         <TextInput
           placeholder="Search"
-          placeholderTextColor="gray"
-          style={styles.searchInput}
+          placeholderTextColor={iconColor}
+          style={[styles.searchInput, { color: textColor }]}
         />
         <FontAwesome
           name="microphone"
-          size={24}
-          style={styles.microphoneIcon}
+          size={Sizes.iconSmall}
+          style={[styles.microphoneIcon, { color: iconColor }]}
         />
       </View>
       <TouchableNativeFeedback onPress={() => console.log("Notification")}>
-        <View style={styles.notificationIconContainer}>
-          <MaterialIcons name="notifications" size={30} color="white" />
+        <View
+          style={[
+            styles.notificationIconContainer,
+            { backgroundColor: notificationIconColor },
+          ]}
+        >
+          <MaterialIcons
+            name="notifications"
+            size={Sizes.iconMedium}
+            color={Colors.light.background}
+          />
         </View>
       </TouchableNativeFeedback>
     </View>
@@ -55,44 +105,36 @@ export default SearchHeader;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: Sizes.paddingHorizontal,
+    paddingBottom: Sizes.paddingMedium,
     flexDirection: "row",
-    gap: 10,
+    gap: Sizes.marginMedium,
     elevation: 1,
   },
   searchContainer: {
-    borderRadius: 25,
-    paddingHorizontal: 5,
-    paddingVertical: 2.5,
+    borderRadius: Sizes.borderRadiusFull,
+    paddingHorizontal: Sizes.paddingExtraSmall,
+    paddingVertical: Sizes.paddingSmall / 2,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "white",
-    // elevation: 2,
-    borderColor: "gray",
     borderWidth: 1,
   },
   searchInput: {
     flex: 1,
-    fontSize: 18,
-    color: "black",
+    fontSize: Sizes.textMedium,
   },
   notificationIconContainer: {
-    backgroundColor: "#3C0B0B",
-    padding: 5,
-    borderRadius: 20,
+    padding: Sizes.paddingSmall,
+    borderRadius: Sizes.borderRadiusFull,
   },
   searchIcon: {
-    color: "gray",
-    padding: 5,
+    padding: Sizes.paddingSmall,
   },
   microphoneIcon: {
-    color: "gray",
-    padding: 5,
+    padding: Sizes.paddingSmall,
   },
 });
