@@ -41,11 +41,11 @@ Git is a version control system that helps manage code.
    - On macOS/Linux: `cd ~/Projects`
 3. Clone the repository by typing:
    ```
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone https://github.com/MrUnknownji/quick-load.git
    ```
 4. Navigate into the project folder:
    ```
-   cd your-repo-name
+   cd quick-load
    ```
 
 ### 2.2 Install Project Dependencies
