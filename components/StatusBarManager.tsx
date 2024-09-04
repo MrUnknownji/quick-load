@@ -1,13 +1,12 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
-import { usePathname } from "expo-router";
+import usePathChangeListener from "@/hooks/usePathChangeListener";
 
 const StatusBarManager = () => {
-  const pathname = usePathname();
+  const { activePath } = usePathChangeListener();
 
   const getStatusBarStyle = () => {
-    const currentRoute = pathname.split("/").pop() || "index";
-    const route = currentRoute.includes("user") ? "user" : currentRoute;
+    const route = activePath.includes("user") ? "user" : activePath;
     switch (route) {
       case "profile":
       case "my-information":
