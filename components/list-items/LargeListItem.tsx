@@ -9,7 +9,15 @@ import Colors from "@/constants/Colors";
 import Button from "../button/Button";
 
 const LargeListItem: React.FC<ListItemProps> = memo(
-  ({ heading, price, location, rating, mesurementType = "qui", onPress }) => {
+  ({
+    heading,
+    price,
+    location,
+    rating,
+    mesurementType = "qui",
+    onPress,
+    buttonTitle,
+  }) => {
     const backgroundColor = useThemeColor(
       {
         light: Colors.light.cardBackground,
@@ -72,7 +80,11 @@ const LargeListItem: React.FC<ListItemProps> = memo(
               </Text>
             </View>
           </View>
-          <Button title="Buy Now" variant="primary" size="small" />
+          <Button
+            title={buttonTitle ?? "Buy Now"}
+            variant="primary"
+            size="small"
+          />
         </View>
       </Pressable>
     );

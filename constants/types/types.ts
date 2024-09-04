@@ -13,6 +13,7 @@ interface ListItemProps {
   rating?: number;
   mesurementType?: "qui" | "piece" | "packet";
   onPress?: () => void;
+  buttonTitle?: string;
 }
 
 export { Category, ListItemProps };

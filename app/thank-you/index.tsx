@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import React from "react";
 import { Image } from "expo-image";
 import { Text } from "react-native";
@@ -6,6 +6,7 @@ import Sizes from "@/constants/Sizes";
 import IconButton from "@/components/button/IconButton";
 import Colors from "@/constants/Colors";
 import { router, useLocalSearchParams } from "expo-router";
+import Button from "@/components/button/Button";
 
 const ThankYou = () => {
   const { message } = useLocalSearchParams<{ message: string }>();
@@ -27,6 +28,13 @@ const ThankYou = () => {
       <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
       <Text style={styles.heading}>Thank You</Text>
       <Text style={styles.message}>{message}</Text>
+      <Button
+        title="Continue Shopping"
+        variant="primary"
+        size="medium"
+        onPress={() => router.push("/")}
+        style={{ marginTop: Sizes.marginLarge }}
+      />
     </View>
   );
 };

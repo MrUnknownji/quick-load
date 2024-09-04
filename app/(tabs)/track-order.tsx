@@ -1,76 +1,83 @@
-import { Dimensions, StyleSheet, Text, View, ScrollView } from "react-native";
-import React, { lazy } from "react";
-import { Image } from "expo-image";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 import Sizes from "@/constants/Sizes";
+import { ListItemProps } from "@/constants/types/types";
+import { BRICKS_ITEMS, GRIT_ITEMS } from "@/assets/data/DATA";
+import LargeListItem from "@/components/list-items/LargeListItem";
 
-const { width: screnWidth } = Dimensions.get("window");
+const PENDING_ORDERS: ListItemProps[] = [BRICKS_ITEMS[0], GRIT_ITEMS[3]];
+const DELIVERED_ORDERS: ListItemProps[] = [GRIT_ITEMS[1], BRICKS_ITEMS[2]];
 
 const TrackOrder = () => {
+  const renderSectionHeader = (title: string) => (
+    <Text style={styles.sectionHeaderText}>{title}</Text>
+  );
+
+  const renderItem = ({
+    item,
+    section,
+  }: {
+    item: ListItemProps;
+    section: { title: string };
+  }) => (
+    <LargeListItem
+      {...item}
+      buttonTitle={
+        section.title === "Pending Orders" ? "Track Order" : "Delivered"
+      }
+    />
+  );
+
+  const sections = [
+    { title: "Pending Orders", data: PENDING_ORDERS },
+    { title: "Delivered Orders", data: DELIVERED_ORDERS },
+  ];
+
   return (
     <View style={styles.container}>
-      <View style={styles.cardView}>
-        <Text style={styles.cardText}>Track your route</Text>
-        <Image
-          source={require("@/assets/images/mobile-location.png")}
-          style={styles.cardImage}
-        />
+      <View style={styles.header}>
+        <Text style={styles.headingText}>Track your route</Text>
       </View>
-      <View style={{ height: Sizes.carouselHeight }}>
-        <ScrollView horizontal style={styles.vehicleContainer}>
-          {["Trailer", "Dumper", "Container"].map((item, index) => (
-            <View key={index} style={styles.vehicleItem}>
-              <Image
-                source={`https://placehold.co/200x200?text=${item}`}
-                style={styles.vehicleImage}
-              />
-              <Text style={styles.labelText}>{item}</Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+      <FlatList
+        data={sections}
+        renderItem={({ item: section }) => (
+          <View>
+            {renderSectionHeader(section.title)}
+            <FlatList
+              data={section.data}
+              renderItem={({ item }) => renderItem({ item, section })}
+              keyExtractor={(item) => item.productId}
+            />
+          </View>
+        )}
+        keyExtractor={(item) => item.title}
+      />
     </View>
   );
 };
 
-export default TrackOrder;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: Sizes.StatusBarHeight,
     marginHorizontal: Sizes.marginHorizontal,
-    alignItems: "center",
-    justifyContent: "center",
   },
-  cardView: {
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: Sizes.borderRadiusLarge,
-    padding: Sizes.paddingMedium,
-    backgroundColor: "white",
-    elevation: 3,
+  header: {
+    paddingVertical: Sizes.paddingMedium,
   },
-  cardText: {
+  headingText: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
+    textAlign: "center",
   },
-  cardImage: {
-    width: screnWidth - Sizes.marginHorizontal * 2 - Sizes.paddingMedium * 2,
-    height: 200,
-  },
-  vehicleContainer: {},
-  vehicleItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Sizes.marginSmall,
-    marginHorizontal: Sizes.marginSmall,
-  },
-  vehicleImage: {
-    width: 90,
-    height: 90,
-    borderRadius: Sizes.borderRadiusFull,
-  },
-  labelText: {
+  sectionHeaderText: {
     fontSize: Sizes.textMedium,
+    marginHorizontal: Sizes.marginSmall,
     fontWeight: "bold",
+    marginTop: Sizes.marginMedium,
+    marginBottom: Sizes.marginSmall,
   },
 });
+
+export default TrackOrder;
