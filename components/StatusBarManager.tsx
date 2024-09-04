@@ -10,6 +10,7 @@ const StatusBarManager = () => {
     switch (route) {
       case "profile":
       case "my-information":
+      case "union-support":
       case "user":
         return "light";
       default:

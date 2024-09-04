@@ -48,6 +48,14 @@ export default function RootLayout() {
             name="product-detail/[productId]"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="union-support/index"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="thank-you/index"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
       </GestureHandlerRootView>

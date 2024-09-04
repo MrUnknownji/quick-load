@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     borderRadius: Sizes.borderRadiusFull,
     paddingHorizontal: Sizes.paddingExtraSmall,
-    paddingVertical: Sizes.paddingSmall / 2,
+    paddingVertical: Sizes.paddingExtraSmall / 2,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     fontSize: Sizes.textMedium,
   },
   notificationIconContainer: {
-    padding: Sizes.paddingSmall,
+    padding: Sizes.paddingExtraSmall,
     borderRadius: Sizes.borderRadiusFull,
   },
   searchIcon: {

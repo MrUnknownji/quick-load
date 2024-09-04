@@ -38,7 +38,11 @@ const Profile = () => {
             onPress={() => router.push("/subscription")}
           />
           <SmallListItem title="Orders" iconName="cart" />
-          <SmallListItem title="Union Support" iconName="heart" />
+          <SmallListItem
+            title="Union Support"
+            iconName="heart"
+            onPress={() => router.push("/union-support")}
+          />
           <SmallListItem title="Settings" iconName="settings" />
           <SmallListItem
             title="Privacy and policy"
