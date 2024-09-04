@@ -22,7 +22,7 @@ import Animated, {
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import { EventArg } from "@react-navigation/native";
 import Create from "./create";
-import useTabChangeListener from "@/hooks/useTabChangeListener";
+import usePathChangeListener from "@/hooks/usePathChangeListener";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 
@@ -149,7 +149,7 @@ export default function TabLayout() {
   const [isCreateActive, setIsCreateActive] = useState(false);
   const translateY = useSharedValue(MIN_TRANSLATE_Y);
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
-  const { activeTab, setActiveTab } = useTabChangeListener();
+  const { activePath, setActivePath } = usePathChangeListener();
 
   useEffect(() => {
     NavigationBar.setBackgroundColorAsync(Colors.light.primary);
@@ -221,7 +221,7 @@ export default function TabLayout() {
     e: EventArg<"tabPress", true, undefined> & { target?: string },
     tabName: string
   ) {
-    setActiveTab(tabName);
+    setActivePath(tabName);
     if (isCreateActive) e.preventDefault();
   }
 
@@ -240,7 +240,7 @@ export default function TabLayout() {
               <AnimatedTabBarIcon
                 name={getIconName(route.name)}
                 color={color}
-                focused={activeTab.includes(route.name)}
+                focused={activePath.includes(route.name)}
                 label={getLabelName(route.name)}
               />
             ),

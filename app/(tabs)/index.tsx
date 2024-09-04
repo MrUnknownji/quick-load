@@ -14,7 +14,7 @@ import {
 import SearchHeader from "@/components/input-fields/SearchHeader";
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
-import useTabChangeListener from "@/hooks/useTabChangeListener";
+import usePathChangeListener from "@/hooks/usePathChangeListener";
 import { Colors } from "@/constants/Colors";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import {
@@ -59,7 +59,7 @@ export default function HomeScreen() {
       .fill(0)
       .map(() => new Animated.Value(0))
   ).current;
-  const { activeTab } = useTabChangeListener();
+  const { activePath } = usePathChangeListener();
 
   const resetAnimations = () => {
     heroScaleAnim.setValue(0.9);
@@ -108,11 +108,11 @@ export default function HomeScreen() {
   };
 
   useEffect(() => {
-    if (activeTab === "index") {
+    if (activePath === "index") {
       resetAnimations();
       playAnimations();
     }
-  }, [activeTab]);
+  }, [activePath]);
 
   const handleCategoryPress = (category: Category) => {
     if (selectedCategory !== category.name) {
