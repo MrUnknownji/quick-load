@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -5,10 +6,10 @@ import {
   StyleSheet,
   Text,
   View,
+  TextInput,
+  LayoutAnimation,
 } from "react-native";
-import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { ListItemProps } from "@/constants/types/types";
 import {
   BRICKS_ITEMS,
   BAJRI_ITEMS,
@@ -22,8 +23,8 @@ import Sizes from "@/constants/Sizes";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import LargeImageView from "@/components/image-views/LargeImageView";
-import { Image } from "expo-image";
 import Button from "@/components/button/Button";
+import { ListItemProps } from "@/constants/types/types";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
@@ -31,104 +32,85 @@ const ProductDetailPage = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
   const [product, setProduct] = useState<ListItemProps | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPricingVisible, setIsPricingVisible] = useState(false);
 
   useEffect(() => {
     const fetchProduct = () => {
-      if (productId.includes("bricks")) {
-        const product = BRICKS_ITEMS.find((p) => p.productId === productId);
-        if (product) {
-          setProduct(product);
-          setLoading(false);
-        }
-      } else if (productId.includes("bajri")) {
-        const product = BAJRI_ITEMS.find((p) => p.productId === productId);
-        if (product) {
-          setProduct(product);
-          setLoading(false);
-        }
-      } else if (productId.includes("grit")) {
-        const product = GRIT_ITEMS.find((p) => p.productId === productId);
-        if (product) {
-          setProduct(product);
-          setLoading(false);
-        }
-      } else if (productId.includes("cement")) {
-        const product = CEMENT_ITEMS.find((p) => p.productId === productId);
-        if (product) {
-          setProduct(product);
-          setLoading(false);
-        }
-      } else if (productId.includes("sand")) {
-        const product = SAND_ITEMS.find((p) => p.productId === productId);
-        if (product) {
-          setProduct(product);
-          setLoading(false);
-        }
+      const productListMap = {
+        bricks: BRICKS_ITEMS,
+        bajri: BAJRI_ITEMS,
+        grit: GRIT_ITEMS,
+        cement: CEMENT_ITEMS,
+        sand: SAND_ITEMS,
+      };
+
+      type ProductCategory = keyof typeof productListMap;
+
+      const productCategory = Object.keys(productListMap).find((key) =>
+        productId.includes(key)
+      ) as ProductCategory | undefined;
+
+      if (productCategory) {
+        const foundProduct = productListMap[productCategory].find(
+          (p: ListItemProps) => p.productId === productId
+        );
+        setProduct(foundProduct ?? null);
       }
+      setLoading(false);
     };
+
     fetchProduct();
   }, [productId]);
 
+  const togglePricingVisibility = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsPricingVisible(!isPricingVisible);
+  };
+
   if (loading)
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <CenteredContainer>
         <ActivityIndicator size="large" />
-      </View>
+      </CenteredContainer>
     );
 
   if (!product)
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <CenteredContainer>
         <Text style={styles.errorText}>Product not found</Text>
-      </View>
+      </CenteredContainer>
     );
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.productHeadingContainer}>
-        <IconButton
-          iconName="chevron-back"
-          size="small"
-          variant="primary"
-          style={{
-            position: "absolute",
-            left: 20,
-            borderRadius: Sizes.borderRadiusFull,
-            top: 5,
-          }}
-          onPress={() => router.back()}
-        />
-        <Text style={styles.productHeading}>{product?.heading}</Text>
-      </View>
-      <View style={styles.productContainer}>
-        <LargeImageView
-          imageUrl={product?.imageUrl}
-          style={{ marginHorizontal: 0 }}
-        />
-        <View style={styles.productDetailContainer}>
-          <Text style={styles.productDescription}>
-            {product?.productDescription}
-          </Text>
-          <View style={styles.productFeaturesCard}>
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-              }}
-            >
-              <Text style={styles.featureCardHeading}>Our Features</Text>
-              <Text style={styles.featureCardPrice}>
-                {product?.price}
-                <Text style={styles.perPieceText}>/piece</Text>
-              </Text>
+      <ProductHeader heading={product.heading} />
+      <FlatList
+        style={{ flex: 1 }}
+        data={[
+          () => (
+            <View style={styles.productContainer}>
+              <LargeImageView
+                imageUrl={product.imageUrl}
+                style={{ marginHorizontal: 0 }}
+              />
+              {!isPricingVisible && (
+                <>
+                  <Text style={styles.productDescription}>
+                    {product.productDescription}
+                  </Text>
+                  <ProductFeaturesCard price={product.price} />
+                </>
+              )}
             </View>
-            <FlatList data={FEATURES} renderItem={renderFeatureItem} />
-          </View>
-        </View>
-      </View>
+          ),
+        ]}
+        renderItem={({ item }) => item()}
+        ListFooterComponent={
+          isPricingVisible ? <PricingCard item={product} /> : null
+        }
+      />
       <Button
-        title="Buy Now"
+        title={isPricingVisible ? "Book Order" : "Buy Now"}
         variant="primary"
         size="medium"
         style={{
@@ -137,24 +119,166 @@ const ProductDetailPage = () => {
           marginHorizontal: Sizes.marginHorizontal,
           width: screenWidth - Sizes.marginHorizontal * 2,
         }}
+        onPress={() => {
+          if (isPricingVisible) router.push("/");
+          togglePricingVisibility();
+        }}
       />
     </View>
   );
 };
 
-const renderFeatureItem = ({ item }: { item: string }) => {
+const ProductHeader = ({ heading }: { heading: string }) => (
+  <View style={styles.productHeadingContainer}>
+    <IconButton
+      iconName="chevron-back"
+      size="small"
+      variant="primary"
+      style={{
+        position: "absolute",
+        left: 20,
+        borderRadius: Sizes.borderRadiusFull,
+        top: 5,
+      }}
+      onPress={() => router.back()}
+    />
+    <Text style={styles.productHeading}>{heading}</Text>
+  </View>
+);
+
+const CenteredContainer = ({ children }: { children: React.ReactNode }) => (
+  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    {children}
+  </View>
+);
+
+const ProductFeaturesCard = ({ price }: { price?: number }) => (
+  <View style={styles.productFeaturesCard}>
+    <View
+      style={{ alignItems: "center", justifyContent: "center", width: "100%" }}
+    >
+      <Text style={styles.featureCardHeading}>Our Features</Text>
+      <Text style={styles.featureCardPrice}>
+        {price}
+        <Text style={styles.perPieceText}>/piece</Text>
+      </Text>
+    </View>
+    <FlatList data={FEATURES} renderItem={renderFeatureItem} />
+  </View>
+);
+
+const renderFeatureItem = ({ item }: { item: string }) => (
+  <View style={styles.featureItem}>
+    <Ionicons
+      name="checkmark-circle"
+      size={Sizes.icon.small}
+      color={Colors.light.primary}
+    />
+    <Text style={styles.featureText}>{item}</Text>
+  </View>
+);
+
+const PricingCard = ({ item }: { item: ListItemProps }) => {
+  const [quantity, setQuantity] = useState(0);
+  const totalPrice = quantity * (item.price ?? 0);
+  const discount = totalPrice * 0.1;
+
   return (
-    <View style={styles.featureItem}>
-      <Ionicons
-        name="checkmark-circle"
-        size={Sizes.icon["small"]}
-        color={Colors.light.primary}
-      />
-      <Text style={styles.featureText}>{item}</Text>
+    <View style={styles2.pricingCard}>
+      <Text style={styles2.pricingCardHeading}>Pricing</Text>
+      <PricingCardItem label="Piece">
+        <TextInput
+          style={styles2.piecesInput}
+          placeholder="Qty"
+          keyboardType="number-pad"
+          onChange={(e) => setQuantity(Number(e.nativeEvent.text))}
+        />
+      </PricingCardItem>
+      <PricingCardItem label="Price/piece">
+        <Text style={styles2.perPiecePriceText}>Rs. {item.price}</Text>
+      </PricingCardItem>
+      <PricingCardItem label="Offer" offer>
+        <Text style={styles2.offerText}>Rs. {discount}</Text>
+      </PricingCardItem>
+      <PricingCardItem label="Total">
+        <Text style={styles2.totalPrice}>Rs. {totalPrice - discount}</Text>
+      </PricingCardItem>
     </View>
   );
 };
-export default ProductDetailPage;
+
+const PricingCardItem = ({
+  label,
+  children,
+  offer,
+}: {
+  label: string;
+  children: React.ReactNode;
+  offer?: boolean;
+}) => (
+  <View style={styles2.pricingCardListItem}>
+    <Text style={styles2.pricingCardListItemText}>
+      {label}
+      {offer && (
+        <Text style={styles2.offerDetailText}>(10% off on first Order)</Text>
+      )}
+    </Text>
+    {children}
+  </View>
+);
+
+const styles2 = StyleSheet.create({
+  pricingCard: {
+    marginVertical: Sizes.marginVertical,
+    padding: Sizes.paddingMedium,
+    backgroundColor: "white",
+    borderRadius: Sizes.borderRadiusLarge,
+    elevation: 3,
+    gap: Sizes.marginExtraSmall,
+    marginHorizontal: Sizes.marginHorizontal,
+  },
+  pricingCardHeading: {
+    fontSize: Sizes.textLarge,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  pricingCardListItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Sizes.marginSmall,
+    width: "100%",
+  },
+  pricingCardListItemText: {
+    fontSize: Sizes.textMedium,
+    fontWeight: "bold",
+  },
+  piecesInput: {
+    paddingHorizontal: Sizes.paddingSmall,
+    fontWeight: "bold",
+    width: "auto",
+    minWidth: 50,
+    borderColor: Colors.light.border,
+    borderWidth: 0.5,
+    borderRadius: Sizes.borderRadiusLarge,
+  },
+  perPiecePriceText: {
+    fontSize: Sizes.textMedium,
+    fontWeight: "bold",
+  },
+  offerDetailText: {
+    fontSize: Sizes.textSmall,
+    fontWeight: "normal",
+  },
+  offerText: {
+    fontSize: Sizes.textMedium,
+    fontWeight: "bold",
+  },
+  totalPrice: {
+    fontSize: Sizes.textLarge,
+    fontWeight: "bold",
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -171,55 +295,50 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   productContainer: {
-    marginTop: Sizes.marginLarge,
-    marginHorizontal: Sizes.marginHorizontal,
-  },
-  productImage: {
-    width: screenWidth,
-    height: 200,
-    borderRadius: Sizes.borderRadiusLarge,
-  },
-  productDetailContainer: {
     marginTop: Sizes.marginMedium,
-    gap: Sizes.marginLarge,
+    marginHorizontal: Sizes.marginHorizontal,
+    gap: Sizes.marginMedium,
   },
   productDescription: {
-    fontSize: Sizes.textMedium,
-    fontWeight: "normal",
+    textAlign: "justify",
+    marginHorizontal: Sizes.marginExtraSmall,
   },
   productFeaturesCard: {
-    marginTop: Sizes.marginMedium,
+    marginBottom: Sizes.marginVertical,
     padding: Sizes.paddingMedium,
     backgroundColor: "white",
     borderRadius: Sizes.borderRadiusLarge,
     elevation: 3,
-    gap: Sizes.marginSmall,
   },
   featureCardHeading: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
+    textAlign: "center",
   },
   featureCardPrice: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
+    color: Colors.light.primary,
   },
   perPieceText: {
     fontSize: Sizes.textSmall,
     fontWeight: "normal",
+    color: Colors.light.text,
   },
   featureItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Sizes.marginSmall,
-    width: "100%",
+    gap: Sizes.marginExtraSmall,
+    paddingVertical: Sizes.paddingExtraSmall,
   },
   featureText: {
-    fontSize: Sizes.textSmall,
+    fontSize: Sizes.textMedium,
     fontWeight: "normal",
   },
   errorText: {
-    fontSize: Sizes.textSmall,
-    color: Colors.light.error,
-    marginTop: Sizes.marginSmall,
+    fontSize: Sizes.textLarge,
+    fontWeight: "bold",
   },
 });
+
+export default ProductDetailPage;
