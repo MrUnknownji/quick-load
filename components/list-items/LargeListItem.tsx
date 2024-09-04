@@ -9,7 +9,7 @@ import Colors from "@/constants/Colors";
 import Button from "../button/Button";
 
 const LargeListItem: React.FC<ListItemProps> = memo(
-  ({ heading, price, location, rating, mesurementType = "qui" }) => {
+  ({ heading, price, location, rating, mesurementType = "qui", onPress }) => {
     const backgroundColor = useThemeColor(
       {
         light: Colors.light.cardBackground,
@@ -31,7 +31,10 @@ const LargeListItem: React.FC<ListItemProps> = memo(
     );
 
     return (
-      <View style={[styles.container, { backgroundColor, shadowColor }]}>
+      <Pressable
+        onPress={onPress}
+        style={[styles.container, { backgroundColor, shadowColor }]}
+      >
         <View style={styles.imageContainer}>
           <Image
             source={`https://placehold.co/150x150?text=${heading}`}
@@ -71,7 +74,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
           </View>
           <Button title="Buy Now" variant="primary" size="small" />
         </View>
-      </View>
+      </Pressable>
     );
   }
 );

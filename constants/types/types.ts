@@ -4,11 +4,15 @@ interface Category {
 }
 
 interface ListItemProps {
-  heading?: string;
+  productId: string;
+  heading: string;
+  productDescription: string;
   price?: number;
   location?: string;
+  imageUrl: string;
   rating?: number;
   mesurementType?: "qui" | "piece" | "packet";
+  onPress?: () => void;
 }
 
 export { Category, ListItemProps };

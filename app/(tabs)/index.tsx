@@ -19,7 +19,7 @@ import { Colors } from "@/constants/Colors";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import {
   CATEGORIES,
-  BRICK_ITEMS,
+  BRICKS_ITEMS,
   BAJRI_ITEMS,
   GRIT_ITEMS,
   CEMENT_ITEMS,
@@ -30,11 +30,12 @@ import { useTheme } from "@react-navigation/native";
 import Sizes from "@/constants/Sizes";
 import ImageCarousel from "@/components/image-views/ImageCarousel";
 import LargeImageView from "@/components/image-views/LargeImageView";
+import { router } from "expo-router";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const MAX_ITEMS = Math.max(
-  BRICK_ITEMS.length,
+  BRICKS_ITEMS.length,
   BAJRI_ITEMS.length,
   GRIT_ITEMS.length,
   CEMENT_ITEMS.length,
@@ -146,6 +147,12 @@ export default function HomeScreen() {
       >
         <LargeListItem
           {...item}
+          onPress={() =>
+            router.push({
+              pathname: "/product-detail/[productId]",
+              params: { productId: item.productId },
+            })
+          }
           mesurementType={getMeasurementType(selectedCategory)}
         />
       </Animated.ScrollView>
@@ -217,7 +224,7 @@ export default function HomeScreen() {
             />
           )}
           <View style={styles.itemsContainer}>
-            {selectedCategory === "Bricks" && renderCategoryItems(BRICK_ITEMS)}
+            {selectedCategory === "Bricks" && renderCategoryItems(BRICKS_ITEMS)}
             {selectedCategory === "Bajri" && renderCategoryItems(BAJRI_ITEMS)}
             {selectedCategory === "Grit" && renderCategoryItems(GRIT_ITEMS)}
             {selectedCategory === "Cement" && renderCategoryItems(CEMENT_ITEMS)}

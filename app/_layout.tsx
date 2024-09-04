@@ -44,6 +44,10 @@ export default function RootLayout() {
             name="subscription/index"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="product-detail/[productId]"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
       </GestureHandlerRootView>
