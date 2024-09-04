@@ -183,6 +183,11 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
   const totalPrice = quantity * (item.price ?? 0);
   const discount = totalPrice * 0.1;
 
+  const handleQuantityChange = (input: string) => {
+    const sanitizedInput = input.replace(/[^0-9]/g, "");
+    setQuantity(Number(sanitizedInput));
+  };
+
   return (
     <View style={styles2.pricingCard}>
       <Text style={styles2.pricingCardHeading}>Pricing</Text>
@@ -190,8 +195,9 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
         <TextInput
           style={styles2.piecesInput}
           placeholder="Qty"
+          value={quantity > 0 ? quantity.toString() : ""}
           keyboardType="number-pad"
-          onChange={(e) => setQuantity(Number(e.nativeEvent.text))}
+          onChange={(e) => handleQuantityChange(e.nativeEvent.text)}
         />
       </PricingCardItem>
       <PricingCardItem label="Price/piece">
