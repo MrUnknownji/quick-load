@@ -1,4 +1,8 @@
+import Sizes from "@/constants/Sizes";
 import { Category } from "@/constants/types/types";
+import { Dimensions } from "react-native";
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const CATEGORIES: Category[] = [
   { name: "Bricks", url: "https://placehold.co/200x200?text=Bricks" },
@@ -42,6 +46,29 @@ const SAND_ITEMS = [
   { heading: "50mm", price: 50, location: "Indore, India", rating: 4.1 },
 ];
 
+const CAROUSEL_IMAGES = [
+  {
+    uri: `https://placehold.co/${
+      screenWidth - Sizes.marginHorizontal * 2
+    }x${200}?text=Hero+Image+1`,
+  },
+  {
+    uri: `https://placehold.co/${
+      screenWidth - Sizes.marginHorizontal * 2
+    }x${200}?text=Hero+Image+2`,
+  },
+  {
+    uri: `https://placehold.co/${
+      screenWidth - Sizes.marginHorizontal * 2
+    }x${200}?text=Hero+Image+3`,
+  },
+  {
+    uri: `https://placehold.co/${
+      screenWidth - Sizes.marginHorizontal * 2
+    }x${200}?text=Hero+Image+4`,
+  },
+];
+
 export {
   CATEGORIES,
   BRICK_ITEMS,
@@ -49,4 +76,5 @@ export {
   GRIT_ITEMS,
   CEMENT_ITEMS,
   SAND_ITEMS,
+  CAROUSEL_IMAGES,
 };

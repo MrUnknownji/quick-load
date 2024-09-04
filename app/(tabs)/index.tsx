@@ -28,6 +28,8 @@ import {
 import { Category, ListItemProps } from "@/constants/types/types";
 import { useTheme } from "@react-navigation/native";
 import Sizes from "@/constants/Sizes";
+import ImageCarousel from "@/components/image-views/ImageCarousel";
+import LargeImageView from "@/components/image-views/LargeImageView";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -172,13 +174,7 @@ export default function HomeScreen() {
               { transform: [{ scale: heroScaleAnim }] },
             ]}
           >
-            <Image
-              source={`https://placehold.co/${
-                SCREEN_WIDTH - Sizes.marginHorizontal * 2
-              }x200?text=Hero+Image`}
-              style={styles.heroImage}
-              contentFit="cover"
-            />
+            <ImageCarousel />
           </Animated.View>
         )}
         <Animated.ScrollView
@@ -212,20 +208,13 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <SafeAreaView>
           {selectedCategory === "" && (
-            <Animated.View
-              style={[
-                styles.fastDeliveryContainer,
-                { transform: [{ scale: fastDeliveryScaleAnim }] },
-              ]}
-            >
-              <Image
-                source={`https://placehold.co/${
-                  SCREEN_WIDTH - 40
-                }x200?text=Fast-delivery`}
-                style={styles.fastDeliveryImage}
-                contentFit="cover"
-              />
-            </Animated.View>
+            <LargeImageView
+              animationValue={fastDeliveryScaleAnim}
+              imageUrl={`https://placehold.co/${
+                SCREEN_WIDTH - Sizes.marginHorizontal * 2
+              }x200?text=Fast-delivery`}
+              style={{ elevation: 3 }}
+            />
           )}
           <View style={styles.itemsContainer}>
             {selectedCategory === "Bricks" && renderCategoryItems(BRICK_ITEMS)}
@@ -284,18 +273,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     marginVertical: 4,
-  },
-  fastDeliveryContainer: {
-    marginVertical: Sizes.marginVertical,
-    marginHorizontal: Sizes.marginHorizontal,
-    height: Sizes.carouselHeight,
-    borderRadius: Sizes.borderRadiusLarge,
-    overflow: "hidden",
-    elevation: 3,
-  },
-  fastDeliveryImage: {
-    width: "100%",
-    height: "100%",
   },
   bricksContainer: {
     marginTop: Sizes.marginLarge,

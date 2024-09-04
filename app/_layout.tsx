@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import StatusBarManager from "@/components/StatusBarManager";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,9 +32,18 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <StatusBarManager />
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="my-information/[userId]"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="subscription/index"
+            options={{ headerShown: false }}
+          />
           <Stack.Screen name="+not-found" />
         </Stack>
       </GestureHandlerRootView>

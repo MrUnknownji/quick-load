@@ -1,29 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { usePathname } from "expo-router";
 
 const useTabChangeListener = () => {
   const [activeTab, setActiveTab] = useState<string>("index");
-  const navigation = useNavigation();
-
-  const handleTabPress = useCallback(
-    (e: { data: { state: { routes: { name: string }[]; index: number } } }) => {
-      const { state } = e.data;
-      const tabName = state.routes[state.index].name;
-
-      if (tabName !== "(tabs)") {
-        setActiveTab(tabName);
-      }
-    },
-    []
-  );
+  const pathname = usePathname();
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("state", handleTabPress);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [navigation, handleTabPress]);
+    const tabName = pathname.split("/").pop() || "index";
+    setActiveTab(tabName);
+  }, [pathname]);
 
   return { activeTab, setActiveTab };
 };

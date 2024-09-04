@@ -6,6 +6,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import Sizes from "@/constants/Sizes";
 import { ListItemProps } from "@/constants/types/types";
 import Colors from "@/constants/Colors";
+import Button from "../button/Button";
 
 const LargeListItem: React.FC<ListItemProps> = memo(
   ({ heading, price, location, rating, mesurementType = "qui" }) => {
@@ -50,7 +51,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
             <View style={styles.infoContainer}>
               <MaterialIcons
                 name="location-on"
-                size={Sizes.iconExtraSmall}
+                size={Sizes.icon["extraSmall"]}
                 color={textColor}
               />
               <Text style={[styles.infoText, { color: textColor }]}>
@@ -60,7 +61,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
             <View style={styles.infoContainer}>
               <MaterialIcons
                 name="star"
-                size={Sizes.iconExtraSmall}
+                size={Sizes.icon["extraSmall"]}
                 color={primaryColor}
               />
               <Text style={[styles.infoText, { color: textColor }]}>
@@ -68,11 +69,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
               </Text>
             </View>
           </View>
-          <Pressable
-            style={[styles.buyNowButton, { backgroundColor: primaryColor }]}
-          >
-            <Text style={styles.buttonText}>Buy Now</Text>
-          </Pressable>
+          <Button title="Buy Now" variant="primary" size="small" />
         </View>
       </View>
     );
@@ -129,16 +126,5 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: Sizes.textSmall,
     marginLeft: Sizes.marginSmall,
-  },
-  buyNowButton: {
-    paddingVertical: Sizes.paddingSmall,
-    borderRadius: Sizes.borderRadiusFull,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Sizes.marginSmall,
-  },
-  buttonText: {
-    color: Colors.light.background,
-    fontWeight: "bold",
   },
 });

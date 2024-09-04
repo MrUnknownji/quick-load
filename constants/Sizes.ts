@@ -1,3 +1,5 @@
+import { Platform, StatusBar } from "react-native";
+
 const Sizes = {
   // Margins
   marginHorizontal: 16,
@@ -22,12 +24,14 @@ const Sizes = {
   borderRadiusLarge: 25,
   borderRadiusFull: 50,
 
-  // Icon Sizes
-  iconExtraSmall: 16,
-  iconSmall: 24,
-  iconMedium: 32,
-  iconLarge: 48,
-  iconExtraLarge: 64,
+  // Adding as an object to be used in IconButton
+  icon: {
+    extraSmall: 16,
+    small: 24,
+    medium: 32,
+    large: 48,
+    extraLarge: 64,
+  },
 
   // Text Sizes
   textSmall: 12,
@@ -70,6 +74,9 @@ const Sizes = {
   tabLabelMaxWidth: 60,
   bottomSheetLineWidth: 75,
   bottomSheetLineHeight: 4,
+
+  // StatusBar
+  StatusBarHeight: Platform.OS === "android" ? StatusBar.currentHeight : 0,
 };
 
 export default Sizes;

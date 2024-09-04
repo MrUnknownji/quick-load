@@ -22,7 +22,6 @@ import Animated, {
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import { EventArg } from "@react-navigation/native";
 import Create from "./create";
-import { StatusBar as StatusBarExpo } from "expo-status-bar";
 import useTabChangeListener from "@/hooks/useTabChangeListener";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
@@ -66,7 +65,7 @@ function RotatingIcon({ focused }: { focused: boolean }) {
       <Ionicons
         name="add-circle"
         color={Colors.light.backgroundSecondary}
-        size={Sizes.iconExtraLarge}
+        size={Sizes.icon["extraLarge"]}
       />
     </Animated.View>
   );
@@ -104,7 +103,7 @@ function AnimatedTabBarIcon({
         <MaterialCommunityIcons
           name={focused ? name : (`${name}-outline` as IconName)}
           color={color}
-          size={Sizes.iconMedium}
+          size={Sizes.icon["medium"]}
         />
       </Animated.View>
       <AnimatedTabBarLabel label={label} color={color} focused={focused} />
@@ -218,9 +217,16 @@ export default function TabLayout() {
     }
   };
 
+  function preventTabPress(
+    e: EventArg<"tabPress", true, undefined> & { target?: string },
+    tabName: string
+  ) {
+    setActiveTab(tabName);
+    if (isCreateActive) e.preventDefault();
+  }
+
   return (
     <>
-      <StatusBarExpo style="auto" />
       <Tabs
         screenOptions={({ route }) => ({
           tabBarActiveTintColor: Colors.light.backgroundSecondary,
@@ -246,17 +252,23 @@ export default function TabLayout() {
               : undefined,
         })}
       >
-        <Tabs.Screen name="index" listeners={{ tabPress: preventTabPress }} />
         <Tabs.Screen
-          name="transport"
-          listeners={{ tabPress: preventTabPress }}
+          name="index"
+          listeners={{ tabPress: (e) => preventTabPress(e, "index") }}
+        />
+        <Tabs.Screen
+          name="track-order"
+          listeners={{ tabPress: (e) => preventTabPress(e, "track-order") }}
         />
         <Tabs.Screen name="create" options={{ tabBarShowLabel: false }} />
         <Tabs.Screen
           name="contact-us"
-          listeners={{ tabPress: preventTabPress }}
+          listeners={{ tabPress: (e) => preventTabPress(e, "contact-us") }}
         />
-        <Tabs.Screen name="profile" listeners={{ tabPress: preventTabPress }} />
+        <Tabs.Screen
+          name="profile"
+          listeners={{ tabPress: (e) => preventTabPress(e, "profile") }}
+        />
       </Tabs>
       <GestureDetector gesture={gesture}>
         <Animated.View style={[styles.createScreen, rBottomSheetStyle]}>
@@ -268,13 +280,6 @@ export default function TabLayout() {
       </GestureDetector>
     </>
   );
-
-  function preventTabPress(
-    e: EventArg<"tabPress", true, undefined> & { target?: string }
-  ) {
-    if (isCreateActive) e.preventDefault();
-    else if (e.target) setActiveTab(e.target);
-  }
 }
 
 const styles = StyleSheet.create({
@@ -333,7 +338,7 @@ function getIconName(routeName: string): IconName {
   switch (routeName) {
     case "index":
       return "home";
-    case "transport":
+    case "track-order":
       return "truck";
     case "contact-us":
       return "phone";
@@ -348,8 +353,8 @@ function getLabelName(routeName: string): string {
   switch (routeName) {
     case "index":
       return "Home";
-    case "transport":
-      return "Transport";
+    case "track-order":
+      return "Track Order";
     case "contact-us":
       return "Contact Us";
     case "profile":

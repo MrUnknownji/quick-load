@@ -1,16 +1,9 @@
 import React from "react";
-import {
-  Platform,
-  StatusBar,
-  StyleSheet,
-  TextInput,
-  TouchableNativeFeedback,
-  View,
-} from "react-native";
-import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { Platform, StatusBar, StyleSheet, TextInput, View } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
+import IconButton from "../button/IconButton";
 
 const SearchHeader = ({
   isPaddingNeeded = true,
@@ -40,10 +33,6 @@ const SearchHeader = ({
     { light: Colors.light.icon, dark: Colors.dark.icon },
     "icon"
   );
-  const notificationIconColor = useThemeColor(
-    { light: Colors.light.primary, dark: Colors.dark.primary },
-    "primary"
-  );
 
   return (
     <View
@@ -67,36 +56,36 @@ const SearchHeader = ({
           },
         ]}
       >
-        <FontAwesome
-          name="search"
-          size={Sizes.iconSmall}
-          style={[styles.searchIcon, { color: iconColor }]}
+        <IconButton
+          iconName="search"
+          iconLibrary="FontAwesome"
+          iconStyle={{ color: iconColor }}
+          size="small"
+          style={[styles.searchIcon]}
+          variant="transparent"
         />
         <TextInput
           placeholder="Search"
           placeholderTextColor={iconColor}
           style={[styles.searchInput, { color: textColor }]}
         />
-        <FontAwesome
-          name="microphone"
-          size={Sizes.iconSmall}
-          style={[styles.microphoneIcon, { color: iconColor }]}
+        <IconButton
+          iconName="microphone"
+          iconLibrary="FontAwesome"
+          iconStyle={{ color: iconColor }}
+          size="small"
+          style={[styles.microphoneIcon]}
+          variant="transparent"
         />
       </View>
-      <TouchableNativeFeedback onPress={() => console.log("Notification")}>
-        <View
-          style={[
-            styles.notificationIconContainer,
-            { backgroundColor: notificationIconColor },
-          ]}
-        >
-          <MaterialIcons
-            name="notifications"
-            size={Sizes.iconMedium}
-            color={Colors.light.background}
-          />
-        </View>
-      </TouchableNativeFeedback>
+      <IconButton
+        iconName="notifications"
+        iconLibrary="MaterialIcons"
+        iconStyle={{ color: Colors.light.background }}
+        size="medium"
+        style={[styles.notificationIconContainer]}
+        variant="primary"
+      />
     </View>
   );
 };

@@ -25,6 +25,9 @@ export const Colors = {
     warning: "#FFC107", // Warning color for alerts, etc.
     error: "#D32F2F", // Error color for errors and failures
     success: "#388E3C", // Success color for confirmations, etc.
+    disabled: "#E0E0E0", // Disabled color for disabled elements
+    disabledText: "#9BA1A6", // Disabled text color for disabled elements
+    disabledBackground: "#E0E0E0", // Disabled background color for disabled elements
   },
   dark: {
     text: "#ECEDEE", // Primary text color in dark mode
@@ -45,6 +48,9 @@ export const Colors = {
     warning: "#FFC107", // Warning color in dark mode
     error: "#D32F2F", // Error color in dark mode
     success: "#388E3C", // Success color in dark mode
+    disabled: "#3A3A3A", // Disabled color in dark mode
+    disabledText: "#687076", // Disabled text color in dark mode
+    disabledBackground: "#3A3A3A", // Disabled background color in dark mode
   },
 };
 
