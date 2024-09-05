@@ -1,10 +1,12 @@
-import React, { memo, useState } from "react";
+import React, { memo, useState, useCallback } from "react";
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   FlatList,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import {
   FontAwesome,
@@ -14,6 +16,12 @@ import {
 } from "@expo/vector-icons";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
+
+type IconType =
+  | "Ionicons"
+  | "MaterialIcons"
+  | "FontAwesome"
+  | "MaterialCommunityIcons";
 
 interface SelectListProps {
   options: string[];
@@ -29,42 +37,71 @@ interface SelectListProps {
     | keyof typeof MaterialIcons.glyphMap
     | keyof typeof FontAwesome.glyphMap
     | keyof typeof MaterialCommunityIcons.glyphMap;
-  iconType?:
-    | "Ionicons"
-    | "MaterialIcons"
-    | "FontAwesome"
-    | "MaterialCommunityIcons";
+  iconType?: IconType;
+  containerStyle?: ViewStyle;
+  selectBoxStyle?: ViewStyle;
+  dropdownStyle?: ViewStyle;
+  optionStyle?: ViewStyle;
+  labelStyle?: TextStyle;
+  selectedTextStyle?: TextStyle;
+  optionTextStyle?: TextStyle;
+  errorTextStyle?: TextStyle;
+  defaultText?: string;
+  initialSelectedOption?: string;
 }
 
-const SelectList = ({
+const SelectList: React.FC<SelectListProps> = ({
   options,
   label,
-  selectedOption,
+  selectedOption: propSelectedOption,
   onSelect,
   placeholder,
   error,
   accessibleLabel,
-  iconName = "help",
+  iconName,
   iconType = "Ionicons",
-  disabled = true,
-}: SelectListProps) => {
+  disabled = false,
+  containerStyle,
+  selectBoxStyle,
+  dropdownStyle,
+  optionStyle,
+  labelStyle,
+  selectedTextStyle,
+  optionTextStyle,
+  errorTextStyle,
+  defaultText = "Select an option",
+  initialSelectedOption,
+}) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(
+    initialSelectedOption || propSelectedOption
+  );
 
-  const IconComponent = {
-    Ionicons,
-    MaterialIcons,
-    FontAwesome,
-    MaterialCommunityIcons,
-  }[iconType];
+  const IconComponent = iconName
+    ? {
+        Ionicons,
+        MaterialIcons,
+        FontAwesome,
+        MaterialCommunityIcons,
+      }[iconType]
+    : null;
 
-  const handleSelect = (option: string) => {
-    setIsDropdownVisible(false);
-    onSelect?.(option);
-  };
+  const handleSelect = useCallback(
+    (option: string) => {
+      setIsDropdownVisible(false);
+      setSelectedOption(option);
+      onSelect?.(option);
+    },
+    [onSelect]
+  );
+
+  const toggleDropdown = useCallback(() => {
+    setIsDropdownVisible((prev) => !prev);
+  }, []);
 
   return (
-    <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+    <View style={[styles.container, containerStyle]}>
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <TouchableOpacity
         style={[
           styles.selectBox,
@@ -74,45 +111,46 @@ const SelectList = ({
               ? Colors.light.disabled
               : Colors.light.primary,
           },
+          selectBoxStyle,
         ]}
-        onPress={() => setIsDropdownVisible(!isDropdownVisible)}
+        onPress={toggleDropdown}
         accessibilityLabel={accessibleLabel || placeholder}
         disabled={disabled}
       >
-        {iconName && (
+        {IconComponent && iconName && (
           <IconComponent
             name={iconName as never}
-            size={Sizes.icon["small"]}
+            size={Sizes.icon.small}
             color={Colors.light.primary}
             style={styles.icon}
           />
         )}
-        <Text style={styles.selectedText}>
-          {selectedOption || placeholder || "Select an option"}
+        <Text style={[styles.selectedText, selectedTextStyle]}>
+          {selectedOption || placeholder || defaultText}
         </Text>
         <Ionicons
           name={isDropdownVisible ? "chevron-up" : "chevron-down"}
-          size={Sizes.icon["small"]}
+          size={Sizes.icon.small}
           color={Colors.light.primary}
         />
       </TouchableOpacity>
       {isDropdownVisible && (
-        <View style={styles.dropdown}>
+        <View style={[styles.dropdown, dropdownStyle]}>
           <FlatList
             data={options}
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
               <TouchableOpacity
-                style={styles.option}
+                style={[styles.option, optionStyle]}
                 onPress={() => handleSelect(item)}
               >
-                <Text style={styles.optionText}>{item}</Text>
+                <Text style={[styles.optionText, optionTextStyle]}>{item}</Text>
               </TouchableOpacity>
             )}
           />
         </View>
       )}
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={[styles.errorText, errorTextStyle]}>{error}</Text>}
     </View>
   );
 };
@@ -121,6 +159,7 @@ export default memo(SelectList);
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,
   },
@@ -152,11 +191,16 @@ const styles = StyleSheet.create({
     marginRight: Sizes.marginSmall,
   },
   dropdown: {
-    marginTop: Sizes.marginSmall,
     borderWidth: 0.5,
     borderColor: Colors.light.border,
     borderRadius: Sizes.borderRadiusSmall,
     backgroundColor: Colors.light.background,
+    marginTop: Sizes.marginSmall,
+    maxHeight: 200,
+    position: "absolute",
+    top: "110%",
+    zIndex: 1,
+    width: "100%",
   },
   option: {
     paddingVertical: Sizes.paddingSmall,

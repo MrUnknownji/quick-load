@@ -1,12 +1,20 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 
 const Create = () => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <TouchableOpacity onPress={() => console.log("Drivers")}>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/find-route",
+              params: { userType: "driver" },
+            })
+          }
+        >
           <Image
             style={styles.image}
             source="https://placehold.co/200x200?text=Driver"
@@ -15,7 +23,14 @@ const Create = () => {
         <Text style={styles.labelText}>Find Load(For Driver)</Text>
       </View>
       <View style={styles.imageContainer}>
-        <TouchableOpacity onPress={() => console.log("Customers")}>
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/find-route",
+              params: { userType: "customer" },
+            })
+          }
+        >
           <Image
             style={styles.image}
             source="https://placehold.co/200x200?text=Customer"

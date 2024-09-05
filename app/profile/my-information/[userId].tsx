@@ -48,7 +48,6 @@ const UserInformationPage: React.FC = () => {
     aadhaarCardFile: undefined as CustomFile | undefined,
   });
 
-  const [keyboardHeight, setKeyboardHeight] = useState(200);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -224,7 +223,7 @@ const UserInformationPage: React.FC = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.type}-${index}`}
           contentContainerStyle={{
-            paddingBottom: isKeyboardVisible ? 0 : keyboardHeight,
+            paddingBottom: isKeyboardVisible ? 0 : 200,
             paddingTop: 20,
           }}
         />
