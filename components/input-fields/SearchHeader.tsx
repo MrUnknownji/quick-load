@@ -4,11 +4,14 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "../button/IconButton";
+import Notifications from "@/components/notifications/Notification";
 
-const SearchHeader = ({
-  isPaddingNeeded = true,
-}: {
+interface SearchHeaderProps {
   isPaddingNeeded?: boolean;
+}
+
+const SearchHeader: React.FC<SearchHeaderProps> = ({
+  isPaddingNeeded = true,
 }) => {
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
@@ -39,12 +42,7 @@ const SearchHeader = ({
       style={[
         styles.container,
         { backgroundColor },
-        isPaddingNeeded && {
-          paddingTop:
-            Platform.OS === "android"
-              ? (StatusBar.currentHeight ?? 0) + Sizes.paddingSmall
-              : Sizes.paddingSmall,
-        },
+        isPaddingNeeded && styles.paddingNeeded,
       ]}
     >
       <View
@@ -61,7 +59,7 @@ const SearchHeader = ({
           iconLibrary="FontAwesome"
           iconStyle={{ color: iconColor }}
           size="small"
-          style={[styles.searchIcon]}
+          style={styles.searchIcon}
           variant="transparent"
         />
         <TextInput
@@ -74,18 +72,11 @@ const SearchHeader = ({
           iconLibrary="FontAwesome"
           iconStyle={{ color: iconColor }}
           size="small"
-          style={[styles.microphoneIcon]}
+          style={styles.microphoneIcon}
           variant="transparent"
         />
       </View>
-      <IconButton
-        iconName="notifications"
-        iconLibrary="MaterialIcons"
-        iconStyle={{ color: Colors.light.background }}
-        size="medium"
-        style={[styles.notificationIconContainer]}
-        variant="primary"
-      />
+      <Notifications />
     </View>
   );
 };
@@ -94,31 +85,32 @@ export default SearchHeader;
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: Sizes.paddingHorizontal,
     paddingBottom: Sizes.paddingMedium,
-    flexDirection: "row",
     gap: Sizes.marginMedium,
-    elevation: 1,
+    zIndex: 10,
+  },
+  paddingNeeded: {
+    paddingTop:
+      Platform.OS === "android"
+        ? (StatusBar.currentHeight ?? 0) + Sizes.paddingSmall
+        : Sizes.paddingSmall,
   },
   searchContainer: {
-    borderRadius: Sizes.borderRadiusFull,
-    paddingHorizontal: Sizes.paddingExtraSmall,
-    paddingVertical: Sizes.paddingExtraSmall / 2,
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    borderRadius: Sizes.borderRadiusFull,
+    paddingHorizontal: Sizes.paddingExtraSmall,
+    paddingVertical: Sizes.paddingExtraSmall / 2,
     borderWidth: 1,
   },
   searchInput: {
     flex: 1,
     fontSize: Sizes.textMedium,
-  },
-  notificationIconContainer: {
-    padding: Sizes.paddingExtraSmall,
-    borderRadius: Sizes.borderRadiusFull,
   },
   searchIcon: {
     padding: Sizes.paddingSmall,
