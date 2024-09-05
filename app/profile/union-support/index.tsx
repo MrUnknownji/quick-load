@@ -1,10 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
-import IconButton from "@/components/button/IconButton";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 const UnionSupport = () => {
@@ -14,6 +13,7 @@ const UnionSupport = () => {
   const [successMessage, setSuccessMessage] = React.useState(
     `Our customer care representative will contact you soon. Your order number is ${orderNumber}`
   );
+  const pathname = usePathname();
 
   const handleInputChangeListener = (text: string) => {
     setOrderNumber(text);
@@ -24,17 +24,6 @@ const UnionSupport = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.unionHeader}>
-        <IconButton
-          iconName="chevron-back"
-          size="medium"
-          variant="transparent"
-          style={{ position: "absolute", left: Sizes.marginHorizontal }}
-          iconStyle={{ color: Colors.light.background }}
-          onPress={() => router.back()}
-        />
-        <Text style={styles.unionHeadingText}>Union Support</Text>
-      </View>
       <ScrollView contentContainerStyle={styles.innerContainer}>
         <Text style={styles.inputText}>Enter the order number</Text>
         <TextInput
@@ -78,33 +67,12 @@ export default UnionSupport;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Sizes.StatusBarHeight,
-    backgroundColor: Colors.light.primary,
-  },
-  unionHeader: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Sizes.marginMedium,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
-  },
-  unionHeadingText: {
-    textAlign: "center",
-    fontSize: Sizes.textMedium,
-    fontWeight: "bold",
-    color: Colors.light.background,
   },
   innerContainer: {
-    marginTop: 100,
-    padding: Sizes.paddingLarge,
-    paddingTop: 50,
+    padding: Sizes.paddingMedium,
     backgroundColor: "white",
-    borderTopLeftRadius: Sizes.borderRadiusLarge,
-    borderTopRightRadius: Sizes.borderRadiusLarge,
-    elevation: 3,
     alignItems: "center",
     gap: Sizes.marginSmall,
-    minHeight: "100%",
   },
   inputField: {
     width: "100%",

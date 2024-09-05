@@ -5,20 +5,17 @@ import {
   ListRenderItem,
   StyleSheet,
   Dimensions,
-  Text,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { router } from "expo-router";
 import { Image } from "expo-image";
 import * as DocumentPicker from "expo-document-picker";
 import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectList from "@/components/input-fields/SelectList";
 import FileUploadField from "@/components/input-fields/FileUploadField";
-import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 
 type CustomFile = {
@@ -215,18 +212,6 @@ const UserInformationPage: React.FC = () => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.profileHeader}>
-        <IconButton
-          iconName="chevron-left"
-          size="medium"
-          variant="transparent"
-          iconLibrary="MaterialIcons"
-          style={{ position: "absolute", left: Sizes.marginHorizontal }}
-          iconStyle={{ color: Colors.light.background }}
-          onPress={() => router.back()}
-        />
-        <Text style={styles.profileHeading}>{userId}</Text>
-      </View>
       <View style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
           <Image
@@ -268,29 +253,9 @@ export default UserInformationPage;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Sizes.StatusBarHeight,
-    backgroundColor: Colors.light.primary,
-  },
-  profileHeader: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: Sizes.marginMedium,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
-  },
-  profileHeading: {
-    textAlign: "center",
-    fontSize: Sizes.textMedium,
-    fontWeight: "bold",
-    color: Colors.light.background,
   },
   profileDetails: {
-    marginTop: 100,
-    padding: Sizes.paddingMedium,
     backgroundColor: "white",
-    borderTopLeftRadius: Sizes.borderRadiusLarge,
-    borderTopRightRadius: Sizes.borderRadiusLarge,
-    elevation: 3,
     flex: 1,
   },
   userImageContainer: {

@@ -4,13 +4,14 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import StatusBarManager from "@/components/StatusBarManager";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -20,13 +21,26 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    const checkOnboardingStatus = async () => {
+      const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+      if (loaded) {
+        SplashScreen.hideAsync();
+        if (hasOnboarded === null) {
+          router.replace("/onboarding");
+        } else {
+          router.replace("/authentication");
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkOnboardingStatus();
   }, [loaded]);
 
-  if (!loaded) {
+  if (isLoading || !loaded) {
     return null;
   }
 
@@ -34,28 +48,18 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <StatusBarManager />
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="my-information/[userId]"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="subscription/index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="product-detail/[productId]"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="union-support/index"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="thank-you/index"
-            options={{ headerShown: false }}
-          />
+        <Stack
+          screenOptions={{ headerShown: false }}
+          initialRouteName="onboarding/index"
+        >
+          <Stack.Screen name="onboarding/index" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="profile" />
+          <Stack.Screen name="authentication/index" />
+          <Stack.Screen name="subscription/index" />
+          <Stack.Screen name="product-detail/[productId]" />
+          <Stack.Screen name="thank-you/index" />
+          <Stack.Screen name="order-detail/order-track/index" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </GestureHandlerRootView>

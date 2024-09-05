@@ -5,11 +5,19 @@ import Sizes from "@/constants/Sizes";
 import { ListItemProps } from "@/constants/types/types";
 import { BRICKS_ITEMS, GRIT_ITEMS } from "@/assets/data/DATA";
 import LargeListItem from "@/components/list-items/LargeListItem";
+import { router } from "expo-router";
 
 const PENDING_ORDERS: ListItemProps[] = [BRICKS_ITEMS[0], GRIT_ITEMS[3]];
 const DELIVERED_ORDERS: ListItemProps[] = [GRIT_ITEMS[1], BRICKS_ITEMS[2]];
 
 const TrackOrder = () => {
+  const onItemPress = (productId: string) => {
+    router.push({
+      pathname: "/order-detail/order-track",
+      params: { productId },
+    });
+  };
+
   const renderSectionHeader = (title: string) => (
     <Text style={styles.sectionHeaderText}>{title}</Text>
   );
@@ -26,6 +34,7 @@ const TrackOrder = () => {
       buttonTitle={
         section.title === "Pending Orders" ? "Track Order" : "Delivered"
       }
+      onPress={() => onItemPress(item.productId)}
     />
   );
 
@@ -52,6 +61,7 @@ const TrackOrder = () => {
           </View>
         )}
         keyExtractor={(item) => item.title}
+        contentContainerStyle={{ paddingBottom: 75 }}
       />
     </View>
   );

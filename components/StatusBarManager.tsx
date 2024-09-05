@@ -11,6 +11,7 @@ const StatusBarManager = () => {
       case "profile":
       case "my-information":
       case "union-support":
+      case "language":
       case "user":
         return "light";
       default:

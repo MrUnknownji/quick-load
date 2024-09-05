@@ -16,6 +16,7 @@ const Sizes = {
   paddingSmall: 8,
   paddingMedium: 12,
   paddingLarge: 24,
+  paddingExtraLarge: 32,
 
   // Radius
   borderRadius: 10,
@@ -35,6 +36,7 @@ const Sizes = {
 
   // Text Sizes
   textSmall: 12,
+  textNormal: 14,
   textMedium: 16,
   textLarge: 20,
   textExtraLarge: 24,

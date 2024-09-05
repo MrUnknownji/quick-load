@@ -27,7 +27,7 @@ const Profile = () => {
             iconName="person"
             onPress={() =>
               router.push({
-                pathname: "/my-information/[userId]",
+                pathname: "/profile/my-information/[userId]",
                 params: { userId: "user23432" },
               })
             }
@@ -41,9 +41,14 @@ const Profile = () => {
           <SmallListItem
             title="Union Support"
             iconName="heart"
-            onPress={() => router.push("/union-support")}
+            onPress={() => router.push("/profile/union-support")}
           />
           <SmallListItem title="Settings" iconName="settings" />
+          <SmallListItem
+            title="Language"
+            iconName="language"
+            onPress={() => router.push("/profile/language")}
+          />
           <SmallListItem
             title="Privacy and policy"
             iconName="information-circle"

@@ -1,3 +1,10 @@
+import {
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+
 interface Category {
   name: string;
   url: string;
@@ -16,4 +23,12 @@ interface ListItemProps {
   buttonTitle?: string;
 }
 
-export { Category, ListItemProps };
+type IconTypeProp =
+  | keyof typeof Ionicons.glyphMap
+  | keyof typeof MaterialIcons.glyphMap
+  | keyof typeof FontAwesome.glyphMap
+  | keyof typeof MaterialCommunityIcons.glyphMap;
+
+type IoniconsIconProps = keyof typeof Ionicons.glyphMap;
+
+export { Category, ListItemProps, IconTypeProp, IoniconsIconProps };
