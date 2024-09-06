@@ -10,6 +10,14 @@ const ProfileLayout = () => {
   const pathname = usePathname();
   const title = pathname.includes("union-support")
     ? "Union Support"
+    : pathname.includes("language")
+    ? "Language"
+    : pathname.includes("add-vehicles")
+    ? "Add Vehicles"
+    : pathname.includes("vehicles")
+    ? "Vehicles"
+    : pathname.includes("my-information")
+    ? "My Information"
     : "Profile";
 
   return (

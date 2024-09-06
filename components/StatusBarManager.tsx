@@ -12,7 +12,9 @@ const StatusBarManager = () => {
       case "my-information":
       case "union-support":
       case "language":
+      case "vehicles":
       case "user":
+      case "add-vehicles":
         return "light";
       default:
         return "dark";

@@ -1,5 +1,9 @@
 import Sizes from "@/constants/Sizes";
-import { Category, ListItemProps } from "@/constants/types/types";
+import {
+  Category,
+  ListItemProps,
+  VehicleTypeProps,
+} from "@/constants/types/types";
 import { Dimensions } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -285,6 +289,54 @@ const FEATURES: string[] = [
   "Secure delivery",
 ];
 
+const VEHICLES_LIST: VehicleTypeProps[] = [
+  {
+    id: "vehicle234",
+    phone: "+91 9876543210",
+    vehicleType: "Truck",
+    vehicleNumber: "RJ 12 K 0005",
+    vehicleCapacity: "20-25tn",
+    brand: "Tata",
+    model: "X",
+    year: 2020,
+    image: "https://placehold.co/200x200?text=Truck",
+    drivingLicense: undefined,
+    vehicleRC: undefined,
+    panCardFile: undefined,
+    aadhaarCardFile: undefined,
+  },
+  {
+    id: "vehicle78923",
+    phone: "+91 9876543210",
+    vehicleType: "Dumper",
+    vehicleNumber: "PB 32 E 2002",
+    vehicleCapacity: "20-25tn",
+    brand: "Mahindra",
+    model: "X",
+    year: 2018,
+    image: "https://placehold.co/200x200?text=Dumper",
+    drivingLicense: undefined,
+    vehicleRC: undefined,
+    panCardFile: undefined,
+    aadhaarCardFile: undefined,
+  },
+  {
+    id: "vehicle378",
+    phone: "+91 9876543210",
+    vehicleType: "Trailer",
+    vehicleNumber: "HR 58 M 1001",
+    vehicleCapacity: "20-25tn",
+    brand: "Mahindra",
+    model: "X",
+    year: 2023,
+    image: "https://placehold.co/200x200?text=Trailer",
+    drivingLicense: undefined,
+    vehicleRC: undefined,
+    panCardFile: undefined,
+    aadhaarCardFile: undefined,
+  },
+];
+
 export {
   CATEGORIES,
   BRICKS_ITEMS,
@@ -294,4 +346,5 @@ export {
   SAND_ITEMS,
   CAROUSEL_IMAGES,
   FEATURES,
+  VEHICLES_LIST,
 };

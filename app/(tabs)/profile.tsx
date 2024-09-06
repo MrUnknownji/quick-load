@@ -41,6 +41,11 @@ const Profile = () => {
           />
           <SmallListItem title={t("Orders")} iconName="cart" />
           <SmallListItem
+            title={t("My Vehicles")}
+            iconName="car"
+            onPress={() => router.push("/profile/vehicles")}
+          />
+          <SmallListItem
             title={t("Union Support")}
             iconName="heart"
             onPress={() => router.push("/profile/union-support")}
@@ -107,6 +112,6 @@ const styles = StyleSheet.create({
     borderRadius: Sizes.borderRadiusFull,
   },
   userDetailsContainer: {
-    marginTop: 50,
+    marginTop: 25,
   },
 });

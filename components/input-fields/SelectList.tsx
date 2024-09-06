@@ -51,6 +51,114 @@ interface SelectListProps {
   initialSelectedOption?: string;
 }
 
+// const SelectList: React.FC<SelectListProps> = ({
+//   options,
+//   label,
+//   selectedOption: propSelectedOption,
+//   onSelect,
+//   placeholder,
+//   error,
+//   accessibleLabel,
+//   iconName,
+//   iconType = "Ionicons",
+//   disabled = false,
+//   containerStyle,
+//   selectBoxStyle,
+//   dropdownStyle,
+//   optionStyle,
+//   labelStyle,
+//   selectedTextStyle,
+//   optionTextStyle,
+//   errorTextStyle,
+//   defaultText = "Select an option",
+//   initialSelectedOption,
+// }) => {
+//   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+//   const [selectedOption, setSelectedOption] = useState(
+//     initialSelectedOption || propSelectedOption
+//   );
+
+//   const IconComponent = iconName
+//     ? {
+//         Ionicons,
+//         MaterialIcons,
+//         FontAwesome,
+//         MaterialCommunityIcons,
+//       }[iconType]
+//     : null;
+
+//   const handleSelect = useCallback(
+//     (option: string) => {
+//       setIsDropdownVisible(false);
+//       setSelectedOption(option);
+//       onSelect?.(option);
+//     },
+//     [onSelect]
+//   );
+
+//   const toggleDropdown = useCallback(() => {
+//     setIsDropdownVisible((prev) => !prev);
+//   }, []);
+
+//   return (
+//     <View style={[styles.container, containerStyle]}>
+//       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+//       <TouchableOpacity
+//         style={[
+//           styles.selectBox,
+//           error ? styles.selectBoxError : null,
+//           {
+//             borderColor: disabled
+//               ? Colors.light.disabled
+//               : Colors.light.primary,
+//           },
+//           selectBoxStyle,
+//         ]}
+//         onPress={toggleDropdown}
+//         accessibilityLabel={accessibleLabel || placeholder}
+//         disabled={disabled}
+//       >
+//         {IconComponent && iconName && (
+//           <IconComponent
+//             name={iconName as never}
+//             size={Sizes.icon.small}
+//             color={Colors.light.primary}
+//             style={styles.icon}
+//           />
+//         )}
+//         <Text style={[styles.selectedText, selectedTextStyle]}>
+//           {t(selectedOption || placeholder || defaultText)}
+//         </Text>
+//         <Ionicons
+//           name={isDropdownVisible ? "chevron-up" : "chevron-down"}
+//           size={Sizes.icon.small}
+//           color={Colors.light.primary}
+//         />
+//       </TouchableOpacity>
+//       {isDropdownVisible && (
+//         <View style={[styles.dropdown, dropdownStyle]}>
+//           <FlatList
+//             data={options}
+//             keyExtractor={(item) => item}
+//             renderItem={({ item }) => (
+//               <TouchableOpacity
+//                 style={[styles.option, optionStyle]}
+//                 onPress={() => handleSelect(item)}
+//               >
+//                 <Text style={[styles.optionText, optionTextStyle]}>
+//                   {t(item)}
+//                 </Text>
+//               </TouchableOpacity>
+//             )}
+//           />
+//         </View>
+//       )}
+//       {error && (
+//         <Text style={[styles.errorText, errorTextStyle]}>{t(error)}</Text>
+//       )}
+//     </View>
+//   );
+// };
 const SelectList: React.FC<SelectListProps> = ({
   options,
   label,
@@ -101,7 +209,13 @@ const SelectList: React.FC<SelectListProps> = ({
   }, []);
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View
+      style={[
+        styles.container,
+        containerStyle,
+        { zIndex: isDropdownVisible ? 100 : 1 },
+      ]}
+    >
       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <TouchableOpacity
         style={[
@@ -167,6 +281,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,
+    zIndex: 1,
   },
   label: {
     fontSize: Sizes.textSmall,
@@ -182,6 +297,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: Colors.light.border,
     borderRadius: Sizes.borderRadiusSmall,
+    zIndex: 1,
   },
   selectBoxError: {
     borderColor: Colors.light.error,
@@ -202,9 +318,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.background,
     marginTop: Sizes.marginSmall,
     maxHeight: 200,
-    position: "absolute",
-    top: "110%",
-    zIndex: 1,
+    zIndex: 100,
+    elevation: 1,
     width: "100%",
   },
   option: {

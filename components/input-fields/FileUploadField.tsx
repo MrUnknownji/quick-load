@@ -1,5 +1,11 @@
 import React, { memo } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import {
   FontAwesome,
   Ionicons,
@@ -28,6 +34,7 @@ interface FileUploadFieldProps {
   selectedFile?: string;
   accessibleLabel?: string;
   disabled?: boolean;
+  style?: ViewStyle;
 }
 
 const FileUploadField = ({
@@ -38,7 +45,8 @@ const FileUploadField = ({
   onFileSelect,
   selectedFile,
   accessibleLabel,
-  disabled = true,
+  disabled = false,
+  style,
 }: FileUploadFieldProps) => {
   const IconComponent = {
     Ionicons,
@@ -59,7 +67,7 @@ const FileUploadField = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TouchableOpacity
         style={[

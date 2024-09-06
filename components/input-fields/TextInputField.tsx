@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View, ViewStyle } from "react-native";
 import IconButton from "../button/IconButton";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
@@ -28,6 +28,7 @@ interface TextInputFieldProps {
   error?: string;
   accessibleLabel?: string;
   disabled?: boolean;
+  style?: ViewStyle;
 }
 
 const TextInputField = ({
@@ -39,10 +40,11 @@ const TextInputField = ({
   value,
   error,
   accessibleLabel,
-  disabled = true,
+  disabled = false,
+  style,
 }: TextInputFieldProps) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {iconName && (
         <IconButton
           iconName={iconName}

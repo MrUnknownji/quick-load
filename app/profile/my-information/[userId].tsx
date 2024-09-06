@@ -165,7 +165,7 @@ const UserInformationPage: React.FC = () => {
       props: {
         label: t("User Type"),
         iconName: "people",
-        options: ["Customer", "Supplier"],
+        options: ["Customer", "Driver"],
         selectedOption: formState.userType,
         onSelect: handleInputChange("userType"),
         disabled,
