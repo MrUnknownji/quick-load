@@ -5,36 +5,41 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { router, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "i18next";
 
 const UnionSupport = () => {
   const [orderNumber, setOrderNumber] = React.useState("");
   const [issueDetails, setIssueDetails] = React.useState("");
   const [inputHeight, setInputHeight] = React.useState(Sizes.searchBarHeight);
   const [successMessage, setSuccessMessage] = React.useState(
-    `Our customer care representative will contact you soon. Your order number is ${orderNumber}`
+    `${t("Our customer care representative will contact you soon.")} ${t(
+      "Your order number is "
+    )} ${orderNumber}`
   );
   const pathname = usePathname();
 
   const handleInputChangeListener = (text: string) => {
     setOrderNumber(text);
     setSuccessMessage(
-      `Our customer care representative will contact you soon. Your order number is ${text}`
+      `${t("Our customer care representative will contact you soon.")} ${t(
+        "Your order number is "
+      )} ${text}`
     );
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.innerContainer}>
-        <Text style={styles.inputText}>Enter the order number</Text>
+        <Text style={styles.inputText}>{t("Enter the order number")}</Text>
         <TextInput
-          placeholder="Order Number"
+          placeholder={t("Order Number")}
           style={styles.inputField}
           value={orderNumber}
           onChangeText={handleInputChangeListener}
         />
-        <Text style={styles.inputText}>Enter the issue details</Text>
+        <Text style={styles.inputText}>{t("Enter the issue details")}</Text>
         <TextInput
-          placeholder="Issue Details"
+          placeholder={t("Issue Details")}
           style={[styles.inputField, { height: inputHeight }]}
           value={issueDetails}
           onChangeText={setIssueDetails}
@@ -55,7 +60,7 @@ const UnionSupport = () => {
           })
         }
       >
-        <Text style={styles.sendButtonText}>Send</Text>
+        <Text style={styles.sendButtonText}>{t("Send")}</Text>
         <Ionicons name="send" size={Sizes.icon["small"]} color="white" />
       </Pressable>
     </View>

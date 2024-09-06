@@ -15,6 +15,7 @@ import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import IconButton from "@/components/button/IconButton";
 import Button from "@/components/button/Button";
+import { t } from "i18next";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -124,12 +125,12 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
         ]}
       >
         <Text style={[styles.itemHeading, { color: textColor }]}>
-          {item.heading}
+          {t(item.heading)}
         </Text>
         <Text style={[styles.itemPrice, { color: textColor }]}>
           {item.price}/
           <Text style={[styles.itemDuration, { color: textColor }]}>
-            {item.duration}
+            {t(item.duration)}
           </Text>
         </Text>
         <View style={styles.itemFeaturesContainer}>
@@ -145,7 +146,7 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
                 color={textColor}
               />
               <Text style={[styles.itemFeatureText, { color: textColor }]}>
-                {feature}
+                {t(feature)}
               </Text>
             </View>
           ))}

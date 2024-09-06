@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
+import { t } from "i18next";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -31,19 +32,19 @@ const dummyNotifications: Notification[] = [
     id: "1",
     title: "New message",
     content: "You have a new message from John Doe.",
-    timestamp: "2 min ago",
+    timestamp: "2",
   },
   {
     id: "2",
     title: "Friend request",
     content: "Jane Smith sent you a friend request.",
-    timestamp: "1 hour ago",
+    timestamp: "1",
   },
   {
     id: "3",
     title: "Event reminder",
     content: 'Your event "Team Meeting" starts in 30 minutes.',
-    timestamp: "3 hours ago",
+    timestamp: "3",
   },
 ];
 
@@ -79,18 +80,18 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       </View>
       <View style={styles.notificationContent}>
         <Text style={[styles.notificationTitle, { color: textColor }]}>
-          {item.title}
+          {t(item.title)}
         </Text>
         <Text
           style={[styles.notificationText, { color: secondaryTextColor }]}
           numberOfLines={2}
         >
-          {item.content}
+          {t(item.content)}
         </Text>
         <Text
           style={[styles.notificationTimestamp, { color: secondaryTextColor }]}
         >
-          {item.timestamp}
+          {item.timestamp} {t("minutes ago")}
         </Text>
       </View>
     </TouchableOpacity>
@@ -163,15 +164,15 @@ const NotificationDialog: React.FC<NotificationDialogProps> = ({
               onPress={onClose}
             />
             <Text style={[styles.modalTitle, { color: textColor }]}>
-              {notification?.title}
+              {t(notification?.title ?? "")}
             </Text>
             <Text style={[styles.modalContent, { color: textColor }]}>
-              {notification?.content}
+              {t(notification?.content ?? "")}
             </Text>
             <Text
               style={[styles.modalTimestamp, { color: secondaryTextColor }]}
             >
-              {notification?.timestamp}
+              {notification?.timestamp} {t("minutes ago")}
             </Text>
           </Animated.View>
         </View>

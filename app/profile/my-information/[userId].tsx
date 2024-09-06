@@ -17,6 +17,7 @@ import TextInputField from "@/components/input-fields/TextInputField";
 import SelectList from "@/components/input-fields/SelectList";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
+import { t } from "i18next";
 
 type CustomFile = {
   uri: string;
@@ -94,7 +95,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: "Name",
+        label: t("Name"),
         iconName: "person",
         value: formState.username,
         onChangeText: handleInputChange("username"),
@@ -104,7 +105,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: "Email",
+        label: t("Email"),
         iconName: "mail",
         value: formState.email,
         onChangeText: handleInputChange("email"),
@@ -114,7 +115,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: "Phone",
+        label: t("Phone"),
         iconName: "call",
         value: formState.phone,
         onChangeText: handleInputChange("phone"),
@@ -124,7 +125,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: "Address",
+        label: t("Address"),
         iconName: "location",
         value: formState.address,
         onChangeText: handleInputChange("address"),
@@ -134,7 +135,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: "City",
+        label: t("City"),
         iconName: "business",
         value: formState.city,
         onChangeText: handleInputChange("city"),
@@ -144,7 +145,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "FileUploadField",
       props: {
-        label: "Pan Card",
+        label: t("Pan Card"),
         onFileSelect: handleFileSelect("panCardFile"),
         selectedFile: formState.panCardFile?.name,
         disabled,
@@ -153,7 +154,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "FileUploadField",
       props: {
-        label: "Aadhaar Card",
+        label: t("Aadhaar Card"),
         onFileSelect: handleFileSelect("aadhaarCardFile"),
         selectedFile: formState.aadhaarCardFile?.name,
         disabled,
@@ -162,7 +163,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "SelectList",
       props: {
-        label: "User Type",
+        label: t("User Type"),
         iconName: "people",
         options: ["Customer", "Supplier"],
         selectedOption: formState.userType,
@@ -173,7 +174,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: "Vehicle Number",
+        label: t("Vehicle Number"),
         iconName: "car",
         value: formState.vehicleNumber,
         onChangeText: handleInputChange("vehicleNumber"),
@@ -183,7 +184,7 @@ const UserInformationPage: React.FC = () => {
     {
       type: "SelectList",
       props: {
-        label: "Vehicle Type",
+        label: t("Vehicle Type"),
         iconName: "truck",
         iconType: "FontAwesome",
         options: ["Dumper", "Trailer", "Container"],

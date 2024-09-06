@@ -16,6 +16,7 @@ import {
 } from "@expo/vector-icons";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
+import { t } from "i18next";
 
 type IconType =
   | "Ionicons"
@@ -126,7 +127,7 @@ const SelectList: React.FC<SelectListProps> = ({
           />
         )}
         <Text style={[styles.selectedText, selectedTextStyle]}>
-          {selectedOption || placeholder || defaultText}
+          {t(selectedOption || placeholder || defaultText)}
         </Text>
         <Ionicons
           name={isDropdownVisible ? "chevron-up" : "chevron-down"}
@@ -144,13 +145,17 @@ const SelectList: React.FC<SelectListProps> = ({
                 style={[styles.option, optionStyle]}
                 onPress={() => handleSelect(item)}
               >
-                <Text style={[styles.optionText, optionTextStyle]}>{item}</Text>
+                <Text style={[styles.optionText, optionTextStyle]}>
+                  {t(item)}
+                </Text>
               </TouchableOpacity>
             )}
           />
         </View>
       )}
-      {error && <Text style={[styles.errorText, errorTextStyle]}>{error}</Text>}
+      {error && (
+        <Text style={[styles.errorText, errorTextStyle]}>{t(error)}</Text>
+      )}
     </View>
   );
 };

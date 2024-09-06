@@ -7,6 +7,7 @@ import Sizes from "@/constants/Sizes";
 import { ListItemProps } from "@/constants/types/types";
 import Colors from "@/constants/Colors";
 import Button from "../button/Button";
+import { t } from "i18next";
 
 const LargeListItem: React.FC<ListItemProps> = memo(
   ({
@@ -14,7 +15,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
     price,
     location,
     rating,
-    mesurementType = "qui",
+    mesurementType = "Qui.",
     onPress,
     buttonTitle,
   }) => {
@@ -53,11 +54,11 @@ const LargeListItem: React.FC<ListItemProps> = memo(
         <View style={styles.contentContainer}>
           <View style={styles.detailsContainer}>
             <Text style={[styles.listHeading, { color: textColor }]}>
-              {heading}
+              {t(heading)}
             </Text>
             <Text style={[styles.priceText, { color: primaryColor }]}>
-              Rs. {price}
-              <Text style={styles.perPieceText}>/{mesurementType}</Text>
+              {t("Rs.")} {price}
+              <Text style={styles.perPieceText}>/{t(mesurementType)}</Text>
             </Text>
             <View style={styles.infoContainer}>
               <MaterialIcons
@@ -81,7 +82,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
             </View>
           </View>
           <Button
-            title={buttonTitle ?? "Buy Now"}
+            title={buttonTitle ?? t("Buy Now")}
             variant="primary"
             size="small"
           />

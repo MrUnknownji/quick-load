@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import IconButton from "@/components/button/IconButton";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
+import { t } from "i18next";
 
 const OrderStatus = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
@@ -42,12 +43,12 @@ const OrderStatus = () => {
           iconStyle={{ color: "white" }}
           onPress={() => router.back()}
         />
-        <Text style={styles.headingText}>Order Status</Text>
+        <Text style={styles.headingText}>{t("Order Status")}</Text>
       </View>
       <View style={styles.secondaryHeader}>
-        <Text
-          style={styles.routeText}
-        >{`Your Route:- abc > efg > ijk > mno...`}</Text>
+        <Text style={styles.routeText}>{`${t("Your Route")}:- ${t("abc")} > ${t(
+          "efg"
+        )} > ${t("ijk")} > ${t("mno")}...`}</Text>
       </View>
       <ScrollView style={styles.content}>
         <View style={styles.timeline}>
@@ -58,10 +59,10 @@ const OrderStatus = () => {
                 <View style={styles.timelineLine} />
               )}
               <View style={styles.timelineContent}>
-                <Text style={styles.timelineTitle}>{step.title}</Text>
-                <Text style={styles.timelineDate}>{step.date}</Text>
+                <Text style={styles.timelineTitle}>{t(step.title)}</Text>
+                <Text style={styles.timelineDate}>{t(step.date)}</Text>
                 {step.time && (
-                  <Text style={styles.timelineTime}>{step.time}</Text>
+                  <Text style={styles.timelineTime}>{t(step.time)}</Text>
                 )}
               </View>
             </View>

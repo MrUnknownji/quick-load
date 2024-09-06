@@ -1,119 +1,3 @@
-// import React from "react";
-// import { View, Text, TextInput, StyleSheet, Image } from "react-native";
-// import Button from "@/components/button/Button";
-// import Sizes from "@/constants/Sizes";
-// import Colors from "@/constants/Colors";
-// import SelectList from "@/components/input-fields/SelectList";
-// import IconButton from "@/components/button/IconButton";
-// import { router, useLocalSearchParams } from "expo-router";
-
-// const RouteFinder = () => {
-//   const { userType } = useLocalSearchParams<{ userType: string }>();
-//   return (
-//     <View style={styles.container}>
-//       <IconButton
-//         iconName="chevron-back"
-//         size="small"
-//         variant="primary"
-//         style={{
-//           position: "absolute",
-//           left: Sizes.marginHorizontal,
-//           top: Sizes.StatusBarHeight ?? 0 + 10,
-//           borderRadius: Sizes.borderRadiusFull,
-//         }}
-//         onPress={() => router.back()}
-//       />
-//       <Image source={require("@/assets/images/icon.png")} style={styles.logo} />
-//       <Text style={styles.title}>
-//         Hey {userType.at(0)?.toUpperCase()}
-//         {userType.slice(1)}
-//       </Text>
-//       <Text style={styles.subtitle}>Submit your route request</Text>
-
-//       <Text style={styles.sectionTitle}>Find Route</Text>
-
-//       <TextInput
-//         placeholder="Starting point"
-//         style={styles.input}
-//         placeholderTextColor={Colors.light.textSecondary}
-//       />
-//       <Text style={styles.toText}>to</Text>
-//       <TextInput
-//         placeholder="Ending point"
-//         style={styles.input}
-//         placeholderTextColor={Colors.light.textSecondary}
-//       />
-//       <SelectList
-//         options={["Car", "Truck", "Dumper"]}
-//         label="Vehicle Type"
-//         iconName="truck"
-//         iconType="MaterialCommunityIcons"
-//         disabled={false}
-//         containerStyle={{ paddingHorizontal: 0 }}
-//         placeholder="Select a vehicle type"
-//       />
-
-//       <Button
-//         title="Send"
-//         variant="primary"
-//         size="medium"
-//         style={{ width: "100%" }}
-//         textStyle={{ fontSize: Sizes.textMedium }}
-//       />
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     padding: Sizes.paddingMedium,
-//     backgroundColor: Colors.light.background,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     flex: 1,
-//   },
-//   logo: {
-//     width: 150,
-//     height: 150,
-//     resizeMode: "contain",
-//     marginBottom: Sizes.marginMedium,
-//   },
-//   title: {
-//     fontSize: Sizes.textExtraLarge,
-//     fontWeight: "bold",
-//     color: Colors.light.primary,
-//     textAlign: "center",
-//   },
-//   subtitle: {
-//     fontSize: Sizes.textMedium,
-//     color: Colors.light.textSecondary,
-//     marginBottom: Sizes.marginMedium,
-//     textAlign: "center",
-//   },
-//   sectionTitle: {
-//     fontSize: Sizes.textLarge,
-//     fontWeight: "bold",
-//     color: Colors.light.text,
-//     marginBottom: Sizes.marginSmall,
-//   },
-//   input: {
-//     width: "100%", // Make input fields fill width
-//     height: Sizes.buttonHeight,
-//     borderColor: Colors.light.border,
-//     borderWidth: 1,
-//     borderRadius: Sizes.borderRadius,
-//     paddingHorizontal: Sizes.paddingHorizontal,
-//     marginBottom: Sizes.marginSmall,
-//   },
-//   toText: {
-//     fontSize: Sizes.textNormal,
-//     color: Colors.light.text,
-//     marginBottom: Sizes.marginSmall,
-//     textAlign: "center",
-//   },
-// });
-
-// export default RouteFinder;
 import React from "react";
 import { View, Text, TextInput, StyleSheet, Image } from "react-native";
 import Button from "@/components/button/Button";
@@ -123,6 +7,7 @@ import SelectList from "@/components/input-fields/SelectList";
 import IconButton from "@/components/button/IconButton";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "i18next";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
@@ -142,16 +27,21 @@ const RouteFinder = () => {
       />
       <Image source={require("@/assets/images/icon.png")} style={styles.logo} />
       <Text style={styles.title}>
-        Hey {userType.at(0)?.toUpperCase()}
-        {userType.slice(1)}
+        {t("Hey")}{" "}
+        {t(
+          userType
+            .at(0)
+            ?.toUpperCase()
+            .concat(t(userType.slice(1))) ?? ""
+        )}
       </Text>
-      <Text style={styles.subtitle}>Submit your route request</Text>
+      <Text style={styles.subtitle}>{t("Submit your route request")}</Text>
 
-      <Text style={styles.sectionTitle}>Find Route</Text>
+      <Text style={styles.sectionTitle}>{t("Find Route")}</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Starting point"
+          placeholder={t("Starting point")}
           style={styles.input}
           placeholderTextColor={Colors.light.textSecondary}
         />
@@ -163,11 +53,11 @@ const RouteFinder = () => {
         />
       </View>
 
-      <Text style={styles.toText}>to</Text>
+      <Text style={styles.toText}>{t("to")}</Text>
 
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="Ending point"
+          placeholder={t("Ending point")}
           style={styles.input}
           placeholderTextColor={Colors.light.textSecondary}
         />
@@ -180,17 +70,17 @@ const RouteFinder = () => {
       </View>
 
       <SelectList
-        options={["Car", "Truck", "Dumper"]}
-        label="Vehicle Type"
+        options={[t("Truck"), t("Dumper"), t("Trailer"), t("Container")]}
+        label={t("Vehicle Type")}
         iconName="truck"
         iconType="MaterialCommunityIcons"
         disabled={false}
         containerStyle={{ paddingHorizontal: 0 }}
-        placeholder="Select a vehicle type"
+        placeholder={t("Select a vehicle type")}
       />
 
       <Button
-        title="Send"
+        title={t("Send")}
         variant="primary"
         size="medium"
         style={{ width: "100%" }}

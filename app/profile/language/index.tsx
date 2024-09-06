@@ -6,6 +6,7 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "@/components/button/IconButton";
 import useAppLanguage from "@/hooks/useAppLanguage";
+import { t } from "i18next";
 
 const Language = () => {
   const { appLanguage, setAppLanguage } = useAppLanguage();
@@ -27,9 +28,16 @@ const Language = () => {
   const handleSave = () => {
     if (selectedLanguage) {
       setAppLanguage(selectedLanguage);
-      Alert.alert("Language Saved", `You have selected ${selectedLanguage}`);
+      Alert.alert(
+        t("Language Saved"),
+        t("You have selected ") +
+          (selectedLanguage == "en" ? "English" : "Hindi")
+      );
     } else {
-      Alert.alert("No Language Selected", "Please select a language first.");
+      Alert.alert(
+        t("No Language Selected"),
+        t("Please select a language first.")
+      );
     }
   };
 
@@ -41,16 +49,19 @@ const Language = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Ionicons name="language" size={24} color={Colors.light.primary} />
-        <Text style={styles.headerText}>Select Language</Text>
+        <Text style={styles.headerText}>{t("Select Language")}</Text>
       </View>
       <RadioButtonGroup
-        options={["English", "Hindi(हिन्दी)"]}
+        options={[
+          { label: "English", value: "en" },
+          { label: "Hindi(हिन्दी)", value: "hi" },
+        ]}
         onSelect={setSelectedLanguage}
         initialSelection={appLanguage}
       />
       <IconButton
         iconName="save"
-        title="Save"
+        title={t("Save")}
         variant="primary"
         size="small"
         style={styles.saveIcon}

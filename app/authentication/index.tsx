@@ -13,6 +13,7 @@ import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import Button from "@/components/button/Button";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 type InputProps = {
   placeholder: string;
@@ -48,18 +49,21 @@ const Input: React.FC<InputProps> = ({
 const Checkbox: React.FC<{ checked: boolean; onToggle: () => void }> = ({
   checked,
   onToggle,
-}) => (
-  <Pressable onPress={onToggle} style={styles.checkboxContainer}>
-    <Ionicons
-      name={checked ? "checkmark-circle" : "ellipse-outline"}
-      size={Sizes.icon.small}
-      color={checked ? Colors.light.primary : Colors.light.text}
-    />
-    <Text style={styles.checkboxText}>
-      I agree with the Terms and Conditions
-    </Text>
-  </Pressable>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <Pressable onPress={onToggle} style={styles.checkboxContainer}>
+      <Ionicons
+        name={checked ? "checkmark-circle" : "ellipse-outline"}
+        size={Sizes.icon.small}
+        color={checked ? Colors.light.primary : Colors.light.text}
+      />
+      <Text style={styles.checkboxText}>
+        {t("I agree with the Terms and Conditions")}
+      </Text>
+    </Pressable>
+  );
+};
 
 type LoginFormProps = {
   onSubmit: (mobileNumber: string, password: string) => void;
@@ -69,19 +73,20 @@ type LoginFormProps = {
 const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onToggle }) => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
+  const { t } = useTranslation();
 
   return (
     <>
       <View style={styles.inputsContainer}>
         <Input
-          placeholder="Mobile Number"
+          placeholder={t("Mobile Number")}
           iconName="call-outline"
           value={mobileNumber}
           onChangeText={setMobileNumber}
           keyboardType="number-pad"
         />
         <Input
-          placeholder="Password"
+          placeholder={t("Password")}
           iconName="lock-closed-outline"
           secureTextEntry
           value={password}
@@ -89,16 +94,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onToggle }) => {
         />
       </View>
       <Button
-        title="Log in"
+        title={t("Log in")}
         variant="primary"
         size="medium"
         style={styles.button}
         onPress={() => onSubmit(mobileNumber, password)}
       />
       <View style={styles.switchAuthContainer}>
-        <Text style={styles.switchAuthText}>Don't have an account? </Text>
+        <Text style={styles.switchAuthText}>
+          {t("Don't have an account?")}{" "}
+        </Text>
         <Pressable onPress={() => onToggle("signup")}>
-          <Text style={styles.switchAuthButton}>Sign up</Text>
+          <Text style={styles.switchAuthButton}>{t("Sign up")}</Text>
         </Pressable>
       </View>
     </>
@@ -114,19 +121,20 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
   const [isAgree, setIsAgree] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
+  const { t } = useTranslation();
 
   return (
     <>
       <View style={styles.inputsContainer}>
         <Input
-          placeholder="Mobile Number"
+          placeholder={t("Mobile Number")}
           iconName="call-outline"
           value={mobileNumber}
           onChangeText={setMobileNumber}
           keyboardType="number-pad"
         />
         <Input
-          placeholder="Password"
+          placeholder={t("Password")}
           iconName="lock-closed-outline"
           secureTextEntry
           value={password}
@@ -135,16 +143,18 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
       </View>
       <Checkbox checked={isAgree} onToggle={() => setIsAgree(!isAgree)} />
       <Button
-        title="Get OTP"
+        title={t("Get OTP")}
         variant="primary"
         size="medium"
         style={styles.button}
         onPress={() => onSubmit(mobileNumber, password)}
       />
       <View style={styles.switchAuthContainer}>
-        <Text style={styles.switchAuthText}>Already have an account? </Text>
+        <Text style={styles.switchAuthText}>
+          {t("Already have an account?")}{" "}
+        </Text>
         <Pressable onPress={() => onToggle("login")}>
-          <Text style={styles.switchAuthButton}>Log in</Text>
+          <Text style={styles.switchAuthButton}>{t("Log in")}</Text>
         </Pressable>
       </View>
     </>
@@ -165,6 +175,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [resendDisabled, setResendDisabled] = useState(true);
   const [timer, setTimer] = useState(60);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -193,9 +204,9 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   return (
     <View style={styles.otpContainer}>
-      <Text style={styles.otpTitle}>OTP Verification</Text>
+      <Text style={styles.otpTitle}>{t("OTP Verification")}</Text>
       <Text style={styles.otpSubtitle}>
-        Enter the verification code we just sent to your number{" "}
+        {t("Enter the verification code we just sent to your number")}{" "}
         {mobileNumber.replace(/(\d{3})(\d{3})(\d{2})/, "+233 ******$3")}.
       </Text>
       <View style={styles.otpInputContainer}>
@@ -211,7 +222,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         ))}
       </View>
       <View style={styles.resendContainer}>
-        <Text style={styles.resendText}>Didn't receive code? </Text>
+        <Text style={styles.resendText}>{t("Didn't receive code?")} </Text>
         <Pressable onPress={handleResend} disabled={resendDisabled}>
           <Text
             style={[
@@ -219,12 +230,12 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
               resendDisabled && styles.resendButtonTextDisabled,
             ]}
           >
-            {resendDisabled ? `Resend in ${timer}s` : "Resend"}
+            {resendDisabled ? `${t("Resend in")} ${timer}s` : t("Resend")}
           </Text>
         </Pressable>
       </View>
       <Button
-        title="Verify"
+        title={t("Verify")}
         variant="primary"
         size="medium"
         style={styles.button}

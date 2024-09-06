@@ -5,14 +5,16 @@ import { Image } from "expo-image";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
-        <Text style={styles.profileHeading}>Username</Text>
+        <Text style={styles.profileHeading}>{t("Username")}</Text>
       </View>
       <View style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
@@ -23,7 +25,7 @@ const Profile = () => {
         </View>
         <View style={styles.userDetailsContainer}>
           <SmallListItem
-            title="My Information"
+            title={t("My Information")}
             iconName="person"
             onPress={() =>
               router.push({
@@ -33,27 +35,27 @@ const Profile = () => {
             }
           />
           <SmallListItem
-            title="Subscription"
+            title={t("Subscription")}
             iconName="card"
             onPress={() => router.push("/subscription")}
           />
-          <SmallListItem title="Orders" iconName="cart" />
+          <SmallListItem title={t("Orders")} iconName="cart" />
           <SmallListItem
-            title="Union Support"
+            title={t("Union Support")}
             iconName="heart"
             onPress={() => router.push("/profile/union-support")}
           />
-          <SmallListItem title="Settings" iconName="settings" />
+          <SmallListItem title={t("Settings")} iconName="settings" />
           <SmallListItem
-            title="Language"
+            title={t("Language")}
             iconName="language"
             onPress={() => router.push("/profile/language")}
           />
           <SmallListItem
-            title="Privacy and policy"
+            title={t("Privacy and policy")}
             iconName="information-circle"
           />
-          <SmallListItem title="Logout" iconName="log-out" />
+          <SmallListItem title={t("Logout")} iconName="log-out" />
         </View>
       </View>
     </View>

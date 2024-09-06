@@ -9,6 +9,7 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
+import { t } from "i18next";
 
 interface FileUploadFieldProps {
   iconName?:
@@ -33,7 +34,7 @@ const FileUploadField = ({
   iconName = "attach",
   iconType = "Ionicons",
   label,
-  placeholder = "Select a file",
+  placeholder = t("Select a file"),
   onFileSelect,
   selectedFile,
   accessibleLabel,

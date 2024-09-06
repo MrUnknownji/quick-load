@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import Sizes from "@/constants/Sizes";
 import LargeImageView from "@/components/image-views/LargeImageView";
 import IconButton from "@/components/button/IconButton";
+import { t } from "i18next";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -34,14 +35,14 @@ const ContactUs = () => {
           size="medium"
           variant="primary"
           iconLibrary="FontAwesome"
-          title="Call Us"
+          title={t("Call Us")}
         />
         <IconButton
           iconName="whatsapp"
           size="medium"
           variant="primary"
           iconLibrary="FontAwesome"
-          title="WhatsApp"
+          title={t("WhatsApp")}
         />
       </View>
     </View>

@@ -31,6 +31,7 @@ import Sizes from "@/constants/Sizes";
 import ImageCarousel from "@/components/image-views/ImageCarousel";
 import LargeImageView from "@/components/image-views/LargeImageView";
 import { router } from "expo-router";
+import { t } from "i18next";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -162,11 +163,11 @@ export default function HomeScreen() {
   const getMeasurementType = (category: string) => {
     switch (category) {
       case "Bricks":
-        return "piece";
+        return t("Piece");
       case "Cement":
-        return "packet";
+        return t("Packet");
       default:
-        return "qui";
+        return t("Qui.");
     }
   };
 
@@ -206,7 +207,7 @@ export default function HomeScreen() {
                 </View>
               </TouchableOpacity>
               <ThemedText style={styles.categoryLabel}>
-                {category.name}
+                {t(category.name)}
               </ThemedText>
             </View>
           ))}

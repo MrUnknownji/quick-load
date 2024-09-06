@@ -2,6 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { Image } from "expo-image";
 import { router } from "expo-router";
+import { t } from "i18next";
 
 const Create = () => {
   return (
@@ -20,7 +21,7 @@ const Create = () => {
             source="https://placehold.co/200x200?text=Driver"
           />
         </TouchableOpacity>
-        <Text style={styles.labelText}>Find Load(For Driver)</Text>
+        <Text style={styles.labelText}>{t("Find Load(For Driver)")}</Text>
       </View>
       <View style={styles.imageContainer}>
         <TouchableOpacity
@@ -36,7 +37,9 @@ const Create = () => {
             source="https://placehold.co/200x200?text=Customer"
           />
         </TouchableOpacity>
-        <Text style={styles.labelText}>Find Transport(For Customers)</Text>
+        <Text style={styles.labelText}>
+          {t("Find Transport(For Customers)")}
+        </Text>
       </View>
     </View>
   );

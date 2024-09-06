@@ -25,6 +25,7 @@ import Create from "./create";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
+import { t } from "i18next";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
@@ -352,14 +353,14 @@ function getIconName(routeName: string): IconName {
 function getLabelName(routeName: string): string {
   switch (routeName) {
     case "index":
-      return "Home";
+      return t("Home");
     case "track-order":
-      return "Track Order";
+      return t("Track Order");
     case "contact-us":
-      return "Contact Us";
+      return t("Contact Us");
     case "profile":
-      return "Profile";
+      return t("Profile");
     default:
-      return "Other";
+      return t("Other");
   }
 }

@@ -4,6 +4,7 @@ import { router, Slot, usePathname } from "expo-router";
 import IconButton from "@/components/button/IconButton";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
+import { t } from "i18next";
 
 const ProfileLayout = () => {
   const pathname = usePathname();
@@ -22,7 +23,7 @@ const ProfileLayout = () => {
           iconStyle={{ color: Colors.light.background }}
           onPress={() => router.back()}
         />
-        <Text style={styles.headerText}>{title}</Text>
+        <Text style={styles.headerText}>{t(title)}</Text>
       </View>
       <View style={styles.content}>
         <Slot />

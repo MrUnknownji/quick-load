@@ -9,9 +9,14 @@ import {
   TextStyle,
 } from "react-native";
 
+interface Option {
+  label: string;
+  value: string;
+}
+
 interface RadioButtonGroupProps {
-  options: string[];
-  onSelect: (option: string) => void;
+  options: Option[]; // Now options is an array of {label, value}
+  onSelect: (value: string) => void;
   initialSelection?: string;
   selectedTextColor?: string;
   unselectedTextColor?: string;
@@ -34,31 +39,31 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
     }
   }, [initialSelection]);
 
-  const handleSelect = (option: string) => {
-    setSelectedOption(option);
-    onSelect(option);
+  const handleSelect = (value: string) => {
+    setSelectedOption(value);
+    onSelect(value);
   };
 
   return (
     <View style={styles.container}>
       {options.map((option) => (
         <TouchableOpacity
-          key={option}
+          key={option.value}
           style={styles.option}
-          onPress={() => handleSelect(option)}
+          onPress={() => handleSelect(option.value)}
         >
           <View
             style={[
               styles.radio,
               {
                 borderColor:
-                  selectedOption === option
+                  selectedOption === option.value
                     ? selectedTextColor
                     : unselectedTextColor,
               },
             ]}
           >
-            {selectedOption === option && (
+            {selectedOption === option.value && (
               <View
                 style={[
                   styles.selectedRadio,
@@ -72,13 +77,13 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               styles.optionText,
               {
                 color:
-                  selectedOption === option
+                  selectedOption === option.value
                     ? selectedTextColor
                     : unselectedTextColor,
               },
             ]}
           >
-            {option}
+            {option.label}
           </Text>
         </TouchableOpacity>
       ))}

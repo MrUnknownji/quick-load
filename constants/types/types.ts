@@ -18,7 +18,14 @@ interface ListItemProps {
   location?: string;
   imageUrl: string;
   rating?: number;
-  mesurementType?: "qui" | "piece" | "packet";
+  mesurementType?:
+    | "Qui."
+    | "Piece"
+    | "Packet"
+    | "क्विंटल"
+    | "टुकड़ा"
+    | "पैकेट"
+    | string;
   onPress?: () => void;
   buttonTitle?: string;
 }

@@ -5,6 +5,7 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "../button/IconButton";
 import Notifications from "@/components/notifications/Notification";
+import { t } from "i18next";
 
 interface SearchHeaderProps {
   isPaddingNeeded?: boolean;
@@ -63,7 +64,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           variant="transparent"
         />
         <TextInput
-          placeholder="Search"
+          placeholder={t("Search")}
           placeholderTextColor={iconColor}
           style={[styles.searchInput, { color: textColor }]}
         />

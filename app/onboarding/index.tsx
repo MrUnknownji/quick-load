@@ -9,12 +9,14 @@ import Button from "@/components/button/Button";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useAppLanguage from "@/hooks/useAppLanguage";
+import { useTranslation } from "react-i18next";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const Onboarding = () => {
   const [selectedPage, setSelectedPage] = useState(0);
-  const { setAppLanguage } = useAppLanguage();
+  const { appLanguage, setAppLanguage } = useAppLanguage();
+  const { t } = useTranslation();
 
   const handleNext = async () => {
     if (selectedPage === 2) {
@@ -40,16 +42,22 @@ const Onboarding = () => {
             style={styles.icon}
           />
           <View style={styles.welcomeTextContainer}>
-            <Text style={styles.welcomeText}>Welcome to Quick Load</Text>
-            <Text style={styles.welcomeSubText}>Let's get started</Text>
+            <Text style={styles.welcomeText}>{t("Welcome to Quick Load")}</Text>
+            <Text style={styles.welcomeSubText}>{t("Let's get started")}</Text>
           </View>
           <View style={styles.selectLanguageTextContainer}>
             <Ionicons name="language" size={24} color={Colors.light.primary} />
-            <Text style={styles.selectLanguageText}>Select Language</Text>
+            <Text style={styles.selectLanguageText}>
+              {t("Select Language")}
+            </Text>
           </View>
           <View style={styles.selectLanguageContainer}>
             <RadioButtonGroup
-              options={["English", "Hindi(हिन्दी)"]}
+              options={[
+                { label: "English", value: "en" },
+                { label: "Hindi(हिन्दी)", value: "hi" },
+              ]}
+              initialSelection={appLanguage ?? "en"}
               onSelect={(selectedLanguage) => setAppLanguage(selectedLanguage)}
               selectedTextColor={Colors.light.primary}
             />
@@ -77,7 +85,7 @@ const Onboarding = () => {
         </View>
       )}
       <Button
-        title="Continue"
+        title={t("Continue")}
         variant="primary"
         size="medium"
         style={styles.button}

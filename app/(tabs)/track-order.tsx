@@ -6,6 +6,7 @@ import { ListItemProps } from "@/constants/types/types";
 import { BRICKS_ITEMS, GRIT_ITEMS } from "@/assets/data/DATA";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import { router } from "expo-router";
+import { t } from "i18next";
 
 const PENDING_ORDERS: ListItemProps[] = [BRICKS_ITEMS[0], GRIT_ITEMS[3]];
 const DELIVERED_ORDERS: ListItemProps[] = [GRIT_ITEMS[1], BRICKS_ITEMS[2]];
@@ -19,7 +20,7 @@ const TrackOrder = () => {
   };
 
   const renderSectionHeader = (title: string) => (
-    <Text style={styles.sectionHeaderText}>{title}</Text>
+    <Text style={styles.sectionHeaderText}>{t(title)}</Text>
   );
 
   const renderItem = ({
@@ -32,21 +33,24 @@ const TrackOrder = () => {
     <LargeListItem
       {...item}
       buttonTitle={
-        section.title === "Pending Orders" ? "Track Order" : "Delivered"
+        section.title === t("Pending Orders")
+          ? t("Track Order")
+          : t("Delivered")
       }
       onPress={() => onItemPress(item.productId)}
+      mesurementType={"Qui."}
     />
   );
 
   const sections = [
-    { title: "Pending Orders", data: PENDING_ORDERS },
-    { title: "Delivered Orders", data: DELIVERED_ORDERS },
+    { title: t("Pending Orders"), data: PENDING_ORDERS },
+    { title: t("Delivered Orders"), data: DELIVERED_ORDERS },
   ];
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headingText}>Track your route</Text>
+        <Text style={styles.headingText}>{t("Track your route")}</Text>
       </View>
       <FlatList
         data={sections}

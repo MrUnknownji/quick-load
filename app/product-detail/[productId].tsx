@@ -25,6 +25,7 @@ import Colors from "@/constants/Colors";
 import LargeImageView from "@/components/image-views/LargeImageView";
 import Button from "@/components/button/Button";
 import { ListItemProps } from "@/constants/types/types";
+import { t } from "i18next";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
@@ -77,7 +78,7 @@ const ProductDetailPage = () => {
   if (!product)
     return (
       <CenteredContainer>
-        <Text style={styles.errorText}>Product not found</Text>
+        <Text style={styles.errorText}>{t("Product not found")}</Text>
       </CenteredContainer>
     );
 
@@ -149,7 +150,7 @@ const ProductHeader = ({ heading }: { heading: string }) => (
       }}
       onPress={() => router.back()}
     />
-    <Text style={styles.productHeading}>{heading}</Text>
+    <Text style={styles.productHeading}>{t(heading)}</Text>
   </View>
 );
 
@@ -164,10 +165,10 @@ const ProductFeaturesCard = ({ price }: { price?: number }) => (
     <View
       style={{ alignItems: "center", justifyContent: "center", width: "100%" }}
     >
-      <Text style={styles.featureCardHeading}>Our Features</Text>
+      <Text style={styles.featureCardHeading}>{t("Our Features")}</Text>
       <Text style={styles.featureCardPrice}>
         {price}
-        <Text style={styles.perPieceText}>/piece</Text>
+        <Text style={styles.perPieceText}>/{t("piece")}</Text>
       </Text>
     </View>
     <FlatList data={FEATURES} renderItem={renderFeatureItem} />
@@ -181,7 +182,7 @@ const renderFeatureItem = ({ item }: { item: string }) => (
       size={Sizes.icon.small}
       color={Colors.light.primary}
     />
-    <Text style={styles.featureText}>{item}</Text>
+    <Text style={styles.featureText}>{t(item)}</Text>
   </View>
 );
 
@@ -197,24 +198,30 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
 
   return (
     <View style={styles2.pricingCard}>
-      <Text style={styles2.pricingCardHeading}>Pricing</Text>
-      <PricingCardItem label="Piece">
+      <Text style={styles2.pricingCardHeading}>{t("Pricing")}</Text>
+      <PricingCardItem label={t("Piece")}>
         <TextInput
           style={styles2.piecesInput}
-          placeholder="Qty"
+          placeholder={t("Qty")}
           value={quantity > 0 ? quantity.toString() : ""}
           keyboardType="number-pad"
           onChange={(e) => handleQuantityChange(e.nativeEvent.text)}
         />
       </PricingCardItem>
-      <PricingCardItem label="Price/piece">
-        <Text style={styles2.perPiecePriceText}>Rs. {item.price}</Text>
+      <PricingCardItem label={t("Price/piece")}>
+        <Text style={styles2.perPiecePriceText}>
+          {t("Rs.")} {item.price}
+        </Text>
       </PricingCardItem>
-      <PricingCardItem label="Offer" offer>
-        <Text style={styles2.offerText}>Rs. {discount}</Text>
+      <PricingCardItem label={t("Offer")} offer>
+        <Text style={styles2.offerText}>
+          {t("Rs.")} {discount}
+        </Text>
       </PricingCardItem>
-      <PricingCardItem label="Total">
-        <Text style={styles2.totalPrice}>Rs. {totalPrice - discount}</Text>
+      <PricingCardItem label={t("Total")}>
+        <Text style={styles2.totalPrice}>
+          {t("Rs.")} {totalPrice - discount}
+        </Text>
       </PricingCardItem>
     </View>
   );
@@ -233,7 +240,9 @@ const PricingCardItem = ({
     <Text style={styles2.pricingCardListItemText}>
       {label}
       {offer && (
-        <Text style={styles2.offerDetailText}>(10% off on first Order)</Text>
+        <Text style={styles2.offerDetailText}>
+          {t("(10% off on first Order)")}
+        </Text>
       )}
     </Text>
     {children}
