@@ -10,11 +10,21 @@ interface Category {
   url: string;
 }
 
-interface ListItemProps {
-  productId: string;
+interface Brand {
+  brandId: string;
   heading: string;
-  productDescription: string;
-  price?: number;
+  category: string;
+  location?: string;
+  rating?: number;
+  imageUrl: string;
+  price?: string;
+}
+
+interface ListItemProps {
+  productId?: string;
+  heading: string;
+  productDescription?: string;
+  price?: string;
   location?: string;
   imageUrl: string;
   rating?: number;
@@ -68,4 +78,5 @@ export {
   IoniconsIconProps,
   VehicleTypeProps,
   CustomFile,
+  Brand,
 };

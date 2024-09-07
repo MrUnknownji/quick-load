@@ -1,16 +1,22 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import SmallListItem from "@/components/list-items/SmallListItem";
 import { Image } from "expo-image";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { router } from "expo-router";
-import { useTranslation } from "react-i18next";
+import { t } from "i18next";
+import LogoutDialog from "@/components/popups/LogoutDialog";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
-  const { t } = useTranslation();
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+    setIsDialogVisible(false);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
@@ -39,7 +45,6 @@ const Profile = () => {
             iconName="card"
             onPress={() => router.push("/subscription")}
           />
-          <SmallListItem title={t("Orders")} iconName="cart" />
           <SmallListItem
             title={t("My Vehicles")}
             iconName="car"
@@ -60,7 +65,16 @@ const Profile = () => {
             title={t("Privacy and policy")}
             iconName="information-circle"
           />
-          <SmallListItem title={t("Logout")} iconName="log-out" />
+          <SmallListItem
+            title={t("Logout")}
+            iconName="log-out"
+            onPress={() => setIsDialogVisible(true)}
+          />
+          <LogoutDialog
+            isVisible={isDialogVisible}
+            onClose={() => setIsDialogVisible(false)}
+            onLogout={handleLogout}
+          />
         </View>
       </View>
     </View>

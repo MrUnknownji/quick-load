@@ -26,6 +26,7 @@ import LargeImageView from "@/components/image-views/LargeImageView";
 import Button from "@/components/button/Button";
 import { ListItemProps } from "@/constants/types/types";
 import { t } from "i18next";
+import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
@@ -97,9 +98,9 @@ const ProductDetailPage = () => {
               {!isPricingVisible && (
                 <>
                   <Text style={styles.productDescription}>
-                    {product.productDescription}
+                    {t(product.productDescription ?? "")}
                   </Text>
-                  <ProductFeaturesCard price={product.price} />
+                  <ProductFeaturesCard price={Number(product.price)} />
                 </>
               )}
             </View>
@@ -111,7 +112,7 @@ const ProductDetailPage = () => {
         }
       />
       <Button
-        title={isPricingVisible ? "Book Order" : "Buy Now"}
+        title={isPricingVisible ? t("Book Order") : t("Buy Now")}
         variant="primary"
         size="medium"
         style={{
@@ -125,8 +126,9 @@ const ProductDetailPage = () => {
             router.push({
               pathname: "/thank-you",
               params: {
-                message:
-                  "Thank you for the purchase. You will receive your product shortly.",
+                message: t(
+                  "Thank you for the purchase. You will receive your product shortly."
+                ),
               },
             });
           togglePricingVisibility();
@@ -168,7 +170,7 @@ const ProductFeaturesCard = ({ price }: { price?: number }) => (
       <Text style={styles.featureCardHeading}>{t("Our Features")}</Text>
       <Text style={styles.featureCardPrice}>
         {price}
-        <Text style={styles.perPieceText}>/{t("piece")}</Text>
+        <Text style={styles.perPieceText}>/{t("Piece")}</Text>
       </Text>
     </View>
     <FlatList data={FEATURES} renderItem={renderFeatureItem} />
@@ -188,7 +190,8 @@ const renderFeatureItem = ({ item }: { item: string }) => (
 
 const PricingCard = ({ item }: { item: ListItemProps }) => {
   const [quantity, setQuantity] = useState(0);
-  const totalPrice = quantity * (item.price ?? 0);
+  const [paymentMethod, setPaymentMethod] = useState("paymentNow");
+  const totalPrice = quantity * (Number(item.price) ?? 0);
   const discount = totalPrice * 0.1;
 
   const handleQuantityChange = (input: string) => {
@@ -197,33 +200,49 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
   };
 
   return (
-    <View style={styles2.pricingCard}>
-      <Text style={styles2.pricingCardHeading}>{t("Pricing")}</Text>
-      <PricingCardItem label={t("Piece")}>
-        <TextInput
-          style={styles2.piecesInput}
-          placeholder={t("Qty")}
-          value={quantity > 0 ? quantity.toString() : ""}
-          keyboardType="number-pad"
-          onChange={(e) => handleQuantityChange(e.nativeEvent.text)}
+    <>
+      <View style={styles2.pricingCard}>
+        <Text style={styles2.pricingCardHeading}>{t("Pricing")}</Text>
+        <PricingCardItem label={t("Piece")}>
+          <TextInput
+            style={styles2.piecesInput}
+            placeholder={t("Qty")}
+            value={quantity > 0 ? quantity.toString() : ""}
+            keyboardType="number-pad"
+            onChange={(e) => handleQuantityChange(e.nativeEvent.text)}
+          />
+        </PricingCardItem>
+        <PricingCardItem label={t("Price/piece")}>
+          <Text style={styles2.perPiecePriceText}>
+            {t("Rs.")} {item.price}
+          </Text>
+        </PricingCardItem>
+        <PricingCardItem label={t("Offer")} offer>
+          <Text style={styles2.offerText}>
+            {t("Rs.")} {discount}
+          </Text>
+        </PricingCardItem>
+        <PricingCardItem label={t("Total")}>
+          <Text style={styles2.totalPrice}>
+            {t("Rs.")} {totalPrice - discount}
+          </Text>
+        </PricingCardItem>
+      </View>
+      <View>
+        <Text style={styles2.paymentMethodHeading}>
+          {t("Select Your Payment method")}
+        </Text>
+        <RadioButtonGroup
+          options={[
+            { label: t("Payment now"), value: "paymentNow" },
+            { label: t("Cash on Delivery"), value: "cashOnDelivery" },
+            { label: t("Pay on Delivery"), value: "payOnDelivery" },
+          ]}
+          onSelect={(value) => setPaymentMethod(value)}
+          initialSelection={paymentMethod}
         />
-      </PricingCardItem>
-      <PricingCardItem label={t("Price/piece")}>
-        <Text style={styles2.perPiecePriceText}>
-          {t("Rs.")} {item.price}
-        </Text>
-      </PricingCardItem>
-      <PricingCardItem label={t("Offer")} offer>
-        <Text style={styles2.offerText}>
-          {t("Rs.")} {discount}
-        </Text>
-      </PricingCardItem>
-      <PricingCardItem label={t("Total")}>
-        <Text style={styles2.totalPrice}>
-          {t("Rs.")} {totalPrice - discount}
-        </Text>
-      </PricingCardItem>
-    </View>
+      </View>
+    </>
   );
 };
 
@@ -238,7 +257,7 @@ const PricingCardItem = ({
 }) => (
   <View style={styles2.pricingCardListItem}>
     <Text style={styles2.pricingCardListItemText}>
-      {label}
+      {t(label)}
       {offer && (
         <Text style={styles2.offerDetailText}>
           {t("(10% off on first Order)")}
@@ -299,6 +318,12 @@ const styles2 = StyleSheet.create({
   totalPrice: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
+  },
+  paymentMethodHeading: {
+    fontSize: Sizes.textLarge,
+    fontWeight: "bold",
+    marginVertical: Sizes.marginMedium,
+    textAlign: "center",
   },
 });
 
