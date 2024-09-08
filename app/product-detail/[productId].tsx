@@ -125,7 +125,6 @@ const ProductDetailPage = () => {
         }}
         onPress={() => {
           if (isPricingVisible) {
-            router.dismissAll();
             router.push({
               pathname: "/thank-you",
               params: {
