@@ -272,7 +272,7 @@ const Authentication: React.FC = () => {
 
   const handleLogin = (mobile: string, password: string) => {
     console.log("Login:", mobile, password);
-    router.push("/");
+    router.replace("/");
   };
 
   const handleSignup = (mobile: string, password: string) => {

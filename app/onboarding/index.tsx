@@ -21,7 +21,7 @@ const Onboarding = () => {
   const handleNext = async () => {
     if (selectedPage === 2) {
       await AsyncStorage.setItem("hasOnboarded", "true");
-      router.push("/authentication");
+      router.replace("/authentication");
     } else {
       setSelectedPage(selectedPage + 1);
     }

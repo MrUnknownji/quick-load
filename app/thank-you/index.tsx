@@ -33,7 +33,7 @@ const ThankYou = () => {
         title={t("Continue Shopping")}
         variant="primary"
         size="medium"
-        onPress={() => router.push("/")}
+        onPress={() => router.dismissAll()}
         style={{ marginTop: Sizes.marginLarge }}
       />
     </View>

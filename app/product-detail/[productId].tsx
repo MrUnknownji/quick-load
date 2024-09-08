@@ -124,7 +124,8 @@ const ProductDetailPage = () => {
           width: screenWidth - Sizes.marginHorizontal * 2,
         }}
         onPress={() => {
-          if (isPricingVisible)
+          if (isPricingVisible) {
+            router.dismissAll();
             router.push({
               pathname: "/thank-you",
               params: {
@@ -133,6 +134,7 @@ const ProductDetailPage = () => {
                 ),
               },
             });
+          }
           togglePricingVisibility();
         }}
       />

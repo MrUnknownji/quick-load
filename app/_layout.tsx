@@ -15,6 +15,7 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "@/services/i18";
 import { LanguageProvider } from "./Context/LanguageContext";
 import { ForceUpdateProvider } from "./Context/ForceUpdateProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -28,8 +29,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
-      const hasOnboarded = null;
-      // const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+      // const hasOnboarded = null;
+      const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
       if (loaded) {
         SplashScreen.hideAsync();
         if (hasOnboarded === null) {
@@ -68,6 +69,8 @@ export default function RootLayout() {
                 <Stack.Screen name="thank-you/index" />
                 <Stack.Screen name="order-detail/order-track/index" />
                 <Stack.Screen name="brand-items/index" />
+                <Stack.Screen name="find-route/index" />
+                <Stack.Screen name="route-map/index" />
                 <Stack.Screen name="+not-found" />
               </Stack>
             </GestureHandlerRootView>
