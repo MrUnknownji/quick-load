@@ -173,5 +173,9 @@
   "Remove Account": "खाता हटाएं",
   "Loading Charges": "लोडिंग शार्ति",
   "Broker Charges": "ब्रोक शार्ति",
-  "Plateform Fees": "प्लेटफॉर्म शुल्क"
+  "Plateform Fees": "प्लेटफॉर्म शुल्क",
+  "Your Location": "आपका स्थान",
+  "Open in Google Maps": "Google नक्शा मैप्स में खोलें",
+  "Find": "खोजें",
+  "You need to open in Google Maps to see this route. No API key is added so we are using random locations for now. Your route is from Central Park to Times Square": "इस मार्ग को देखने के लिए आपको Google मानचित्र में खोलना होगा। कोई एपीआई कुंजी नहीं जोड़ी गई है इसलिए हम अभी यादृच्छिक स्थानों का उपयोग कर रहे हैं। आपका मार्ग सेंट्रल पार्क से टाइम्स स्क्वायर तक है"
 }

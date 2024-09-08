@@ -1,28 +1,48 @@
-import React from "react";
-import { View, Text, TextInput, StyleSheet, Image } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Image } from "react-native";
 import Button from "@/components/button/Button";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
-import SelectList from "@/components/input-fields/SelectList";
 import IconButton from "@/components/button/IconButton";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "i18next";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
+  const [startingPoint, setStartingPoint] = useState("");
+  const [endingPoint, setEndingPoint] = useState("");
+
+  const handleSend = () => {
+    if (startingPoint && endingPoint) {
+      router.push({
+        pathname: "/route-map",
+        params: { start: startingPoint, end: endingPoint },
+      });
+    } else {
+      alert(
+        t(
+          "You need to open in Google Maps to see this route. No API key is added so we are using random locations for now. Your route is from Central Park to Times Square"
+        )
+      );
+      router.push({
+        pathname: "/route-map",
+        params: {
+          start: "Central Park, New York, NY, USA",
+          end: "Times Square, New York, NY, USA",
+        },
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <IconButton
         iconName="chevron-back"
         size="small"
         variant="primary"
-        style={{
-          position: "absolute",
-          left: Sizes.marginHorizontal,
-          top: Sizes.StatusBarHeight ?? 0 + 10,
-          borderRadius: Sizes.borderRadiusFull,
-        }}
+        style={styles.backButton}
         onPress={() => router.back()}
       />
       <Image source={require("@/assets/images/icon.png")} style={styles.logo} />
@@ -36,14 +56,23 @@ const RouteFinder = () => {
         )}
       </Text>
       <Text style={styles.subtitle}>{t("Submit your route request")}</Text>
-
       <Text style={styles.sectionTitle}>{t("Find Route")}</Text>
 
       <View style={styles.inputContainer}>
-        <TextInput
+        <GooglePlacesAutocomplete
           placeholder={t("Starting point")}
-          style={styles.input}
-          placeholderTextColor={Colors.light.textSecondary}
+          onPress={(data, details = null) => {
+            setStartingPoint(data.description);
+          }}
+          query={{
+            key: "YOUR_GOOGLE_MAPS_API_KEY",
+            language: "en",
+          }}
+          styles={{
+            textInput: styles.autocompleteInput,
+            container: { flex: 1 },
+            listView: { marginTop: 0 },
+          }}
         />
         <Ionicons
           name="search"
@@ -56,10 +85,20 @@ const RouteFinder = () => {
       <Text style={styles.toText}>{t("to")}</Text>
 
       <View style={styles.inputContainer}>
-        <TextInput
+        <GooglePlacesAutocomplete
           placeholder={t("Ending point")}
-          style={styles.input}
-          placeholderTextColor={Colors.light.textSecondary}
+          onPress={(data, details = null) => {
+            setEndingPoint(data.description);
+          }}
+          query={{
+            key: "YOUR_GOOGLE_MAPS_API_KEY",
+            language: "en",
+          }}
+          styles={{
+            textInput: styles.autocompleteInput,
+            container: { flex: 1 },
+            listView: { marginTop: 0 },
+          }}
         />
         <Ionicons
           name="search"
@@ -69,22 +108,13 @@ const RouteFinder = () => {
         />
       </View>
 
-      <SelectList
-        options={[t("Truck"), t("Dumper"), t("Trailer"), t("Container")]}
-        label={t("Vehicle Type")}
-        iconName="truck"
-        iconType="MaterialCommunityIcons"
-        disabled={false}
-        containerStyle={{ paddingHorizontal: 0 }}
-        placeholder={t("Select a vehicle type")}
-      />
-
       <Button
-        title={t("Send")}
+        title={t("Find")}
         variant="primary"
         size="medium"
         style={{ width: "100%" }}
         textStyle={{ fontSize: Sizes.textMedium }}
+        onPress={handleSend}
       />
     </View>
   );
@@ -131,9 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: Sizes.borderRadius,
     marginBottom: Sizes.marginSmall,
   },
-  input: {
+  autocompleteInput: {
     flex: 1,
-    height: Sizes.buttonHeight,
     paddingHorizontal: Sizes.paddingHorizontal,
   },
   searchIcon: {
@@ -144,6 +173,12 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     marginBottom: Sizes.marginSmall,
     textAlign: "center",
+  },
+  backButton: {
+    position: "absolute",
+    left: Sizes.marginHorizontal,
+    top: Sizes.StatusBarHeight ?? 0 + 10,
+    borderRadius: Sizes.borderRadiusFull,
   },
 });
 
