@@ -7,6 +7,7 @@ import { BRICKS_ITEMS, GRIT_ITEMS } from "@/assets/data/DATA";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import { router } from "expo-router";
 import { t } from "i18next";
+import { ThemedText } from "@/components/ThemedText";
 
 const PENDING_ORDERS: ListItemProps[] = [BRICKS_ITEMS[0], GRIT_ITEMS[3]];
 const DELIVERED_ORDERS: ListItemProps[] = [GRIT_ITEMS[1], BRICKS_ITEMS[2]];
@@ -20,7 +21,7 @@ const TrackOrder = () => {
   };
 
   const renderSectionHeader = (title: string) => (
-    <Text style={styles.sectionHeaderText}>{t(title)}</Text>
+    <ThemedText style={styles.sectionHeaderText}>{t(title)}</ThemedText>
   );
 
   const renderItem = ({
@@ -37,7 +38,7 @@ const TrackOrder = () => {
           ? t("Track Order")
           : t("Delivered")
       }
-      onPress={() => onItemPress(item.productId)}
+      onPress={() => onItemPress(item.productId ?? "")}
       mesurementType={"Qui."}
     />
   );
@@ -50,7 +51,9 @@ const TrackOrder = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headingText}>{t("Track your route")}</Text>
+        <ThemedText style={styles.headingText}>
+          {t("Track your route")}
+        </ThemedText>
       </View>
       <FlatList
         data={sections}
@@ -60,7 +63,7 @@ const TrackOrder = () => {
             <FlatList
               data={section.data}
               renderItem={({ item }) => renderItem({ item, section })}
-              keyExtractor={(item) => item.productId}
+              keyExtractor={(item, index) => index.toString()}
             />
           </View>
         )}

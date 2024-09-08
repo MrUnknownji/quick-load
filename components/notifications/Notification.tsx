@@ -69,6 +69,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
     "textSecondary"
   );
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   return (
     <TouchableOpacity
@@ -76,7 +80,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       style={[styles.notificationItem, { backgroundColor }]}
     >
       <View style={styles.notificationIcon}>
-        <Ionicons name="notifications" size={24} color={Colors.light.primary} />
+        <Ionicons name="notifications" size={24} color={iconColor} />
       </View>
       <View style={styles.notificationContent}>
         <Text style={[styles.notificationTitle, { color: textColor }]}>

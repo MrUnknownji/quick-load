@@ -40,6 +40,7 @@ import {
   SAND_BRANDS,
 } from "@/assets/data/DATA";
 import { Brand, Category } from "@/constants/types/types";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -70,6 +71,10 @@ const HomeScreen: React.FC = () => {
   ).current;
   const { activePath } = usePathChangeListener();
   const theme = useTheme();
+  const borderColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   const resetAnimations = useCallback(() => {
     heroScaleAnim.setValue(0.9);
@@ -240,8 +245,7 @@ const HomeScreen: React.FC = () => {
                 <View
                   style={[
                     styles.categoryImageContainer,
-                    selectedCategory === category.name &&
-                      styles.selectedCategory,
+                    selectedCategory === category.name && { borderColor },
                   ]}
                 >
                   <Image source={category.url} style={styles.categoryImage} />
@@ -304,9 +308,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "transparent",
-  },
-  selectedCategory: {
-    borderColor: Colors.light.primary,
   },
   categoryImage: {
     width: 60,

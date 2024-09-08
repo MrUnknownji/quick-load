@@ -14,6 +14,9 @@ import Colors from "@/constants/Colors";
 import Button from "@/components/button/Button";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { ThemedView } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "@/components/ThemedText";
 
 type InputProps = {
   placeholder: string;
@@ -31,36 +34,58 @@ const Input: React.FC<InputProps> = ({
   value,
   onChangeText,
   keyboardType = "default",
-}) => (
-  <View style={styles.inputContainer}>
-    <Ionicons name={iconName} size={24} color={Colors.light.text} />
-    <TextInput
-      placeholder={placeholder}
-      style={styles.input}
-      secureTextEntry={secureTextEntry}
-      placeholderTextColor={Colors.light.text}
-      value={value}
-      onChangeText={onChangeText}
-      keyboardType={keyboardType}
-    />
-  </View>
-);
+}) => {
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+  const placeholderColor = useThemeColor(
+    { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
+    "textSecondary"
+  );
+  return (
+    <View style={styles.inputContainer}>
+      <Ionicons name={iconName} size={24} color={iconColor} />
+      <TextInput
+        placeholder={placeholder}
+        style={[styles.input, { color: textColor }]}
+        secureTextEntry={secureTextEntry}
+        placeholderTextColor={placeholderColor}
+        value={value}
+        onChangeText={onChangeText}
+        keyboardType={keyboardType}
+      />
+    </View>
+  );
+};
 
 const Checkbox: React.FC<{ checked: boolean; onToggle: () => void }> = ({
   checked,
   onToggle,
 }) => {
   const { t } = useTranslation();
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
   return (
     <Pressable onPress={onToggle} style={styles.checkboxContainer}>
       <Ionicons
         name={checked ? "checkmark-circle" : "ellipse-outline"}
         size={Sizes.icon.small}
-        color={checked ? Colors.light.primary : Colors.light.text}
+        color={checked ? iconColor : textColor}
       />
-      <Text style={styles.checkboxText}>
+      <ThemedText style={styles.checkboxText}>
         {t("I agree with the Terms and Conditions")}
-      </Text>
+      </ThemedText>
     </Pressable>
   );
 };
@@ -74,6 +99,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onToggle }) => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const { t } = useTranslation();
+  const primaryTextColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   return (
     <>
@@ -101,11 +130,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onToggle }) => {
         onPress={() => onSubmit(mobileNumber, password)}
       />
       <View style={styles.switchAuthContainer}>
-        <Text style={styles.switchAuthText}>
-          {t("Don't have an account?")}{" "}
-        </Text>
+        <ThemedText>{t("Don't have an account?")} </ThemedText>
         <Pressable onPress={() => onToggle("signup")}>
-          <Text style={styles.switchAuthButton}>{t("Sign up")}</Text>
+          <Text style={[styles.switchAuthButton, { color: primaryTextColor }]}>
+            {t("Sign up")}
+          </Text>
         </Pressable>
       </View>
     </>
@@ -122,6 +151,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const { t } = useTranslation();
+
+  const primaryTextColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   return (
     <>
@@ -150,11 +184,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
         onPress={() => onSubmit(mobileNumber, password)}
       />
       <View style={styles.switchAuthContainer}>
-        <Text style={styles.switchAuthText}>
-          {t("Already have an account?")}{" "}
-        </Text>
+        <ThemedText>{t("Already have an account?")} </ThemedText>
         <Pressable onPress={() => onToggle("login")}>
-          <Text style={styles.switchAuthButton}>{t("Log in")}</Text>
+          <Text style={[styles.switchAuthButton, { color: primaryTextColor }]}>
+            {t("Log in")}
+          </Text>
         </Pressable>
       </View>
     </>
@@ -176,6 +210,14 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
   const [resendDisabled, setResendDisabled] = useState(true);
   const [timer, setTimer] = useState(60);
   const { t } = useTranslation();
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "primary"
+  );
+  const secondaryTextColor = useThemeColor(
+    { light: Colors.light.border, dark: Colors.dark.border },
+    "border"
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -204,16 +246,16 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   return (
     <View style={styles.otpContainer}>
-      <Text style={styles.otpTitle}>{t("OTP Verification")}</Text>
-      <Text style={styles.otpSubtitle}>
+      <ThemedText style={styles.otpTitle}>{t("OTP Verification")}</ThemedText>
+      <ThemedText style={styles.otpSubtitle}>
         {t("Enter the verification code we just sent to your number")}{" "}
         {mobileNumber.replace(/(\d{3})(\d{3})(\d{2})/, "+233 ******$3")}.
-      </Text>
+      </ThemedText>
       <View style={styles.otpInputContainer}>
         {otp.map((digit, index) => (
           <TextInput
             key={index}
-            style={styles.otpInput}
+            style={[styles.otpInput, { color: textColor }]}
             value={digit}
             onChangeText={(value) => handleOtpChange(value, index)}
             keyboardType="number-pad"
@@ -222,16 +264,16 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         ))}
       </View>
       <View style={styles.resendContainer}>
-        <Text style={styles.resendText}>{t("Didn't receive code?")} </Text>
+        <ThemedText>{t("Didn't receive code?")} </ThemedText>
         <Pressable onPress={handleResend} disabled={resendDisabled}>
-          <Text
+          <ThemedText
             style={[
               styles.resendButtonText,
-              resendDisabled && styles.resendButtonTextDisabled,
+              resendDisabled && { color: secondaryTextColor },
             ]}
           >
             {resendDisabled ? `${t("Resend in")} ${timer}s` : t("Resend")}
-          </Text>
+          </ThemedText>
         </Pressable>
       </View>
       <Button
@@ -290,7 +332,7 @@ const Authentication: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
       <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
         {authMode === "login" && (
@@ -307,7 +349,7 @@ const Authentication: React.FC = () => {
           />
         )}
       </Animated.View>
-    </View>
+    </ThemedView>
   );
 };
 
@@ -317,7 +359,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: Sizes.paddingHorizontal,
-    backgroundColor: Colors.light.background,
   },
   icon: {
     width: 120,
@@ -345,7 +386,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     marginLeft: 10,
-    color: Colors.light.text,
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -354,7 +394,6 @@ const styles = StyleSheet.create({
   },
   checkboxText: {
     marginLeft: 8,
-    color: Colors.light.text,
   },
   button: {
     width: "100%",
@@ -365,11 +404,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  switchAuthText: {
-    color: Colors.light.text,
-  },
   switchAuthButton: {
-    color: Colors.light.primary,
     fontWeight: "bold",
   },
   otpContainer: {
@@ -380,12 +415,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
-    color: Colors.light.text,
   },
   otpSubtitle: {
     textAlign: "center",
     marginBottom: 20,
-    color: Colors.light.text,
   },
   otpInputContainer: {
     flexDirection: "row",
@@ -401,22 +434,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: "center",
     fontSize: 24,
-    color: Colors.light.text,
   },
   resendContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
   },
-  resendText: {
-    color: Colors.light.text,
-  },
   resendButtonText: {
-    color: Colors.light.primary,
     fontWeight: "bold",
-  },
-  resendButtonTextDisabled: {
-    color: Colors.light.border,
   },
 });
 

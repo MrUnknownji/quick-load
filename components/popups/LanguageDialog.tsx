@@ -13,6 +13,8 @@ import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { t } from "i18next";
 import { useLanguage } from "@/app/Context/LanguageContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "../ThemedText";
 
 interface LanguageDialogProps {
   isVisible: boolean;
@@ -51,6 +53,20 @@ const LanguageDialog: React.FC<LanguageDialogProps> = ({
     setAppLanguage(language);
   };
 
+  const backgroundColor = useThemeColor(
+    { light: Colors.light.background, dark: Colors.dark.background },
+    "background"
+  );
+
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+  const primaryColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+
   return (
     <Modal
       transparent
@@ -68,7 +84,12 @@ const LanguageDialog: React.FC<LanguageDialogProps> = ({
           intensity={30}
           experimentalBlurMethod="dimezisBlurView"
         />
-        <Animated.View style={[styles.dialog, { transform: [{ translateY }] }]}>
+        <Animated.View
+          style={[
+            styles.dialog,
+            { transform: [{ translateY }], backgroundColor },
+          ]}
+        >
           <View style={styles.content}>
             {/* Header with Close Icon */}
             <View style={styles.header}>
@@ -79,15 +100,13 @@ const LanguageDialog: React.FC<LanguageDialogProps> = ({
                   marginBottom: 25,
                 }}
               >
-                <Ionicons
-                  name="language"
-                  size={24}
-                  color={Colors.light.primary}
-                />
-                <Text style={styles.title}>{t("Select Language")}</Text>
+                <Ionicons name="language" size={24} color={iconColor} />
+                <ThemedText style={styles.title}>
+                  {t("Select Language")}
+                </ThemedText>
               </View>
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={20} color={Colors.light.text} />
+                <Ionicons name="close" size={20} color={iconColor} />
               </TouchableOpacity>
             </View>
 
@@ -95,35 +114,47 @@ const LanguageDialog: React.FC<LanguageDialogProps> = ({
             <TouchableOpacity
               style={[
                 styles.languageButton,
-                selectedLanguage === "hi" && styles.selectedButton,
+                selectedLanguage === "hi" && {
+                  borderColor: primaryColor,
+                  borderWidth: 2,
+                },
               ]}
               onPress={() => handleLanguageSelect("hi")}
             >
-              <Text
+              <ThemedText
                 style={[
                   styles.languageButtonText,
-                  selectedLanguage === "hi" && styles.selectedButtonText,
+                  selectedLanguage === "hi" && {
+                    color: primaryColor,
+                    fontWeight: "bold",
+                  },
                 ]}
               >
                 हिन्दी
-              </Text>
+              </ThemedText>
             </TouchableOpacity>
             <View style={styles.divider} />
             <TouchableOpacity
               style={[
                 styles.languageButton,
-                selectedLanguage === "en" && styles.selectedButton,
+                selectedLanguage === "en" && {
+                  borderColor: primaryColor,
+                  borderWidth: 2,
+                },
               ]}
               onPress={() => handleLanguageSelect("en")}
             >
-              <Text
+              <ThemedText
                 style={[
                   styles.languageButtonText,
-                  selectedLanguage === "en" && styles.selectedButtonText,
+                  selectedLanguage === "en" && {
+                    color: primaryColor,
+                    fontWeight: "bold",
+                  },
                 ]}
               >
                 English
-              </Text>
+              </ThemedText>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -140,7 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   dialog: {
-    backgroundColor: Colors.light.backgroundSecondary, // Soft light background
     borderRadius: Sizes.borderRadiusMedium,
     padding: 20,
     width: "80%",
@@ -165,7 +195,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: Colors.light.text,
     textAlign: "center",
   },
   languageButton: {
@@ -178,15 +207,6 @@ const styles = StyleSheet.create({
   },
   languageButtonText: {
     fontSize: 16,
-    color: Colors.light.text,
-  },
-  selectedButton: {
-    borderColor: Colors.light.primary,
-    borderWidth: 2,
-  },
-  selectedButtonText: {
-    color: Colors.light.primary,
-    fontWeight: "bold",
   },
   divider: {
     height: 1,

@@ -16,6 +16,8 @@ import * as DocumentPicker from "expo-document-picker";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { t } from "i18next";
+import { ThemedText } from "../ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface FileUploadFieldProps {
   iconName?:
@@ -66,9 +68,14 @@ const FileUploadField = ({
     }
   };
 
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+
   return (
     <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <ThemedText style={styles.label}>{label}</ThemedText>}
       <TouchableOpacity
         style={[
           styles.uploadBox,
@@ -87,13 +94,13 @@ const FileUploadField = ({
           <IconComponent
             name={iconName as never}
             size={Sizes.icon["small"]}
-            color={Colors.light.primary}
+            color={iconColor}
             style={styles.icon}
           />
         )}
-        <Text style={styles.placeholderText}>
+        <ThemedText style={styles.placeholderText}>
           {selectedFile || placeholder}
-        </Text>
+        </ThemedText>
       </TouchableOpacity>
     </View>
   );
@@ -108,7 +115,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: Sizes.textSmall,
-    color: Colors.light.text,
     marginBottom: Sizes.marginSmall,
   },
   uploadBox: {
@@ -127,7 +133,6 @@ const styles = StyleSheet.create({
   placeholderText: {
     flex: 1,
     fontSize: Sizes.textMedium,
-    color: Colors.light.text,
     marginLeft: Sizes.marginSmall,
   },
   icon: {

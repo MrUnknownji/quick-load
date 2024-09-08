@@ -18,6 +18,7 @@ import SelectList from "@/components/input-fields/SelectList";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
+import { ThemedView } from "@/components/ThemedView";
 
 type CustomFile = {
   uri: string;
@@ -212,7 +213,7 @@ const UserInformationPage: React.FC = () => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.profileDetails}>
+      <ThemedView style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
           <Image
             source={"https://placehold.co/200x200?text=User"}
@@ -243,7 +244,7 @@ const UserInformationPage: React.FC = () => {
             setDisabled(!disabled);
           }}
         />
-      </View>
+      </ThemedView>
     </KeyboardAvoidingView>
   );
 };
@@ -255,7 +256,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileDetails: {
-    backgroundColor: "white",
     flex: 1,
   },
   userImageContainer: {

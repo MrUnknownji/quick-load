@@ -31,7 +31,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
       "text"
     );
     const primaryColor = useThemeColor(
-      { light: Colors.light.primary, dark: Colors.dark.primary },
+      { light: Colors.light.primary, dark: Colors.dark.secondary },
       "primary"
     );
     const shadowColor = useThemeColor(

@@ -28,6 +28,9 @@ import { ListItemProps } from "@/constants/types/types";
 import { t } from "i18next";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
 import { ScrollView } from "react-native-gesture-handler";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
@@ -80,7 +83,9 @@ const ProductDetailPage = () => {
   if (!product)
     return (
       <CenteredContainer>
-        <Text style={styles.errorText}>{t("Product not found")}</Text>
+        <ThemedText style={styles.errorText}>
+          {t("Product not found")}
+        </ThemedText>
       </CenteredContainer>
     );
 
@@ -98,9 +103,9 @@ const ProductDetailPage = () => {
               />
               {!isPricingVisible && (
                 <>
-                  <Text style={styles.productDescription}>
+                  <ThemedText style={styles.productDescription}>
                     {t(product.productDescription ?? "")}
-                  </Text>
+                  </ThemedText>
                   <ProductFeaturesCard price={Number(product.price)} />
                 </>
               )}
@@ -155,7 +160,7 @@ const ProductHeader = ({ heading }: { heading: string }) => (
       }}
       onPress={() => router.back()}
     />
-    <Text style={styles.productHeading}>{t(heading)}</Text>
+    <ThemedText style={styles.productHeading}>{t(heading)}</ThemedText>
   </View>
 );
 
@@ -165,29 +170,53 @@ const CenteredContainer = ({ children }: { children: React.ReactNode }) => (
   </View>
 );
 
-const ProductFeaturesCard = ({ price }: { price?: number }) => (
-  <View style={styles.productFeaturesCard}>
-    <View
-      style={{ alignItems: "center", justifyContent: "center", width: "100%" }}
-    >
-      <Text style={styles.featureCardHeading}>{t("Our Features")}</Text>
-      <Text style={styles.featureCardPrice}>
-        {price}
-        <Text style={styles.perPieceText}>/{t("Piece")}</Text>
-      </Text>
-    </View>
-    <FlatList data={FEATURES} renderItem={renderFeatureItem} />
-  </View>
-);
+const ProductFeaturesCard = ({ price }: { price?: number }) => {
+  const primaryTextColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "text"
+  );
+  return (
+    <ThemedView style={styles.productFeaturesCard}>
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+        }}
+      >
+        <ThemedText style={styles.featureCardHeading}>
+          {t("Our Features")}
+        </ThemedText>
+        <ThemedText
+          style={[styles.featureCardPrice, { color: primaryTextColor }]}
+        >
+          {price}
+          <ThemedText style={styles.perPieceText}>/{t("Piece")}</ThemedText>
+        </ThemedText>
+      </View>
+      <FlatList
+        data={FEATURES}
+        renderItem={(item) => renderFeatureItem(item, primaryTextColor)}
+      />
+    </ThemedView>
+  );
+};
 
-const renderFeatureItem = ({ item }: { item: string }) => (
+const renderFeatureItem = (
+  {
+    item,
+  }: {
+    item: string;
+  },
+  primaryTextColor: string
+) => (
   <View style={styles.featureItem}>
     <Ionicons
       name="checkmark-circle"
       size={Sizes.icon.small}
-      color={Colors.light.primary}
+      color={primaryTextColor}
     />
-    <Text style={styles.featureText}>{t(item)}</Text>
+    <ThemedText style={styles.featureText}>{t(item)}</ThemedText>
   </View>
 );
 
@@ -208,6 +237,11 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
   const discount = totalPriceRaw * 0.1;
   const totalPrice = (totalPriceRaw - discount).toFixed(2);
 
+  const placeholderColor = useThemeColor(
+    { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
+    "textSecondary"
+  );
+
   const handleQuantityChange = (input: string) => {
     const sanitizedInput = input.replace(/[^0-9]/g, "");
     setQuantity(Number(sanitizedInput));
@@ -215,8 +249,10 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
 
   return (
     <ScrollView style={{ marginBottom: 200 }}>
-      <View style={styles2.pricingCard}>
-        <Text style={styles2.pricingCardHeading}>{t("Pricing")}</Text>
+      <ThemedView style={styles2.pricingCard}>
+        <ThemedText style={styles2.pricingCardHeading}>
+          {t("Pricing")}
+        </ThemedText>
         <PricingCardItem label={t("Piece")}>
           <TextInput
             style={styles2.piecesInput}
@@ -224,46 +260,47 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
             value={quantity > 0 ? quantity.toString() : ""}
             keyboardType="number-pad"
             onChange={(e) => handleQuantityChange(e.nativeEvent.text)}
+            placeholderTextColor={placeholderColor}
           />
         </PricingCardItem>
         <PricingCardItem label={t("Price/piece")}>
-          <Text style={styles2.perPiecePriceText}>
+          <ThemedText style={styles2.perPiecePriceText}>
             {t("Rs.")} {itemPrice.toFixed(2)}
-          </Text>
+          </ThemedText>
         </PricingCardItem>
         <PricingCardItem label={t("Offer")} offer>
-          <Text style={styles2.offerText}>
+          <ThemedText style={styles2.offerText}>
             {t("Rs.")} {discount.toFixed(2)}
-          </Text>
+          </ThemedText>
         </PricingCardItem>
         <PricingCardItem label={t("Loading Charges")}>
-          <Text style={styles2.offerText}>
+          <ThemedText style={styles2.offerText}>
             {t("Rs.")} {quantity < 1 ? "0.00" : loadingCharges}
-          </Text>
+          </ThemedText>
         </PricingCardItem>
         <PricingCardItem label={t("Broker Charges")}>
-          <Text style={styles2.offerText}>
+          <ThemedText style={styles2.offerText}>
             {t("Rs.")} {quantity < 1 ? "0.00" : brokerCharges}
-          </Text>
+          </ThemedText>
         </PricingCardItem>
         <PricingCardItem label={t("Plateform Fees")}>
-          <Text style={styles2.offerText}>
+          <ThemedText style={styles2.offerText}>
             {t("Rs.")} {quantity < 1 ? "0.00" : platformFees}
-          </Text>
+          </ThemedText>
         </PricingCardItem>
         <PricingCardItem label={t("Total")}>
-          <Text style={styles2.totalPrice}>
+          <ThemedText style={styles2.totalPrice}>
             {t("Rs.")}{" "}
             {(parseFloat(totalPrice) - parseFloat(discount.toString())).toFixed(
               2
             )}
-          </Text>
+          </ThemedText>
         </PricingCardItem>
-      </View>
+      </ThemedView>
       <View>
-        <Text style={styles2.paymentMethodHeading}>
+        <ThemedText style={styles2.paymentMethodHeading}>
           {t("Select Your Payment method")}
-        </Text>
+        </ThemedText>
         <RadioButtonGroup
           options={[
             { label: t("Payment now"), value: "paymentNow" },
@@ -288,14 +325,14 @@ const PricingCardItem = ({
   offer?: boolean;
 }) => (
   <View style={styles2.pricingCardListItem}>
-    <Text style={styles2.pricingCardListItemText}>
+    <ThemedText style={styles2.pricingCardListItemText}>
       {t(label)}
       {offer && (
-        <Text style={styles2.offerDetailText}>
+        <ThemedText style={styles2.offerDetailText}>
           {t("(10% off on first Order)")}
-        </Text>
+        </ThemedText>
       )}
-    </Text>
+    </ThemedText>
     {children}
   </View>
 );
@@ -304,7 +341,6 @@ const styles2 = StyleSheet.create({
   pricingCard: {
     marginVertical: Sizes.marginVertical,
     padding: Sizes.paddingMedium,
-    backgroundColor: "white",
     borderRadius: Sizes.borderRadiusLarge,
     elevation: 3,
     gap: Sizes.marginExtraSmall,
@@ -356,6 +392,7 @@ const styles2 = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: Sizes.marginMedium,
     textAlign: "center",
+    marginTop: Sizes.marginLarge,
   },
 });
 
@@ -373,6 +410,7 @@ const styles = StyleSheet.create({
   productHeading: {
     fontSize: Sizes.textExtraLarge,
     fontWeight: "bold",
+    paddingTop: Sizes.paddingSmall,
   },
   productContainer: {
     marginTop: Sizes.marginMedium,
@@ -386,7 +424,6 @@ const styles = StyleSheet.create({
   productFeaturesCard: {
     marginBottom: Sizes.marginVertical,
     padding: Sizes.paddingMedium,
-    backgroundColor: "white",
     borderRadius: Sizes.borderRadiusLarge,
     elevation: 3,
   },
@@ -398,12 +435,10 @@ const styles = StyleSheet.create({
   featureCardPrice: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
-    color: Colors.light.primary,
   },
   perPieceText: {
     fontSize: Sizes.textSmall,
     fontWeight: "normal",
-    color: Colors.light.text,
   },
   featureItem: {
     flexDirection: "row",

@@ -8,6 +8,7 @@ import Colors from "@/constants/Colors";
 import { router, useLocalSearchParams } from "expo-router";
 import Button from "@/components/button/Button";
 import { t } from "i18next";
+import { ThemedText } from "@/components/ThemedText";
 
 const ThankYou = () => {
   const { message } = useLocalSearchParams<{ message: string }>();
@@ -27,8 +28,8 @@ const ThankYou = () => {
         onPress={() => router.back()}
       />
       <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
-      <Text style={styles.heading}>{t("Thank You")}</Text>
-      <Text style={styles.message}>{t(message)}</Text>
+      <ThemedText style={styles.heading}>{t("Thank You")}</ThemedText>
+      <ThemedText style={styles.message}>{t(message)}</ThemedText>
       <Button
         title={t("Continue Shopping")}
         variant="primary"

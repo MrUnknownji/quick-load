@@ -1,13 +1,14 @@
 import Colors from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
   TextStyle,
 } from "react-native";
+import { ThemedText } from "../ThemedText";
 
 interface Option {
   label: string;
@@ -15,7 +16,7 @@ interface Option {
 }
 
 interface RadioButtonGroupProps {
-  options: Option[]; // Now options is an array of {label, value}
+  options: Option[];
   onSelect: (value: string) => void;
   initialSelection?: string;
   selectedTextColor?: string;
@@ -26,11 +27,20 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   options,
   onSelect,
   initialSelection,
-  selectedTextColor = Colors.light.primary,
-  unselectedTextColor = "#000000",
+  selectedTextColor,
+  unselectedTextColor,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
     undefined
+  );
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+
+  const primaryColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
   );
 
   useEffect(() => {
@@ -58,8 +68,8 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               {
                 borderColor:
                   selectedOption === option.value
-                    ? selectedTextColor
-                    : unselectedTextColor,
+                    ? selectedTextColor ?? primaryColor
+                    : unselectedTextColor ?? textColor,
               },
             ]}
           >
@@ -67,24 +77,24 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               <View
                 style={[
                   styles.selectedRadio,
-                  { backgroundColor: selectedTextColor },
+                  { backgroundColor: selectedTextColor ?? primaryColor },
                 ]}
               />
             )}
           </View>
-          <Text
+          <ThemedText
             style={[
               styles.optionText,
               {
                 color:
                   selectedOption === option.value
-                    ? selectedTextColor
-                    : unselectedTextColor,
+                    ? selectedTextColor ?? primaryColor
+                    : unselectedTextColor ?? textColor,
               },
             ]}
           >
             {option.label}
-          </Text>
+          </ThemedText>
         </TouchableOpacity>
       ))}
     </View>

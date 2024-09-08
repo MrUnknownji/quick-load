@@ -9,6 +9,8 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "../ThemedText";
 
 interface TextInputFieldProps {
   iconName?:
@@ -43,6 +45,18 @@ const TextInputField = ({
   disabled = false,
   style,
 }: TextInputFieldProps) => {
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+  const placeholderColor = useThemeColor(
+    { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
+    "textSecondary"
+  );
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
   return (
     <View style={[styles.container, style]}>
       {iconName && (
@@ -51,11 +65,11 @@ const TextInputField = ({
           iconLibrary={iconType}
           size="small"
           variant="transparent"
-          iconStyle={{ color: Colors.light.primary }}
+          iconStyle={{ color: iconColor }}
         />
       )}
       <View style={styles.textInputContainer}>
-        {label && <Text style={styles.label}>{label}</Text>}
+        {label && <ThemedText style={styles.label}>{label}</ThemedText>}
         <TextInput
           placeholder={placeholder}
           style={[
@@ -65,12 +79,14 @@ const TextInputField = ({
               borderBottomColor: disabled
                 ? Colors.light.disabled
                 : Colors.light.primary,
+              color: textColor,
             },
           ]}
           value={value}
           onChangeText={onChangeText}
           accessibilityLabel={accessibleLabel || placeholder}
           editable={!disabled}
+          placeholderTextColor={placeholderColor}
         />
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
@@ -96,11 +112,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: Sizes.textSmall,
-    color: Colors.light.text,
   },
   textInput: {
     fontSize: Sizes.textMedium,
-    color: Colors.light.text,
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.light.border,
   },
@@ -109,7 +123,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: Sizes.textSmall,
-    color: Colors.light.error,
     marginTop: Sizes.marginSmall,
   },
 });

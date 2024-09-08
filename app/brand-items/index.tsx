@@ -37,6 +37,7 @@ import {
   SAND_ITEMS,
 } from "@/assets/data/DATA";
 import Sizes from "@/constants/Sizes";
+import { ThemedText } from "@/components/ThemedText";
 
 if (
   Platform.OS === "android" &&
@@ -211,7 +212,7 @@ const BrandHeader = ({ heading }: { heading: string }) => (
       }}
       onPress={() => router.back()}
     />
-    <Text style={styles.productHeading}>{t(heading)}</Text>
+    <ThemedText style={styles.productHeading}>{t(heading)}</ThemedText>
   </View>
 );
 
@@ -239,6 +240,7 @@ const styles = StyleSheet.create({
   productHeading: {
     fontSize: Sizes.textExtraLarge,
     fontWeight: "bold",
+    paddingTop: Sizes.paddingSmall,
   },
 });
 

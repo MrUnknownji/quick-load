@@ -8,11 +8,31 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "i18next";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
   const [startingPoint, setStartingPoint] = useState("");
   const [endingPoint, setEndingPoint] = useState("");
+
+  const backgroundColor = useThemeColor(
+    { light: Colors.light.background, dark: Colors.dark.background },
+    "background"
+  );
+  const primaryColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+  const placeholderColor = useThemeColor(
+    { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
+    "textSecondary"
+  );
 
   const handleSend = () => {
     if (startingPoint && endingPoint) {
@@ -37,7 +57,7 @@ const RouteFinder = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <IconButton
         iconName="chevron-back"
         size="small"
@@ -46,7 +66,7 @@ const RouteFinder = () => {
         onPress={() => router.back()}
       />
       <Image source={require("@/assets/images/icon.png")} style={styles.logo} />
-      <Text style={styles.title}>
+      <Text style={[styles.title, { color: primaryColor }]}>
         {t("Hey")}{" "}
         {t(
           userType
@@ -55,8 +75,10 @@ const RouteFinder = () => {
             .concat(t(userType.slice(1))) ?? ""
         )}
       </Text>
-      <Text style={styles.subtitle}>{t("Submit your route request")}</Text>
-      <Text style={styles.sectionTitle}>{t("Find Route")}</Text>
+      <ThemedText style={styles.subtitle}>
+        {t("Submit your route request")}
+      </ThemedText>
+      <ThemedText style={styles.sectionTitle}>{t("Find Route")}</ThemedText>
 
       <View style={styles.inputContainer}>
         <GooglePlacesAutocomplete
@@ -69,9 +91,18 @@ const RouteFinder = () => {
             language: "en",
           }}
           styles={{
-            textInput: styles.autocompleteInput,
+            textInput: [
+              styles.autocompleteInput,
+              {
+                backgroundColor,
+                color: textColor,
+              },
+            ],
             container: { flex: 1 },
             listView: { marginTop: 0 },
+          }}
+          textInputProps={{
+            placeholderTextColor: placeholderColor,
           }}
         />
         <Ionicons
@@ -82,7 +113,7 @@ const RouteFinder = () => {
         />
       </View>
 
-      <Text style={styles.toText}>{t("to")}</Text>
+      <ThemedText style={styles.toText}>{t("to")}</ThemedText>
 
       <View style={styles.inputContainer}>
         <GooglePlacesAutocomplete
@@ -95,9 +126,18 @@ const RouteFinder = () => {
             language: "en",
           }}
           styles={{
-            textInput: styles.autocompleteInput,
+            textInput: [
+              styles.autocompleteInput,
+              {
+                backgroundColor,
+                color: textColor,
+              },
+            ],
             container: { flex: 1 },
             listView: { marginTop: 0 },
+          }}
+          textInputProps={{
+            placeholderTextColor: placeholderColor,
           }}
         />
         <Ionicons
@@ -116,14 +156,13 @@ const RouteFinder = () => {
         textStyle={{ fontSize: Sizes.textMedium }}
         onPress={handleSend}
       />
-    </View>
+    </ThemedView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: Sizes.paddingMedium,
-    backgroundColor: Colors.light.background,
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
@@ -142,24 +181,24 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: Sizes.textMedium,
-    color: Colors.light.textSecondary,
     marginBottom: Sizes.marginMedium,
     textAlign: "center",
   },
   sectionTitle: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
-    color: Colors.light.text,
     marginBottom: Sizes.marginSmall,
   },
   inputContainer: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     borderColor: Colors.light.border,
     borderWidth: 1,
     borderRadius: Sizes.borderRadius,
     marginBottom: Sizes.marginSmall,
+    overflow: "hidden",
   },
   autocompleteInput: {
     flex: 1,
@@ -170,7 +209,6 @@ const styles = StyleSheet.create({
   },
   toText: {
     fontSize: Sizes.textNormal,
-    color: Colors.light.text,
     marginBottom: Sizes.marginSmall,
     textAlign: "center",
   },

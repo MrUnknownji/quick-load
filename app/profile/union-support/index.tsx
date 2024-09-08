@@ -6,6 +6,9 @@ import Sizes from "@/constants/Sizes";
 import { router, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "i18next";
+import { ThemedView } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "@/components/ThemedText";
 
 const UnionSupport = () => {
   const [orderNumber, setOrderNumber] = React.useState("");
@@ -27,20 +30,41 @@ const UnionSupport = () => {
     );
   };
 
+  const placeholderColor = useThemeColor(
+    { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
+    "textSecondary"
+  );
+
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.innerContainer}>
-        <Text style={styles.inputText}>{t("Enter the order number")}</Text>
+        <ThemedText style={styles.inputText}>
+          {t("Enter the order number")}
+        </ThemedText>
         <TextInput
           placeholder={t("Order Number")}
-          style={styles.inputField}
+          style={[
+            styles.inputField,
+            { borderColor: textColor, color: textColor },
+          ]}
           value={orderNumber}
           onChangeText={handleInputChangeListener}
+          placeholderTextColor={placeholderColor}
         />
-        <Text style={styles.inputText}>{t("Enter the issue details")}</Text>
+        <ThemedText style={styles.inputText}>
+          {t("Enter the issue details")}
+        </ThemedText>
         <TextInput
           placeholder={t("Issue Details")}
-          style={[styles.inputField, { height: inputHeight }]}
+          style={[
+            styles.inputField,
+            { height: inputHeight, borderColor: textColor, color: textColor },
+          ]}
           value={issueDetails}
           onChangeText={setIssueDetails}
           multiline
@@ -49,6 +73,7 @@ const UnionSupport = () => {
               e.nativeEvent.contentSize.height + Sizes.paddingMedium
             )
           }
+          placeholderTextColor={placeholderColor}
         />
       </ScrollView>
       <Pressable
@@ -63,7 +88,7 @@ const UnionSupport = () => {
         <Text style={styles.sendButtonText}>{t("Send")}</Text>
         <Ionicons name="send" size={Sizes.icon["small"]} color="white" />
       </Pressable>
-    </View>
+    </ThemedView>
   );
 };
 
@@ -75,14 +100,12 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     padding: Sizes.paddingMedium,
-    backgroundColor: "white",
     alignItems: "center",
     gap: Sizes.marginSmall,
   },
   inputField: {
     width: "100%",
     borderWidth: 0.5,
-    borderColor: Colors.light.text,
     borderRadius: Sizes.borderRadiusMedium,
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,

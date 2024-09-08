@@ -5,6 +5,8 @@ import Sizes from "@/constants/Sizes";
 import LargeImageView from "@/components/image-views/LargeImageView";
 import IconButton from "@/components/button/IconButton";
 import { t } from "i18next";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -17,7 +19,7 @@ const ContactUs = () => {
           style={styles.icon}
         />
       </View>
-      <View style={styles.contactCard}>
+      <ThemedView style={styles.contactCard}>
         <LargeImageView
           imageUrl={`https://placehold.co/${
             screenWidth - Sizes.marginHorizontal * 2 - Sizes.paddingMedium * 2
@@ -29,7 +31,7 @@ const ContactUs = () => {
             marginVertical: 0,
           }}
         />
-        <Text style={styles.contactCardText}>+91 9876543210</Text>
+        <ThemedText style={styles.contactCardText}>+91 9876543210</ThemedText>
         <IconButton
           iconName="phone"
           size="medium"
@@ -44,7 +46,7 @@ const ContactUs = () => {
           iconLibrary="FontAwesome"
           title={t("WhatsApp")}
         />
-      </View>
+      </ThemedView>
     </View>
   );
 };
@@ -67,7 +69,6 @@ const styles = StyleSheet.create({
     marginHorizontal: Sizes.marginHorizontal,
     marginTop: Sizes.marginLarge,
     padding: Sizes.paddingMedium,
-    backgroundColor: "white",
     borderRadius: Sizes.borderRadiusLarge,
     gap: Sizes.marginExtraSmall,
   },

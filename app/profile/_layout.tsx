@@ -5,6 +5,7 @@ import IconButton from "@/components/button/IconButton";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
+import { ThemedView } from "@/components/ThemedView";
 
 const ProfileLayout = () => {
   const pathname = usePathname();
@@ -33,9 +34,9 @@ const ProfileLayout = () => {
         />
         <Text style={styles.headerText}>{t(title)}</Text>
       </View>
-      <View style={styles.content}>
+      <ThemedView style={styles.content}>
         <Slot />
-      </View>
+      </ThemedView>
     </View>
   );
 };
@@ -63,7 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 100,
     padding: Sizes.paddingMedium,
-    backgroundColor: "white",
     borderTopLeftRadius: Sizes.borderRadiusLarge,
     borderTopRightRadius: Sizes.borderRadiusLarge,
     elevation: 3,

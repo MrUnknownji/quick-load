@@ -8,6 +8,8 @@ import {
 } from "@expo/vector-icons";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "../ThemedText";
 
 interface SmallListItemProps {
   title: string;
@@ -28,6 +30,10 @@ const SmallListItem = ({
   description,
   style,
 }: SmallListItemProps) => {
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
   return (
     <Pressable onPress={onPress} style={[styles.container, style]}>
       {iconName && (
@@ -35,12 +41,14 @@ const SmallListItem = ({
           iconName={iconName ?? "chevron-back"}
           size="small"
           variant="transparent"
-          iconStyle={{ color: Colors.light.primary }}
+          iconStyle={{ color: iconColor }}
         />
       )}
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{title}</Text>
-        {description && <Text style={styles.description}>{description}</Text>}
+        <ThemedText style={styles.title}>{title}</ThemedText>
+        {description && (
+          <ThemedText style={styles.description}>{description}</ThemedText>
+        )}
       </View>
     </Pressable>
   );

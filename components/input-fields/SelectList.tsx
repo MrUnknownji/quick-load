@@ -17,6 +17,8 @@ import {
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { t } from "i18next";
+import { ThemedText } from "../ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 type IconType =
   | "Ionicons"
@@ -186,6 +188,15 @@ const SelectList: React.FC<SelectListProps> = ({
     initialSelectedOption || propSelectedOption
   );
 
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text"
+  );
+
   const IconComponent = iconName
     ? {
         Ionicons,
@@ -216,7 +227,9 @@ const SelectList: React.FC<SelectListProps> = ({
         { zIndex: isDropdownVisible ? 100 : 1 },
       ]}
     >
-      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
+      {label && (
+        <ThemedText style={[styles.label, labelStyle]}>{label}</ThemedText>
+      )}
       <TouchableOpacity
         style={[
           styles.selectBox,
@@ -236,17 +249,17 @@ const SelectList: React.FC<SelectListProps> = ({
           <IconComponent
             name={iconName as never}
             size={Sizes.icon.small}
-            color={Colors.light.primary}
+            color={iconColor}
             style={styles.icon}
           />
         )}
-        <Text style={[styles.selectedText, selectedTextStyle]}>
+        <ThemedText style={[styles.selectedText, selectedTextStyle]}>
           {t(selectedOption || placeholder || defaultText)}
-        </Text>
+        </ThemedText>
         <Ionicons
           name={isDropdownVisible ? "chevron-up" : "chevron-down"}
           size={Sizes.icon.small}
-          color={Colors.light.primary}
+          color={iconColor}
         />
       </TouchableOpacity>
       {isDropdownVisible && (
@@ -259,9 +272,9 @@ const SelectList: React.FC<SelectListProps> = ({
                 style={[styles.option, optionStyle]}
                 onPress={() => handleSelect(item)}
               >
-                <Text style={[styles.optionText, optionTextStyle]}>
+                <ThemedText style={[styles.optionText, optionTextStyle]}>
                   {t(item)}
-                </Text>
+                </ThemedText>
               </TouchableOpacity>
             )}
           />
@@ -285,7 +298,6 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: Sizes.textSmall,
-    color: Colors.light.text,
     marginBottom: Sizes.marginSmall,
   },
   selectBox: {
@@ -305,7 +317,6 @@ const styles = StyleSheet.create({
   selectedText: {
     flex: 1,
     fontSize: Sizes.textMedium,
-    color: Colors.light.text,
     marginLeft: Sizes.marginSmall,
   },
   icon: {
@@ -315,7 +326,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: Colors.light.border,
     borderRadius: Sizes.borderRadiusSmall,
-    backgroundColor: Colors.light.background,
     marginTop: Sizes.marginSmall,
     maxHeight: 200,
     zIndex: 100,
@@ -328,7 +338,6 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: Sizes.textMedium,
-    color: Colors.light.text,
   },
   errorText: {
     fontSize: Sizes.textSmall,
