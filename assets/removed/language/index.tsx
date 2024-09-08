@@ -5,11 +5,11 @@ import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "@/components/button/IconButton";
-import useAppLanguage from "@/hooks/useAppLanguage";
 import { t } from "i18next";
+import { useLanguage } from "@/app/Context/LanguageContext";
 
 const Language = () => {
-  const { appLanguage, setAppLanguage } = useAppLanguage();
+  const { appLanguage, setAppLanguage, loading } = useLanguage();
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
 

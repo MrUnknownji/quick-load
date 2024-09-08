@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SmallListItem from "@/components/list-items/SmallListItem";
 import { Image } from "expo-image";
 import Sizes from "@/constants/Sizes";
@@ -7,16 +7,21 @@ import Colors from "@/constants/Colors";
 import { router } from "expo-router";
 import { t } from "i18next";
 import LogoutDialog from "@/components/popups/LogoutDialog";
+import LanguageDialog from "@/components/popups/LanguageDialog";
+import AccountDeleteDialog from "@/components/popups/AccountDeleteDialog";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [isLanguageDialogVisible, setIsLanguageDialogVisible] = useState(false);
+  const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
 
   const handleLogout = () => {
     console.log("Logging out...");
     setIsDialogVisible(false);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
@@ -55,15 +60,19 @@ const Profile = () => {
             iconName="heart"
             onPress={() => router.push("/profile/union-support")}
           />
-          <SmallListItem title={t("Settings")} iconName="settings" />
           <SmallListItem
             title={t("Language")}
             iconName="language"
-            onPress={() => router.push("/profile/language")}
+            onPress={() => setIsLanguageDialogVisible(true)}
           />
           <SmallListItem
             title={t("Privacy and policy")}
             iconName="information-circle"
+          />
+          <SmallListItem
+            title={t("Remove Account")}
+            iconName="trash-bin"
+            onPress={() => setIsDeleteDialogVisible(true)}
           />
           <SmallListItem
             title={t("Logout")}
@@ -74,6 +83,14 @@ const Profile = () => {
             isVisible={isDialogVisible}
             onClose={() => setIsDialogVisible(false)}
             onLogout={handleLogout}
+          />
+          <LanguageDialog
+            isVisible={isLanguageDialogVisible}
+            onClose={() => setIsLanguageDialogVisible(false)}
+          />
+          <AccountDeleteDialog
+            isVisible={isDeleteDialogVisible}
+            onClose={() => setIsDeleteDialogVisible(false)}
           />
         </View>
       </View>

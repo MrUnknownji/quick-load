@@ -27,6 +27,7 @@ import Button from "@/components/button/Button";
 import { ListItemProps } from "@/constants/types/types";
 import { t } from "i18next";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
+import { ScrollView } from "react-native-gesture-handler";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
@@ -110,6 +111,7 @@ const ProductDetailPage = () => {
         ListFooterComponent={
           isPricingVisible ? <PricingCard item={product} /> : null
         }
+        keyExtractor={(item, index) => index.toString()}
       />
       <Button
         title={isPricingVisible ? t("Book Order") : t("Buy Now")}
@@ -191,8 +193,19 @@ const renderFeatureItem = ({ item }: { item: string }) => (
 const PricingCard = ({ item }: { item: ListItemProps }) => {
   const [quantity, setQuantity] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("paymentNow");
-  const totalPrice = quantity * (Number(item.price) ?? 0);
-  const discount = totalPrice * 0.1;
+  const itemPrice = Number(item.price ?? 0);
+  const loadingCharges = (quantity * itemPrice * 0.05).toFixed(2);
+  const brokerCharges = (quantity * itemPrice * 0.1).toFixed(2);
+  const platformFees = (quantity * itemPrice * 0.2).toFixed(2);
+  const extraCharges = (
+    parseFloat(loadingCharges) +
+    parseFloat(brokerCharges) +
+    parseFloat(platformFees)
+  ).toFixed(2);
+  const totalPriceRaw =
+    Number(quantity * itemPrice) + Number(quantity < 1 ? 0 : extraCharges);
+  const discount = totalPriceRaw * 0.1;
+  const totalPrice = (totalPriceRaw - discount).toFixed(2);
 
   const handleQuantityChange = (input: string) => {
     const sanitizedInput = input.replace(/[^0-9]/g, "");
@@ -200,7 +213,7 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
   };
 
   return (
-    <>
+    <ScrollView style={{ marginBottom: 200 }}>
       <View style={styles2.pricingCard}>
         <Text style={styles2.pricingCardHeading}>{t("Pricing")}</Text>
         <PricingCardItem label={t("Piece")}>
@@ -214,17 +227,35 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
         </PricingCardItem>
         <PricingCardItem label={t("Price/piece")}>
           <Text style={styles2.perPiecePriceText}>
-            {t("Rs.")} {item.price}
+            {t("Rs.")} {itemPrice.toFixed(2)}
           </Text>
         </PricingCardItem>
         <PricingCardItem label={t("Offer")} offer>
           <Text style={styles2.offerText}>
-            {t("Rs.")} {discount}
+            {t("Rs.")} {discount.toFixed(2)}
+          </Text>
+        </PricingCardItem>
+        <PricingCardItem label={t("Loading Charges")}>
+          <Text style={styles2.offerText}>
+            {t("Rs.")} {quantity < 1 ? "0.00" : loadingCharges}
+          </Text>
+        </PricingCardItem>
+        <PricingCardItem label={t("Broker Charges")}>
+          <Text style={styles2.offerText}>
+            {t("Rs.")} {quantity < 1 ? "0.00" : brokerCharges}
+          </Text>
+        </PricingCardItem>
+        <PricingCardItem label={t("Plateform Fees")}>
+          <Text style={styles2.offerText}>
+            {t("Rs.")} {quantity < 1 ? "0.00" : platformFees}
           </Text>
         </PricingCardItem>
         <PricingCardItem label={t("Total")}>
           <Text style={styles2.totalPrice}>
-            {t("Rs.")} {totalPrice - discount}
+            {t("Rs.")}{" "}
+            {(parseFloat(totalPrice) - parseFloat(discount.toString())).toFixed(
+              2
+            )}
           </Text>
         </PricingCardItem>
       </View>
@@ -242,7 +273,7 @@ const PricingCard = ({ item }: { item: ListItemProps }) => {
           initialSelection={paymentMethod}
         />
       </View>
-    </>
+    </ScrollView>
   );
 };
 
@@ -336,6 +367,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: Sizes.StatusBarHeight,
     paddingTop: Sizes.paddingSmall,
+    paddingBottom: Sizes.paddingMedium,
   },
   productHeading: {
     fontSize: Sizes.textExtraLarge,

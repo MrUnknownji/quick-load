@@ -8,14 +8,14 @@ import Sizes from "@/constants/Sizes";
 import Button from "@/components/button/Button";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useAppLanguage from "@/hooks/useAppLanguage";
 import { useTranslation } from "react-i18next";
+import { useLanguage } from "../Context/LanguageContext";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const Onboarding = () => {
   const [selectedPage, setSelectedPage] = useState(0);
-  const { appLanguage, setAppLanguage } = useAppLanguage();
+  const { appLanguage, setAppLanguage, loading } = useLanguage();
   const { t } = useTranslation();
 
   const handleNext = async () => {

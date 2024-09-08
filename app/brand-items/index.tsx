@@ -190,7 +190,7 @@ const BrandItems: React.FC = () => {
       <FlatList
         data={categoryItems}
         renderItem={renderItem}
-        keyExtractor={(item) => item.productId ?? ""}
+        keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContent}
       />
     </View>
@@ -219,19 +219,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  headerContainer: {
-    marginHorizontal: Sizes.marginHorizontal,
-  },
-  headerText: {
-    textAlign: "center",
-    fontSize: Sizes.textLarge,
-    fontWeight: "bold",
-    paddingTop: Sizes.paddingSmall,
-  },
   listContent: {
     paddingHorizontal: Sizes.marginHorizontal,
     paddingBottom: Sizes.marginLarge,
-    marginTop: Sizes.StatusBarHeight,
   },
   errorText: {
     textAlign: "center",
@@ -239,12 +229,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: Sizes.marginLarge,
   },
-
   productHeadingContainer: {
     alignItems: "center",
     justifyContent: "center",
     marginTop: Sizes.StatusBarHeight,
     paddingTop: Sizes.paddingSmall,
+    paddingBottom: Sizes.paddingMedium,
   },
   productHeading: {
     fontSize: Sizes.textExtraLarge,

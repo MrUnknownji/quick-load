@@ -6,6 +6,7 @@ import {
   Dimensions,
   StatusBar,
   BackHandler,
+  ActivityIndicator,
 } from "react-native";
 import { Tabs } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -26,6 +27,7 @@ import usePathChangeListener from "@/hooks/usePathChangeListener";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
+import { useLanguage } from "../Context/LanguageContext";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
@@ -151,6 +153,7 @@ export default function TabLayout() {
   const translateY = useSharedValue(MIN_TRANSLATE_Y);
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
   const { activePath, setActivePath } = usePathChangeListener();
+  const { loading } = useLanguage();
 
   useEffect(() => {
     NavigationBar.setBackgroundColorAsync(Colors.light.primary);
@@ -225,6 +228,13 @@ export default function TabLayout() {
     setActivePath(tabName);
     if (isCreateActive) e.preventDefault();
   }
+
+  if (loading)
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
 
   return (
     <>
