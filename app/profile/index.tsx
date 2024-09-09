@@ -15,8 +15,6 @@ const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [isLanguageDialogVisible, setIsLanguageDialogVisible] = useState(false);
-  const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
 
   const handleLogout = () => {
     console.log("Logging out...");
@@ -62,18 +60,9 @@ const Profile = () => {
             onPress={() => router.push("/profile/union-support")}
           />
           <SmallListItem
-            title={t("Language")}
-            iconName="language"
-            onPress={() => setIsLanguageDialogVisible(true)}
-          />
-          <SmallListItem
-            title={t("Privacy and policy")}
-            iconName="information-circle"
-          />
-          <SmallListItem
-            title={t("Remove Account")}
-            iconName="trash-bin"
-            onPress={() => setIsDeleteDialogVisible(true)}
+            title={t("Settings")}
+            iconName="settings"
+            onPress={() => router.push("/profile/settings")}
           />
           <SmallListItem
             title={t("Logout")}
@@ -84,14 +73,6 @@ const Profile = () => {
             isVisible={isDialogVisible}
             onClose={() => setIsDialogVisible(false)}
             onLogout={handleLogout}
-          />
-          <LanguageDialog
-            isVisible={isLanguageDialogVisible}
-            onClose={() => setIsLanguageDialogVisible(false)}
-          />
-          <AccountDeleteDialog
-            isVisible={isDeleteDialogVisible}
-            onClose={() => setIsDeleteDialogVisible(false)}
           />
         </ThemedView>
       </ThemedView>

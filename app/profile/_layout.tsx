@@ -19,6 +19,8 @@ const ProfileLayout = () => {
     ? "Vehicles"
     : pathname.includes("my-information")
     ? "My Information"
+    : pathname.includes("settings")
+    ? "Settings"
     : "Profile";
 
   return (

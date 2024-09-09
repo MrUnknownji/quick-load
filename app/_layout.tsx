@@ -1,14 +1,8 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import StatusBarManager from "@/components/StatusBarManager";
 import { I18nextProvider } from "react-i18next";
@@ -16,11 +10,11 @@ import i18n from "@/services/i18";
 import { LanguageProvider } from "./Context/LanguageContext";
 import { ForceUpdateProvider } from "./Context/ForceUpdateProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ThemeProvider } from "./Context/AppThemeProvider";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -29,8 +23,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
-      // const hasOnboarded = null;
-      const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+      let hasOnboarded;
+      try {
+        hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+      } catch (err) {
+        hasOnboarded = null;
+      }
       if (loaded) {
         SplashScreen.hideAsync();
         if (hasOnboarded === null) {
@@ -50,7 +48,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider>
       <ForceUpdateProvider>
         <LanguageProvider>
           <I18nextProvider i18n={i18n}>

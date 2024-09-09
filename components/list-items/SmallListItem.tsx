@@ -21,6 +21,11 @@ interface SmallListItemProps {
   onPress?: () => void;
   description?: string;
   style?: any;
+  iconType?:
+    | "Ionicons"
+    | "MaterialIcons"
+    | "FontAwesome"
+    | "MaterialCommunityIcons";
 }
 
 const SmallListItem = ({
@@ -29,6 +34,7 @@ const SmallListItem = ({
   title,
   description,
   style,
+  iconType,
 }: SmallListItemProps) => {
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
@@ -42,6 +48,7 @@ const SmallListItem = ({
           size="small"
           variant="transparent"
           iconStyle={{ color: iconColor }}
+          iconLibrary={iconType ?? "Ionicons"}
         />
       )}
       <View style={styles.textContainer}>
