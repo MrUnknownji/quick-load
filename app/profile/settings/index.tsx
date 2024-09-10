@@ -1,4 +1,3 @@
-import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import { ThemedView } from "@/components/ThemedView";
 import SmallListItem from "@/components/list-items/SmallListItem";
@@ -7,11 +6,14 @@ import { t } from "i18next";
 import AccountDeleteDialog from "@/components/popups/AccountDeleteDialog";
 import ThemeChangerDialog from "@/components/popups/ThemeChangerDialog";
 import { router } from "expo-router";
+import PermissionsDialog from "@/components/popups/PermissionsDialog";
 
 const Settings = () => {
   const [isLanguageDialogVisible, setIsLanguageDialogVisible] = useState(false);
   const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false);
   const [isThemeDialogVisible, setIsThemeDialogVisible] = useState(false);
+  const [isPermissionsDialogVisible, setIsPermissionsDialogVisible] =
+    useState(false);
   return (
     <ThemedView>
       <SmallListItem
@@ -28,6 +30,7 @@ const Settings = () => {
         title={t("Permissions")}
         iconName="security"
         iconType="MaterialIcons"
+        onPress={() => setIsPermissionsDialogVisible(true)}
       />
       <SmallListItem
         title={t("Privacy and policy")}
@@ -51,10 +54,12 @@ const Settings = () => {
         isVisible={isThemeDialogVisible}
         onClose={() => setIsThemeDialogVisible(false)}
       />
+      <PermissionsDialog
+        isVisible={isPermissionsDialogVisible}
+        onClose={() => setIsPermissionsDialogVisible(false)}
+      />
     </ThemedView>
   );
 };
 
 export default Settings;
-
-const styles = StyleSheet.create({});
