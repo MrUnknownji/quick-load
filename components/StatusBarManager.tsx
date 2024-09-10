@@ -29,6 +29,7 @@ const StatusBarManager = () => {
         case "user":
         case "add-vehicles":
         case "settings":
+        case "privacy-and-policy":
           return "light";
         default:
           return "dark";

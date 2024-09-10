@@ -21,6 +21,8 @@ const ProfileLayout = () => {
     ? "My Information"
     : pathname.includes("settings")
     ? "Settings"
+    : pathname.includes("privacy-and-policy")
+    ? "Privacy and Policy"
     : "Profile";
 
   return (

@@ -6,6 +6,7 @@ import LanguageDialog from "@/components/popups/LanguageDialog";
 import { t } from "i18next";
 import AccountDeleteDialog from "@/components/popups/AccountDeleteDialog";
 import ThemeChangerDialog from "@/components/popups/ThemeChangerDialog";
+import { router } from "expo-router";
 
 const Settings = () => {
   const [isLanguageDialogVisible, setIsLanguageDialogVisible] = useState(false);
@@ -31,6 +32,7 @@ const Settings = () => {
       <SmallListItem
         title={t("Privacy and policy")}
         iconName="information-circle"
+        onPress={() => router.push("/profile/privacy-and-policy")}
       />
       <SmallListItem
         title={t("Remove Account")}
