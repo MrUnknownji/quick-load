@@ -117,7 +117,6 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
       openAppSettings();
     } else {
       await permission.request();
-      // Recheck the permission status after the request
       const newStatus = await (permission === gpsPermission
         ? Location.getForegroundPermissionsAsync()
         : Notifications.getPermissionsAsync());
