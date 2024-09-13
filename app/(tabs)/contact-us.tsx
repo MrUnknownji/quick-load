@@ -12,7 +12,7 @@ const { width: screenWidth } = Dimensions.get("window");
 
 const ContactUs = () => {
   return (
-    <View>
+    <ThemedView style={{ flex: 1 }}>
       <View style={styles.iconContainer}>
         <Image
           source={require("@/assets/images/icon.png")}
@@ -47,7 +47,7 @@ const ContactUs = () => {
           title={t("WhatsApp")}
         />
       </ThemedView>
-    </View>
+    </ThemedView>
   );
 };
 

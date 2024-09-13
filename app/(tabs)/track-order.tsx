@@ -8,6 +8,7 @@ import LargeListItem from "@/components/list-items/LargeListItem";
 import { router } from "expo-router";
 import { t } from "i18next";
 import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
 const PENDING_ORDERS: ListItemProps[] = [BRICKS_ITEMS[0], GRIT_ITEMS[3]];
 const DELIVERED_ORDERS: ListItemProps[] = [GRIT_ITEMS[1], BRICKS_ITEMS[2]];
@@ -49,7 +50,7 @@ const TrackOrder = () => {
   ];
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <View style={styles.header}>
         <ThemedText style={styles.headingText}>
           {t("Track your route")}
@@ -70,7 +71,7 @@ const TrackOrder = () => {
         keyExtractor={(item) => item.title}
         contentContainerStyle={{ paddingBottom: 75 }}
       />
-    </View>
+    </ThemedView>
   );
 };
 
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: Sizes.StatusBarHeight,
-    marginHorizontal: Sizes.marginHorizontal,
+    paddingHorizontal: Sizes.marginHorizontal,
   },
   header: {
     paddingVertical: Sizes.paddingMedium,

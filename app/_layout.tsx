@@ -25,7 +25,8 @@ export default function RootLayout() {
     const checkOnboardingStatus = async () => {
       let hasOnboarded;
       try {
-        hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+        // hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+        hasOnboarded = null;
       } catch (err) {
         hasOnboarded = null;
       }

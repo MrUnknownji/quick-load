@@ -9,11 +9,12 @@ import { router, useLocalSearchParams } from "expo-router";
 import Button from "@/components/button/Button";
 import { t } from "i18next";
 import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
 const ThankYou = () => {
   const { message } = useLocalSearchParams<{ message: string }>();
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <IconButton
         iconName="chevron-back"
         size="small"
@@ -37,7 +38,7 @@ const ThankYou = () => {
         onPress={() => router.dismissAll()}
         style={{ marginTop: Sizes.marginLarge }}
       />
-    </View>
+    </ThemedView>
   );
 };
 

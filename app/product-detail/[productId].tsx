@@ -90,7 +90,7 @@ const ProductDetailPage = () => {
     );
 
   return (
-    <View style={{ flex: 1 }}>
+    <ThemedView style={{ flex: 1 }}>
       <ProductHeader heading={product.heading} />
       <FlatList
         style={{ flex: 1 }}
@@ -142,7 +142,7 @@ const ProductDetailPage = () => {
           togglePricingVisibility();
         }}
       />
-    </View>
+    </ThemedView>
   );
 };
 

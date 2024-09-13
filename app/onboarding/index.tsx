@@ -10,6 +10,9 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "../Context/LanguageContext";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -17,6 +20,11 @@ const Onboarding = () => {
   const [selectedPage, setSelectedPage] = useState(0);
   const { appLanguage, setAppLanguage, loading } = useLanguage();
   const { t } = useTranslation();
+
+  const primaryColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   const handleNext = async () => {
     if (selectedPage === 2) {
@@ -28,7 +36,7 @@ const Onboarding = () => {
   };
 
   return (
-    <View
+    <ThemedView
       style={{
         flex: 1,
         justifyContent: "center",
@@ -42,12 +50,16 @@ const Onboarding = () => {
             style={styles.icon}
           />
           <View style={styles.welcomeTextContainer}>
-            <Text style={styles.welcomeText}>{t("Welcome to Quick Load")}</Text>
-            <Text style={styles.welcomeSubText}>{t("Let's get started")}</Text>
+            <ThemedText style={styles.welcomeText}>
+              {t("Welcome to Quick Load")}
+            </ThemedText>
+            <ThemedText style={styles.welcomeSubText}>
+              {t("Let's get started")}
+            </ThemedText>
           </View>
           <View style={styles.selectLanguageTextContainer}>
-            <Ionicons name="language" size={24} color={Colors.light.primary} />
-            <Text style={styles.selectLanguageText}>
+            <Ionicons name="language" size={24} color={primaryColor} />
+            <Text style={[styles.selectLanguageText, { color: primaryColor }]}>
               {t("Select Language")}
             </Text>
           </View>
@@ -59,7 +71,6 @@ const Onboarding = () => {
               ]}
               initialSelection={appLanguage ?? "en"}
               onSelect={(selectedLanguage) => setAppLanguage(selectedLanguage)}
-              selectedTextColor={Colors.light.primary}
             />
           </View>
         </>
@@ -91,7 +102,7 @@ const Onboarding = () => {
         style={styles.button}
         onPress={handleNext}
       />
-    </View>
+    </ThemedView>
   );
 };
 
@@ -120,11 +131,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
   },
   selectLanguageText: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
-    color: Colors.light.primary,
   },
   selectLanguageContainer: {
     width: "100%",

@@ -5,6 +5,9 @@ import IconButton from "@/components/button/IconButton";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { t } from "i18next";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const OrderStatus = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
@@ -32,8 +35,13 @@ const OrderStatus = () => {
     },
   ];
 
+  const primaryColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <View style={styles.header}>
         <IconButton
           iconName="chevron-back"
@@ -43,7 +51,7 @@ const OrderStatus = () => {
           iconStyle={{ color: "white" }}
           onPress={() => router.back()}
         />
-        <Text style={styles.headingText}>{t("Order Status")}</Text>
+        <ThemedText style={styles.headingText}>{t("Order Status")}</ThemedText>
       </View>
       <View style={styles.secondaryHeader}>
         <Text style={styles.routeText}>{`${t("Your Route")}:- ${t("abc")} > ${t(
@@ -54,13 +62,24 @@ const OrderStatus = () => {
         <View style={styles.timeline}>
           {orderSteps.map((step, index) => (
             <View key={index} style={styles.timelineItem}>
-              <View style={styles.timelineDot} />
+              <View
+                style={[styles.timelineDot, { backgroundColor: primaryColor }]}
+              />
               {index !== orderSteps.length - 1 && (
-                <View style={styles.timelineLine} />
+                <View
+                  style={[
+                    styles.timelineLine,
+                    { backgroundColor: primaryColor },
+                  ]}
+                />
               )}
               <View style={styles.timelineContent}>
-                <Text style={styles.timelineTitle}>{t(step.title)}</Text>
-                <Text style={styles.timelineDate}>{t(step.date)}</Text>
+                <ThemedText style={styles.timelineTitle}>
+                  {t(step.title)}
+                </ThemedText>
+                <ThemedText style={styles.timelineDate}>
+                  {t(step.date)}
+                </ThemedText>
                 {step.time && (
                   <Text style={styles.timelineTime}>{t(step.time)}</Text>
                 )}
@@ -69,7 +88,7 @@ const OrderStatus = () => {
           ))}
         </View>
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 };
 
@@ -120,7 +139,6 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: Colors.light.primary,
     marginRight: 10,
     marginLeft: -29,
   },
@@ -130,7 +148,6 @@ const styles = StyleSheet.create({
     top: 20,
     bottom: -20,
     width: 2,
-    backgroundColor: Colors.light.primary,
   },
   timelineContent: {
     flex: 1,
@@ -142,7 +159,6 @@ const styles = StyleSheet.create({
   },
   timelineDate: {
     fontSize: Sizes.textNormal,
-    color: Colors.light.text,
   },
   timelineTime: {
     fontSize: 14,

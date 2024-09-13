@@ -38,6 +38,7 @@ import {
 } from "@/assets/data/DATA";
 import Sizes from "@/constants/Sizes";
 import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
 if (
   Platform.OS === "android" &&
@@ -186,7 +187,7 @@ const BrandItems: React.FC = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <BrandHeader heading={selectedBrand.heading} />
       <FlatList
         data={categoryItems}
@@ -194,7 +195,7 @@ const BrandItems: React.FC = () => {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContent}
       />
-    </View>
+    </ThemedView>
   );
 };
 
