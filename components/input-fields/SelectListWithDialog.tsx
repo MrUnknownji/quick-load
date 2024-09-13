@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  Modal,
   ViewStyle,
   TextStyle,
 } from "react-native";
@@ -43,7 +44,7 @@ interface SelectListProps {
   iconType?: IconType;
   containerStyle?: ViewStyle;
   selectBoxStyle?: ViewStyle;
-  dropdownStyle?: ViewStyle;
+  popupStyle?: ViewStyle;
   optionStyle?: ViewStyle;
   labelStyle?: TextStyle;
   selectedTextStyle?: TextStyle;
@@ -53,7 +54,7 @@ interface SelectListProps {
   initialSelectedOption?: string;
 }
 
-const SelectList: React.FC<SelectListProps> = ({
+const SelectListWithDialog: React.FC<SelectListProps> = ({
   options,
   label,
   selectedOption: propSelectedOption,
@@ -66,7 +67,7 @@ const SelectList: React.FC<SelectListProps> = ({
   disabled = false,
   containerStyle,
   selectBoxStyle,
-  dropdownStyle,
+  popupStyle,
   optionStyle,
   labelStyle,
   selectedTextStyle,
@@ -75,7 +76,7 @@ const SelectList: React.FC<SelectListProps> = ({
   defaultText = "Select an option",
   initialSelectedOption,
 }) => {
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
     initialSelectedOption || propSelectedOption
   );
@@ -100,25 +101,19 @@ const SelectList: React.FC<SelectListProps> = ({
 
   const handleSelect = useCallback(
     (option: string) => {
-      setIsDropdownVisible(false);
+      setIsPopupVisible(false);
       setSelectedOption(option);
       onSelect?.(option);
     },
     [onSelect]
   );
 
-  const toggleDropdown = useCallback(() => {
-    setIsDropdownVisible((prev) => !prev);
+  const togglePopup = useCallback(() => {
+    setIsPopupVisible((prev) => !prev);
   }, []);
 
   return (
-    <View
-      style={[
-        styles.container,
-        containerStyle,
-        { zIndex: isDropdownVisible ? 100 : 1 },
-      ]}
-    >
+    <View style={[styles.container, containerStyle]}>
       {label && (
         <ThemedText style={[styles.label, labelStyle]}>{label}</ThemedText>
       )}
@@ -133,7 +128,7 @@ const SelectList: React.FC<SelectListProps> = ({
           },
           selectBoxStyle,
         ]}
-        onPress={toggleDropdown}
+        onPress={togglePopup}
         accessibilityLabel={accessibleLabel || placeholder}
         disabled={disabled}
       >
@@ -149,29 +144,43 @@ const SelectList: React.FC<SelectListProps> = ({
           {t(selectedOption || placeholder || defaultText)}
         </ThemedText>
         <Ionicons
-          name={isDropdownVisible ? "chevron-up" : "chevron-down"}
+          name={isPopupVisible ? "chevron-up" : "chevron-down"}
           size={Sizes.icon.small}
           color={iconColor}
         />
       </TouchableOpacity>
-      {isDropdownVisible && (
-        <View style={[styles.dropdown, dropdownStyle]}>
-          <FlatList
-            data={options}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[styles.option, optionStyle]}
-                onPress={() => handleSelect(item)}
-              >
-                <ThemedText style={[styles.optionText, optionTextStyle]}>
-                  {t(item)}
-                </ThemedText>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-      )}
+
+      {/* Popup Modal */}
+      <Modal
+        visible={isPopupVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={togglePopup}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={togglePopup}
+        >
+          <View style={[styles.popup, popupStyle]}>
+            <FlatList
+              data={options}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[styles.option, optionStyle]}
+                  onPress={() => handleSelect(item)}
+                >
+                  <ThemedText style={[styles.optionText, optionTextStyle]}>
+                    {t(item)}
+                  </ThemedText>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
       {error && (
         <Text style={[styles.errorText, errorTextStyle]}>{t(error)}</Text>
       )}
@@ -179,14 +188,13 @@ const SelectList: React.FC<SelectListProps> = ({
   );
 };
 
-export default memo(SelectList);
+export default memo(SelectListWithDialog);
 
 const styles = StyleSheet.create({
   container: {
     width: "100%",
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,
-    zIndex: 1,
   },
   label: {
     fontSize: Sizes.textSmall,
@@ -201,7 +209,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: Colors.light.border,
     borderRadius: Sizes.borderRadiusSmall,
-    zIndex: 1,
   },
   selectBoxError: {
     borderColor: Colors.light.error,
@@ -214,15 +221,19 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: Sizes.marginSmall,
   },
-  dropdown: {
-    borderWidth: 0.5,
-    borderColor: Colors.light.border,
-    borderRadius: Sizes.borderRadiusSmall,
-    marginTop: Sizes.marginSmall,
-    maxHeight: 200,
-    zIndex: 100,
-    elevation: 1,
-    width: "100%",
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  popup: {
+    width: "80%",
+    backgroundColor: Colors.light.background,
+    borderRadius: Sizes.borderRadiusMedium,
+    padding: Sizes.paddingMedium,
+    maxHeight: 300,
+    elevation: 5,
   },
   option: {
     paddingVertical: Sizes.paddingSmall,

@@ -7,25 +7,19 @@ import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 
-const ProfileLayout = () => {
+const AdminLayout = () => {
   const pathname = usePathname();
-  const title = pathname.includes("union-support")
-    ? "Union Support"
-    : pathname.includes("language")
-    ? "Language"
-    : pathname.includes("add-vehicles")
-    ? "Add Vehicles"
-    : pathname.includes("vehicles")
-    ? "Vehicles"
-    : pathname.includes("my-information")
-    ? "My Information"
-    : pathname.includes("settings")
-    ? "Settings"
-    : pathname.includes("privacy-and-policy")
-    ? "Privacy and Policy"
-    : pathname.includes("admin")
-    ? "Admin Dashboard"
-    : "Profile";
+  const title = pathname.includes("add-product")
+    ? "Add Product"
+    : pathname.includes("add-brand")
+    ? "Add Brand"
+    : pathname.includes("add-category")
+    ? "Add Category"
+    : pathname.includes("remove-product-brand")
+    ? "Remove Item"
+    : pathname.includes("manage-accounts")
+    ? "Manage Accounts"
+    : "Admin";
 
   return (
     <View style={styles.container}>
@@ -76,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileLayout;
+export default AdminLayout;

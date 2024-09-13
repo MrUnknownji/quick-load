@@ -30,7 +30,11 @@ interface TextInputFieldProps {
   error?: string;
   accessibleLabel?: string;
   disabled?: boolean;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
+  keyboardType?: "default" | "numeric" | "email-address" | "phone-pad" | "url";
+  multiline?: boolean;
+  numberOfLines?: number;
+  secureTextEntry?: boolean;
 }
 
 const TextInputField = ({
@@ -44,6 +48,10 @@ const TextInputField = ({
   accessibleLabel,
   disabled = false,
   style,
+  keyboardType = "default",
+  multiline = false,
+  numberOfLines,
+  secureTextEntry = false,
 }: TextInputFieldProps) => {
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
@@ -87,6 +95,10 @@ const TextInputField = ({
           accessibilityLabel={accessibleLabel || placeholder}
           editable={!disabled}
           placeholderTextColor={placeholderColor}
+          keyboardType={keyboardType}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          secureTextEntry={secureTextEntry}
         />
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>

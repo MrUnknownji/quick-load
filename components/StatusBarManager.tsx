@@ -30,6 +30,12 @@ const StatusBarManager = () => {
         case "add-vehicles":
         case "settings":
         case "privacy-and-policy":
+        case "admin":
+        case "add-product":
+        case "add-brand":
+        case "add-category":
+        case "remove-product-brand":
+        case "manage-accounts":
           return "light";
         default:
           return "dark";

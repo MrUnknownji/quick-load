@@ -50,6 +50,11 @@ const Profile = () => {
             onPress={() => router.push("/subscription")}
           />
           <SmallListItem
+            title={t("Admin Dashboard")}
+            iconName="person"
+            onPress={() => router.push("/admin")}
+          />
+          <SmallListItem
             title={t("My Vehicles")}
             iconName="car"
             onPress={() => router.push("/profile/vehicles")}
