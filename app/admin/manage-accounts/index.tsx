@@ -25,9 +25,7 @@ const AdminBlockDeleteAccountPage: React.FC = () => {
   const [confirmed, setConfirmed] = useState(false);
 
   useEffect(() => {
-    // Simulated API call to fetch users
     const fetchUsers = async () => {
-      // In a real application, this would be an API call
       const mockUsers: User[] = [
         { id: "1", name: "John Doe", email: "john@example.com" },
         { id: "2", name: "Jane Smith", email: "jane@example.com" },
@@ -83,8 +81,7 @@ const AdminBlockDeleteAccountPage: React.FC = () => {
                 selectedUser.name
               }. Reason: ${reason}`
             );
-            // Here you would typically call an API to block or delete the account
-            router.back(); // Return to previous page after action
+            router.back();
           },
           style: "destructive",
         },

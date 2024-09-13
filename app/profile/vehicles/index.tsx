@@ -9,40 +9,17 @@ import { VehicleTypeProps } from "@/constants/types/types";
 import { VEHICLES_LIST } from "@/assets/data/DATA";
 import { router } from "expo-router";
 import { t } from "i18next";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedText } from "@/components/ThemedText";
 
-// const renderVehicleItem = (vehicle: VehicleTypeProps) => {
-//   return (
-//     <View
-//       style={{
-//         borderRadius: Sizes.borderRadiusMedium,
-//         marginHorizontal: Sizes.marginSmall,
-//         overflow: "hidden",
-//         elevation: 3,
-//       }}
-//     >
-//       <TouchableNativeFeedback
-//         onPress={() =>
-//           router.push({
-//             pathname: "/profile/vehicles/add-vehicles",
-//             params: { vehicleId: vehicle.id },
-//           })
-//         }
-//       >
-//         <View style={styles.listItem}>
-//           <Image source={vehicle.image} style={styles.listItemImage} />
-//           <View style={styles.listItemDetails}>
-//             <Text style={styles.listItemType}>{t(vehicle.vehicleType)}</Text>
-//             <Text style={styles.listItemNumber}>{vehicle.vehicleNumber}</Text>
-
-//             <Text style={styles.listItemBrand}>{vehicle.brand}</Text>
-//           </View>
-//         </View>
-//       </TouchableNativeFeedback>
-//     </View>
-//   );
-// };
-
-const renderVehicleItem = (vehicle: VehicleTypeProps) => {
+const VehicleItem = ({ vehicle }: { vehicle: VehicleTypeProps }) => {
+  const listItemBackgroundColor = useThemeColor(
+    {
+      light: Colors.light.backgroundSecondary,
+      dark: Colors.dark.backgroundSecondary,
+    },
+    "background"
+  );
   return (
     <View
       style={{
@@ -60,11 +37,20 @@ const renderVehicleItem = (vehicle: VehicleTypeProps) => {
           })
         }
       >
-        <View style={styles.listItem}>
+        <View
+          style={[
+            styles.listItem,
+            { backgroundColor: listItemBackgroundColor },
+          ]}
+        >
           <Image source={vehicle.image} style={styles.listItemImage} />
           <View style={styles.listItemDetails}>
-            <Text style={styles.listItemType}>{t(vehicle.vehicleType)}</Text>
-            <Text style={styles.listItemNumber}>{vehicle.vehicleNumber}</Text>
+            <ThemedText style={styles.listItemType}>
+              {t(vehicle.vehicleType)}
+            </ThemedText>
+            <ThemedText style={styles.listItemNumber}>
+              {vehicle.vehicleNumber}
+            </ThemedText>
             <Text style={styles.listItemBrand}>{vehicle.brand}</Text>
           </View>
         </View>
@@ -78,7 +64,7 @@ const Vehicles = () => {
     <View style={styles.container}>
       <FlatList
         data={VEHICLES_LIST}
-        renderItem={({ item }) => renderVehicleItem(item)}
+        renderItem={({ item }) => <VehicleItem vehicle={item} />}
         keyExtractor={(item, index) =>
           `${item.id.toString()}-${index.toString()}`
         }
@@ -114,7 +100,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,
-    backgroundColor: Colors.light.cardBackground,
     borderRadius: Sizes.borderRadiusMedium,
   },
   listItemImage: {

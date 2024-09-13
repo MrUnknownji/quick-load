@@ -4,6 +4,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { ViewStyle } from "react-native";
 
 interface Category {
   name: string;
@@ -38,6 +39,7 @@ interface ListItemProps {
     | string;
   onPress?: () => void;
   buttonTitle?: string;
+  style?: ViewStyle | ViewStyle[];
 }
 
 type CustomFile = {

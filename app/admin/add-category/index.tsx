@@ -18,6 +18,7 @@ import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import IconButton from "@/components/button/IconButton";
 import Button from "@/components/button/Button";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface CategoryImage {
   uri: string;
@@ -31,6 +32,11 @@ const AddCategoryPage: React.FC = () => {
   const [parentCategory, setParentCategory] = useState(parentCategories[0]);
   const [categoryImage, setCategoryImage] = useState<CategoryImage | null>(
     null
+  );
+
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
   );
 
   const pickImage = async () => {
@@ -62,11 +68,7 @@ const AddCategoryPage: React.FC = () => {
               />
             ) : (
               <View style={styles.imagePlaceholder}>
-                <Ionicons
-                  name="camera"
-                  size={40}
-                  color={Colors.light.primary}
-                />
+                <Ionicons name="camera" size={40} color={iconColor} />
                 <ThemedText style={styles.imagePlaceholderText}>
                   {t("Tap to add category image")}
                 </ThemedText>

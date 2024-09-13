@@ -44,6 +44,11 @@ const Button = ({
   const textColor =
     variant === "outlined" ? secondaryColor : Colors.light.background;
 
+  const disabledTextColor = useThemeColor(
+    { light: Colors.light.disabled, dark: Colors.dark.disabled },
+    "disabled"
+  );
+
   const getButtonStyle = () => {
     switch (variant) {
       case "primary":
@@ -63,6 +68,10 @@ const Button = ({
       default:
         return {};
     }
+  };
+
+  const getTextStyle = () => {
+    return disabled ? { color: "black" } : {};
   };
 
   const getSizeStyle = () => {
@@ -96,7 +105,14 @@ const Button = ({
       ]}
       onPress={disabled ? undefined : onPress}
     >
-      <Text style={[styles.buttonText, { color: textColor }, textStyle]}>
+      <Text
+        style={[
+          styles.buttonText,
+          { color: textColor },
+          textStyle,
+          getTextStyle(),
+        ]}
+      >
         {title}
       </Text>
     </Pressable>

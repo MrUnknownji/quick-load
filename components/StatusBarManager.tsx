@@ -1,7 +1,7 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
-import { useTheme } from "@react-navigation/native";
+import { useTheme } from "@/app/Context/AppThemeProvider";
 
 const StatusBarManager = () => {
   const { activePath } = usePathChangeListener();
@@ -9,9 +9,9 @@ const StatusBarManager = () => {
   const getStatusBarStyle = () => {
     const route = activePath.includes("user") ? "user" : activePath;
 
-    const theme = useTheme();
+    const { appTheme } = useTheme();
 
-    if (theme.dark) {
+    if (appTheme === "dark") {
       switch (route) {
         case "vehicles":
         case "add-vehicles":

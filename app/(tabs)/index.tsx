@@ -17,7 +17,6 @@ import {
   Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { t } from "i18next";
@@ -41,6 +40,7 @@ import {
 } from "@/assets/data/DATA";
 import { Brand, Category } from "@/constants/types/types";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedView } from "@/components/ThemedView";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -70,10 +70,13 @@ const HomeScreen: React.FC = () => {
       .map(() => new Animated.Value(0))
   ).current;
   const { activePath } = usePathChangeListener();
-  const theme = useTheme();
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary"
+  );
+  const backgroundColor = useThemeColor(
+    { light: Colors.light.background, dark: Colors.dark.background },
+    "background"
   );
 
   const resetAnimations = useCallback(() => {
@@ -177,6 +180,13 @@ const HomeScreen: React.FC = () => {
 
   const renderBrandItem = useCallback(
     (brands: Brand[]) => {
+      const backgroundColor = useThemeColor(
+        {
+          light: Colors.light.backgroundSecondary,
+          dark: Colors.dark.backgroundSecondary,
+        },
+        "backgroundSecondary"
+      );
       return brands.map((brand, index) => (
         <Animated.View
           key={brand.brandId}
@@ -192,6 +202,7 @@ const HomeScreen: React.FC = () => {
             }
             mesurementType={getMeasurementType(selectedCategory)}
             buttonTitle={t("More Information")}
+            style={{ backgroundColor }}
           />
         </Animated.View>
       ));
@@ -217,7 +228,7 @@ const HomeScreen: React.FC = () => {
   }, [selectedCategory]);
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <SearchHeader />
       <View>
         {selectedCategory === "" && (
@@ -235,7 +246,7 @@ const HomeScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={[
             styles.categories,
-            { backgroundColor: theme.colors.background },
+            { backgroundColor: backgroundColor },
           ]}
           style={{ transform: [{ translateY: categoriesTranslateY }] }}
         >
@@ -277,7 +288,7 @@ const HomeScreen: React.FC = () => {
           </View>
         </SafeAreaView>
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 };
 

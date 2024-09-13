@@ -17,6 +17,7 @@ import { ThemedText } from "@/components/ThemedText";
 import TextInputField from "@/components/input-fields/TextInputField";
 import IconButton from "@/components/button/IconButton";
 import Button from "@/components/button/Button";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface BrandImage {
   uri: string;
@@ -28,6 +29,11 @@ const AddBrandPage: React.FC = () => {
   const [brandOwner, setBrandOwner] = useState("");
   const [brandWebsite, setBrandWebsite] = useState("");
   const [brandLogo, setBrandLogo] = useState<BrandImage | null>(null);
+
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -55,11 +61,7 @@ const AddBrandPage: React.FC = () => {
               <Image source={{ uri: brandLogo.uri }} style={styles.brandLogo} />
             ) : (
               <View style={styles.imagePlaceholder}>
-                <Ionicons
-                  name="camera"
-                  size={40}
-                  color={Colors.light.primary}
-                />
+                <Ionicons name="camera" size={40} color={iconColor} />
                 <ThemedText style={styles.imagePlaceholderText}>
                   {t("Tap to add brand logo")}
                 </ThemedText>

@@ -17,6 +17,7 @@ import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { VEHICLES_LIST } from "@/assets/data/DATA";
 import { CustomFile, VehicleTypeProps } from "@/constants/types/types";
+import { ThemedView } from "@/components/ThemedView";
 
 type FormField = {
   type: "TextInputField" | "SelectList" | "FileUploadField";
@@ -202,7 +203,7 @@ const AddVehicles: React.FC = () => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.profileDetails}>
+      <ThemedView style={styles.profileDetails}>
         <FlatList
           data={formFields}
           renderItem={renderItem}
@@ -227,7 +228,7 @@ const AddVehicles: React.FC = () => {
           }}
           onPress={handleSaveVehicle}
         />
-      </View>
+      </ThemedView>
     </KeyboardAvoidingView>
   );
 };
@@ -239,7 +240,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileDetails: {
-    backgroundColor: "white",
     flex: 1,
   },
 });

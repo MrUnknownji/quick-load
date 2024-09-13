@@ -16,6 +16,7 @@ import Colors from "@/constants/Colors";
 import IconButton from "@/components/button/IconButton";
 import Button from "@/components/button/Button";
 import { t } from "i18next";
+import { ThemedView } from "@/components/ThemedView";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -86,30 +87,32 @@ const Subscription: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <IconButton
-        iconName="chevron-back"
-        size="small"
-        variant="primary"
-        style={styles.backButton}
-        iconStyle={{ color: Colors.light.background }}
-        onPress={() => router.back()}
-      />
-      <Image
-        source={require("@/assets/images/icon.png")}
-        style={styles.image}
-      />
-      <FlatList
-        horizontal
-        data={SUBSCRIPTION_TYPES}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={screenWidth - 55}
-        decelerationRate="fast"
-        contentContainerStyle={styles.flatListContent}
-      />
-    </View>
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.content}>
+        <IconButton
+          iconName="chevron-back"
+          size="small"
+          variant="primary"
+          style={styles.backButton}
+          iconStyle={{ color: Colors.light.background }}
+          onPress={() => router.back()}
+        />
+        <Image
+          source={require("@/assets/images/icon.png")}
+          style={styles.image}
+        />
+        <FlatList
+          horizontal
+          data={SUBSCRIPTION_TYPES}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={screenWidth - 55}
+          decelerationRate="fast"
+          contentContainerStyle={styles.flatListContent}
+        />
+      </ThemedView>
+    </ThemedView>
   );
 };
 
@@ -155,7 +158,7 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
           title={item.active ? "Already Subscribed" : "Subscribe"}
           variant={item.active ? "outlined" : "primary"}
           size="medium"
-          style={styles.subscribeButton}
+          style={[styles.subscribeButton, { borderColor: textColor }]}
           textStyle={{ color: "white" }}
         />
       </View>
@@ -165,6 +168,9 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  content: {
     paddingTop: Sizes.StatusBarHeight,
     alignItems: "center",
     justifyContent: "center",

@@ -7,6 +7,7 @@ import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Ionicons } from "@expo/vector-icons";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface DashboardOptionProps {
   title: string;
@@ -18,12 +19,31 @@ const DashboardOption: React.FC<DashboardOptionProps> = ({
   title,
   icon,
   onPress,
-}) => (
-  <TouchableOpacity style={styles.optionCard} onPress={onPress}>
-    <Ionicons name={icon as any} size={24} color={Colors.light.primary} />
-    <ThemedText style={styles.optionText}>{title}</ThemedText>
-  </TouchableOpacity>
-);
+}) => {
+  const backgroundColor = useThemeColor(
+    {
+      light: Colors.light.backgroundSecondary,
+      dark: Colors.dark.backgroundSecondary,
+    },
+    "backgroundSecondary"
+  );
+  const iconColor = useThemeColor(
+    {
+      light: Colors.light.primary,
+      dark: Colors.dark.secondary,
+    },
+    "primary"
+  );
+  return (
+    <TouchableOpacity
+      style={[styles.optionCard, { backgroundColor }]}
+      onPress={onPress}
+    >
+      <Ionicons name={icon as any} size={24} color={iconColor} />
+      <ThemedText style={styles.optionText}>{title}</ThemedText>
+    </TouchableOpacity>
+  );
+};
 
 const AdminDashboard: React.FC = () => {
   const dashboardOptions: DashboardOptionProps[] = [
@@ -91,7 +111,6 @@ const styles = StyleSheet.create({
   optionCard: {
     width: "48%",
     aspectRatio: 1,
-    backgroundColor: Colors.light.background,
     borderRadius: Sizes.borderRadiusMedium,
     justifyContent: "center",
     alignItems: "center",

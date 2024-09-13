@@ -19,7 +19,7 @@ const AdminLayout = () => {
     ? "Remove Item"
     : pathname.includes("manage-accounts")
     ? "Manage Accounts"
-    : "Admin";
+    : "Admin Dashboard";
 
   return (
     <View style={styles.container}>

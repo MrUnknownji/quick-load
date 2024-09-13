@@ -18,10 +18,10 @@ import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import IconButton from "@/components/button/IconButton";
 import Button from "@/components/button/Button";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 type PriceBasedOn = "piece" | "quintal";
 type ImageType = "main" | "extra";
-type StockBasedOn = "kg" | "quintal" | "piece";
 
 interface ProductImage {
   uri: string;
@@ -41,7 +41,10 @@ const AddProductPage: React.FC = () => {
   const [productCategory, setProductCategory] = useState(productCategories[0]);
   const [productBrand, setProductBrand] = useState(productBrands[0]);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
-  const [stockBasedOn, setStockBasedOn] = useState<StockBasedOn>("piece");
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   const pickImage = async (type: ImageType) => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -89,11 +92,7 @@ const AddProductPage: React.FC = () => {
               />
             ) : (
               <View style={styles.imagePlaceholder}>
-                <Ionicons
-                  name="camera"
-                  size={40}
-                  color={Colors.light.primary}
-                />
+                <Ionicons name="camera" size={40} color={iconColor} />
                 <ThemedText style={styles.imagePlaceholderText}>
                   {t("Tap to add main product image")}
                 </ThemedText>
@@ -188,7 +187,7 @@ const AddProductPage: React.FC = () => {
                 style={styles.imagePickerExtra}
                 onPress={() => pickImage("extra")}
               >
-                <Ionicons name="add" size={40} color={Colors.light.primary} />
+                <Ionicons name="add" size={40} color={iconColor} />
                 <ThemedText style={styles.addExtraImageText}>
                   {t("Add")}
                 </ThemedText>

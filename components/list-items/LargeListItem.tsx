@@ -22,7 +22,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
     const backgroundColor = useThemeColor(
       {
         light: Colors.light.cardBackground,
-        dark: Colors.dark.cardBackground,
+        dark: Colors.dark.backgroundSecondary,
       },
       "backgroundSecondary"
     );

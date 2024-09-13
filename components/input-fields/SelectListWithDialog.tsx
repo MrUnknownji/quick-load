@@ -20,6 +20,7 @@ import Colors from "@/constants/Colors";
 import { t } from "i18next";
 import { ThemedText } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { ThemedView } from "../ThemedView";
 
 type IconType =
   | "Ionicons"
@@ -162,7 +163,7 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
           activeOpacity={1}
           onPress={togglePopup}
         >
-          <View style={[styles.popup, popupStyle]}>
+          <ThemedView style={[styles.popup, popupStyle]}>
             <FlatList
               data={options}
               keyExtractor={(item) => item}
@@ -177,7 +178,7 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
                 </TouchableOpacity>
               )}
             />
-          </View>
+          </ThemedView>
         </TouchableOpacity>
       </Modal>
 
@@ -229,7 +230,6 @@ const styles = StyleSheet.create({
   },
   popup: {
     width: "80%",
-    backgroundColor: Colors.light.background,
     borderRadius: Sizes.borderRadiusMedium,
     padding: Sizes.paddingMedium,
     maxHeight: 300,

@@ -16,6 +16,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import Button from "@/components/button/Button";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface Item {
   id: string;
@@ -29,6 +30,22 @@ const RemoveProductOrBrandPage: React.FC = () => {
   );
   const [items, setItems] = useState<Item[]>([]);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+
+  const selectedBorderColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
+  const selectedBackgroundColor = useThemeColor(
+    {
+      light: Colors.light.backgroundSecondary,
+      dark: Colors.dark.backgroundSecondary,
+    },
+    "backgroundSecondary"
+  );
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
+    "primary"
+  );
 
   // Simulated data fetch
   useEffect(() => {
@@ -160,7 +177,10 @@ const RemoveProductOrBrandPage: React.FC = () => {
               key={item.id}
               style={[
                 styles.itemContainer,
-                selectedItem?.id === item.id && styles.selectedItem,
+                selectedItem?.id === item.id && {
+                  borderColor: selectedBorderColor,
+                  backgroundColor: selectedBackgroundColor,
+                },
               ]}
               onPress={() => setSelectedItem(item)}
             >
@@ -170,7 +190,7 @@ const RemoveProductOrBrandPage: React.FC = () => {
                 <Ionicons
                   name="checkmark-circle"
                   size={24}
-                  color={Colors.light.primary}
+                  color={iconColor}
                   style={styles.checkmark}
                 />
               )}
@@ -178,7 +198,7 @@ const RemoveProductOrBrandPage: React.FC = () => {
           ))}
         </ScrollView>
 
-        <View style={styles.buttonRow}>
+        <ThemedView style={styles.buttonRow}>
           <Button
             title={t(`Remove ${itemType}`)}
             size="medium"
@@ -191,7 +211,7 @@ const RemoveProductOrBrandPage: React.FC = () => {
             variant="secondary"
             onPress={handleCancel}
           />
-        </View>
+        </ThemedView>
       </ThemedView>
     </ThemedView>
   );
@@ -226,10 +246,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.border,
   },
-  selectedItem: {
-    backgroundColor: Colors.light.backgroundSecondary,
-    borderColor: Colors.light.primary,
-  },
   itemImage: {
     width: 50,
     height: 50,
@@ -252,7 +268,6 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: Sizes.marginMedium,
     paddingVertical: Sizes.paddingSmall,
-    backgroundColor: Colors.light.background,
   },
 });
 
