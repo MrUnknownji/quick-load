@@ -68,6 +68,11 @@ const AdminDashboard: React.FC = () => {
       onPress: () => router.push("/admin/remove-product-brand"),
     },
     {
+      title: "Edit Product/Brand/Category",
+      icon: "pencil",
+      onPress: () => router.push("/admin/edit-page"),
+    },
+    {
       title: "Block/Delete Account",
       icon: "person-remove",
       onPress: () => router.push("/admin/manage-accounts"),

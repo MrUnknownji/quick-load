@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font";
-import { router, Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
@@ -19,32 +19,34 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const checkOnboardingStatus = async () => {
-      let hasOnboarded;
+    const prepare = async () => {
       try {
-        // hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
-        hasOnboarded = null;
-      } catch (err) {
-        hasOnboarded = null;
-      }
-      if (loaded) {
-        SplashScreen.hideAsync();
-        if (hasOnboarded === null) {
-          router.replace("/onboarding");
-        } else {
-          router.replace("/authentication");
+        if (loaded) {
+          await SplashScreen.hideAsync();
+          const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
+          setIsReady(true);
+
+          setTimeout(() => {
+            if (hasOnboarded === null) {
+              router.replace("/onboarding");
+            } else {
+              router.replace("/authentication");
+            }
+          }, 0);
         }
+      } catch (e) {
+        console.error("Error during app initialization:", e);
       }
-      setIsLoading(false);
     };
 
-    checkOnboardingStatus();
-  }, [loaded]);
+    prepare();
+  }, [loaded, router]);
 
-  if (isLoading || !loaded) {
+  if (!isReady || !loaded) {
     return null;
   }
 
@@ -56,13 +58,26 @@ export default function RootLayout() {
             <StatusBarManager />
             <GestureHandlerRootView style={{ flex: 1 }}>
               <Stack
-                screenOptions={{ headerShown: false }}
-                initialRouteName="onboarding/index"
+                screenOptions={{
+                  headerShown: false,
+                  animation: "fade_from_bottom",
+                  animationDuration: 100,
+                }}
               >
-                <Stack.Screen name="onboarding/index" />
+                <Stack.Screen
+                  name="onboarding/index"
+                  options={{
+                    animation: "fade_from_bottom",
+                  }}
+                />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="profile" />
-                <Stack.Screen name="authentication/index" />
+                <Stack.Screen
+                  name="authentication/index"
+                  options={{
+                    animation: "fade_from_bottom",
+                  }}
+                />
                 <Stack.Screen name="subscription/index" />
                 <Stack.Screen name="product-detail/[productId]" />
                 <Stack.Screen name="thank-you/index" />

@@ -17,6 +17,8 @@ const AdminLayout = () => {
     ? "Add Category"
     : pathname.includes("remove-product-brand")
     ? "Remove Item"
+    : pathname.includes("edit-page")
+    ? "Edit Page"
     : pathname.includes("manage-accounts")
     ? "Manage Accounts"
     : "Admin Dashboard";
