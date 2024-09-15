@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Sizes from "@/constants/Sizes";
-import { ListItemProps } from "@/constants/types/types";
+import { ListItemProps } from "@/types/types";
 import Colors from "@/constants/Colors";
 import Button from "../button/Button";
 import { t } from "i18next";

@@ -44,11 +44,6 @@ const Button = ({
   const textColor =
     variant === "outlined" ? secondaryColor : Colors.light.background;
 
-  const disabledTextColor = useThemeColor(
-    { light: Colors.light.disabled, dark: Colors.dark.disabled },
-    "disabled"
-  );
-
   const getButtonStyle = () => {
     switch (variant) {
       case "primary":

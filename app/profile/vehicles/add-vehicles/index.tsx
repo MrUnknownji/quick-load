@@ -16,7 +16,7 @@ import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { VEHICLES_LIST } from "@/assets/data/DATA";
-import { CustomFile, VehicleTypeProps } from "@/constants/types/types";
+import { CustomFile, VehicleTypeProps } from "@/types/types";
 import { ThemedView } from "@/components/ThemedView";
 
 type FormField = {

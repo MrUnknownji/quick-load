@@ -4,7 +4,7 @@ import {
   Category,
   ListItemProps,
   VehicleTypeProps,
-} from "@/constants/types/types";
+} from "@/types/types";
 import { Dimensions } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");

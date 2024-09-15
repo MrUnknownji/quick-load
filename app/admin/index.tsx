@@ -1,5 +1,14 @@
 import React from "react";
-import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  TouchableHighlight,
+  TouchableHighlightComponent,
+  TouchableNativeFeedback,
+  View,
+  TouchableNativeFeedbackComponent,
+} from "react-native";
 import { router } from "expo-router";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
@@ -35,13 +44,14 @@ const DashboardOption: React.FC<DashboardOptionProps> = ({
     "primary"
   );
   return (
-    <TouchableOpacity
-      style={[styles.optionCard, { backgroundColor }]}
-      onPress={onPress}
-    >
-      <Ionicons name={icon as any} size={24} color={iconColor} />
-      <ThemedText style={styles.optionText}>{title}</ThemedText>
-    </TouchableOpacity>
+    <View style={styles.optionCardItemContainer}>
+      <TouchableNativeFeedback onPress={onPress}>
+        <View style={[styles.optionCard, { backgroundColor }]}>
+          <Ionicons name={icon as any} size={24} color={iconColor} />
+          <ThemedText style={styles.optionText}>{title}</ThemedText>
+        </View>
+      </TouchableNativeFeedback>
+    </View>
   );
 };
 
@@ -113,13 +123,19 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  optionCard: {
+  optionCardItemContainer: {
     width: "48%",
+    borderRadius: Sizes.borderRadiusMedium,
+    overflow: "hidden",
+    aspectRatio: 1,
+    elevation: 2,
+    marginBottom: Sizes.marginMedium,
+  },
+  optionCard: {
     aspectRatio: 1,
     borderRadius: Sizes.borderRadiusMedium,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: Sizes.marginMedium,
     elevation: 2,
     padding: Sizes.paddingSmall,
   },

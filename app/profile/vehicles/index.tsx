@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "@/components/button/IconButton";
-import { VehicleTypeProps } from "@/constants/types/types";
+import { VehicleTypeProps } from "@/types/types";
 import { VEHICLES_LIST } from "@/assets/data/DATA";
 import { router } from "expo-router";
 import { t } from "i18next";

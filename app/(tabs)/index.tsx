@@ -20,13 +20,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { t } from "i18next";
-
 import SearchHeader from "@/components/input-fields/SearchHeader";
 import { ThemedText } from "@/components/ThemedText";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import ImageCarousel from "@/components/image-views/ImageCarousel";
 import LargeImageView from "@/components/image-views/LargeImageView";
-
 import usePathChangeListener from "@/hooks/usePathChangeListener";
 import { Colors } from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
@@ -38,9 +36,10 @@ import {
   CEMENT_BRANDS,
   SAND_BRANDS,
 } from "@/assets/data/DATA";
-import { Brand, Category } from "@/constants/types/types";
+import { Brand, Category } from "@/types/types";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "@/components/ThemedView";
+import { useFetchProducts } from "@/hooks/useFetchProduct";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -78,6 +77,8 @@ const HomeScreen: React.FC = () => {
     { light: Colors.light.background, dark: Colors.dark.background },
     "background"
   );
+
+  const { products, loading, error } = useFetchProducts();
 
   const resetAnimations = useCallback(() => {
     heroScaleAnim.setValue(0.9);
@@ -132,6 +133,10 @@ const HomeScreen: React.FC = () => {
     },
     [heroScaleAnim, categoriesTranslateY, fastDeliveryScaleAnim, listItemsAnim]
   );
+
+  useEffect(() => {
+    console.log(products);
+  }, [loading]);
 
   useEffect(() => {
     if (activePath === "index") {

@@ -23,7 +23,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import IconButton from "@/components/button/IconButton";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
-import { Brand, ListItemProps } from "@/constants/types/types";
+import { Brand, ListItemProps } from "@/types/types";
 import {
   BRICKS_BRANDS,
   BAJRI_BRANDS,

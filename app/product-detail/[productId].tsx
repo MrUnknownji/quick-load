@@ -24,7 +24,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import LargeImageView from "@/components/image-views/LargeImageView";
 import Button from "@/components/button/Button";
-import { ListItemProps } from "@/constants/types/types";
+import { ListItemProps } from "@/types/types";
 import { t } from "i18next";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
 import { ScrollView } from "react-native-gesture-handler";

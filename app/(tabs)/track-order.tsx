@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import Sizes from "@/constants/Sizes";
-import { ListItemProps } from "@/constants/types/types";
+import { ListItemProps } from "@/types/types";
 import { BRICKS_ITEMS, GRIT_ITEMS } from "@/assets/data/DATA";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import { router } from "expo-router";
