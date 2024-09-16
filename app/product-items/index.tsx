@@ -23,22 +23,27 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import IconButton from "@/components/button/IconButton";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
-import { Brand, ListItemProps } from "@/types/types";
-import {
-  BRICKS_BRANDS,
-  BAJRI_BRANDS,
-  GRIT_BRANDS,
-  CEMENT_BRANDS,
-  SAND_BRANDS,
-  BRICKS_ITEMS,
-  BAJRI_ITEMS,
-  GRIT_ITEMS,
-  CEMENT_ITEMS,
-  SAND_ITEMS,
-} from "@/assets/data/DATA";
+// import { Brand, ListItemProps } from "@/types/types";
+// import {
+//   BRICKS_BRANDS,
+//   BAJRI_BRANDS,
+//   GRIT_BRANDS,
+//   CEMENT_BRANDS,
+//   SAND_BRANDS,
+//   BRICKS_ITEMS,
+//   BAJRI_ITEMS,
+//   GRIT_ITEMS,
+//   CEMENT_ITEMS,
+//   SAND_ITEMS,
+// } from "@/assets/data/DATA";
 import Sizes from "@/constants/Sizes";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import {
+  useFetchProductOwnersByType,
+  useFetchProductsByOwnerAndType,
+} from "@/hooks/useFetchProduct";
+import { Product, ProductOwner } from "@/types/Product";
 
 if (
   Platform.OS === "android" &&
@@ -47,24 +52,50 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-const BrandItems: React.FC = () => {
-  const { brandId } = useLocalSearchParams<{ brandId: string }>();
-  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
-  const [loading, setLoading] = useState(true);
+const ProductItems: React.FC = () => {
+  // const { brandId } = useLocalSearchParams<{ brandId: string }>();
+  const { productOwnerId, productType } = useLocalSearchParams<{
+    productOwnerId: string;
+    productType: string;
+  }>();
+  // const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+  // const [loading, setLoading] = useState(true);
   const categoriesTranslateY = useRef(new Animated.Value(50)).current;
   const fastDeliveryScaleAnim = useRef(new Animated.Value(0.9)).current;
+  const [selectedOwner, setSelectedOwner] = useState<ProductOwner | null>(null);
   const { activePath } = usePathChangeListener();
 
-  const allBrands = useMemo(
-    () => [
-      ...BRICKS_BRANDS,
-      ...BAJRI_BRANDS,
-      ...GRIT_BRANDS,
-      ...CEMENT_BRANDS,
-      ...SAND_BRANDS,
-    ],
-    []
-  );
+  const {
+    products,
+    loading: productsLoading,
+    error: productsError,
+  } = useFetchProductsByOwnerAndType(productOwnerId, productType || "");
+
+  const {
+    productOwners,
+    loading: ownersLoading,
+    error: ownersError,
+  } = useFetchProductOwnersByType(productType);
+
+  useEffect(() => {
+    if (productOwners && productOwnerId) {
+      const owner = productOwners.find(
+        (o) => o.productOwnerId === productOwnerId
+      );
+      setSelectedOwner(owner || null);
+    }
+  }, [productOwners, productOwnerId]);
+
+  // const allBrands = useMemo(
+  //   () => [
+  //     ...BRICKS_BRANDS,
+  //     ...BAJRI_BRANDS,
+  //     ...GRIT_BRANDS,
+  //     ...CEMENT_BRANDS,
+  //     ...SAND_BRANDS,
+  //   ],
+  //   []
+  // );
 
   const resetAnimations = useCallback(() => {
     categoriesTranslateY.setValue(50);
@@ -88,14 +119,14 @@ const BrandItems: React.FC = () => {
     ]).start();
   }, [categoriesTranslateY, fastDeliveryScaleAnim]);
 
-  useEffect(() => {
-    const brand = allBrands.find((brand) => brand.brandId === brandId);
-    setSelectedBrand(brand || null);
-    setLoading(false);
-  }, [brandId, allBrands]);
+  // useEffect(() => {
+  //   const brand = allBrands.find((brand) => brand.brandId === brandId);
+  //   setSelectedBrand(brand || null);
+  //   setLoading(false);
+  // }, [brandId, allBrands]);
 
   useEffect(() => {
-    if (activePath.includes("brand-items")) {
+    if (activePath.includes("product-items")) {
       resetAnimations();
       playAnimations();
     }
@@ -112,24 +143,28 @@ const BrandItems: React.FC = () => {
     }
   }, []);
 
-  const getCategoryItems = useCallback((category: string): ListItemProps[] => {
-    switch (category) {
-      case "Bricks":
-        return BRICKS_ITEMS;
-      case "Bajri":
-        return BAJRI_ITEMS;
-      case "Grit":
-        return GRIT_ITEMS;
-      case "Cement":
-        return CEMENT_ITEMS;
-      case "Sand":
-        return SAND_ITEMS;
-      default:
-        return [];
-    }
+  // const getCategoryItems = useCallback((category: string): ListItemProps[] => {
+  //   switch (category) {
+  //     case "Bricks":
+  //       return BRICKS_ITEMS;
+  //     case "Bajri":
+  //       return BAJRI_ITEMS;
+  //     case "Grit":
+  //       return GRIT_ITEMS;
+  //     case "Cement":
+  //       return CEMENT_ITEMS;
+  //     case "Sand":
+  //       return SAND_ITEMS;
+  //     default:
+  //       return [];
+  //   }
+  // }, []);
+  const getCategoryItems = useCallback((category?: string): Product[] => {
+    return products;
   }, []);
 
-  const renderItem: ListRenderItem<ListItemProps> = useCallback(
+  // const renderItem: ListRenderItem<ListItemProps> = useCallback(
+  const renderItem: ListRenderItem<Product> = useCallback(
     ({ item, index }) => (
       <Animated.View
         style={{
@@ -144,7 +179,7 @@ const BrandItems: React.FC = () => {
           ],
         }}
       >
-        <LargeListItem
+        {/* <LargeListItem
           {...item}
           onPress={() =>
             router.push({
@@ -156,17 +191,32 @@ const BrandItems: React.FC = () => {
             selectedBrand ? getMeasurementType(selectedBrand.category) : ""
           }
           buttonTitle={t("More Information")}
+        /> */}
+        <LargeListItem
+          // ... adapt properties based on Product interface
+          heading={item.productOwner}
+          imageUrl={item.productImage}
+          price={item.productPrize.toString()}
+          onPress={() =>
+            router.push({
+              pathname: "/product-detail/[productId]",
+              params: { productId: item._id ?? "" },
+            })
+          }
+          mesurementType={productType ? getMeasurementType(productType) : ""}
+          buttonTitle={t("More Information")}
+          // ...
         />
       </Animated.View>
     ),
-    [fastDeliveryScaleAnim, getMeasurementType, selectedBrand]
+    [fastDeliveryScaleAnim, getMeasurementType]
   );
 
   const categoryItems = useMemo(() => {
-    return selectedBrand ? getCategoryItems(selectedBrand.category) : [];
-  }, [selectedBrand, getCategoryItems]);
+    return productOwnerId ? getCategoryItems() : [];
+  }, [getCategoryItems]);
 
-  if (loading)
+  if (productsLoading)
     return (
       <SafeAreaView
         style={[
@@ -178,17 +228,17 @@ const BrandItems: React.FC = () => {
       </SafeAreaView>
     );
 
-  if (!selectedBrand) {
+  if (!productOwnerId) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>{t("Brand not found")}</Text>
+        <Text style={styles.errorText}>{t("Owner not found")}</Text>
       </SafeAreaView>
     );
   }
 
   return (
     <ThemedView style={styles.container}>
-      <BrandHeader heading={selectedBrand.heading} />
+      <ProductOwnerHeader heading={selectedOwner?.productOwnerName ?? ""} />
       <FlatList
         data={categoryItems}
         renderItem={renderItem}
@@ -199,7 +249,7 @@ const BrandItems: React.FC = () => {
   );
 };
 
-const BrandHeader = ({ heading }: { heading: string }) => (
+const ProductOwnerHeader = ({ heading }: { heading: string }) => (
   <View style={styles.productHeadingContainer}>
     <IconButton
       iconName="chevron-back"
@@ -245,4 +295,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BrandItems;
+export default ProductItems;

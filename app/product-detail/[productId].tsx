@@ -31,38 +31,56 @@ import { ScrollView } from "react-native-gesture-handler";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { getProductById } from "@/services/productService";
+import { Product } from "@/types/Product";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
 const ProductDetailPage = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
-  const [product, setProduct] = useState<ListItemProps | null>(null);
+  // const [product, setProduct] = useState<ListItemProps | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPricingVisible, setIsPricingVisible] = useState(false);
 
+  // useEffect(() => {
+  //   const fetchProduct = () => {
+  //     const productListMap = {
+  //       bricks: BRICKS_ITEMS,
+  //       bajri: BAJRI_ITEMS,
+  //       grit: GRIT_ITEMS,
+  //       cement: CEMENT_ITEMS,
+  //       sand: SAND_ITEMS,
+  //     };
+
+  //     type ProductCategory = keyof typeof productListMap;
+
+  //     const productCategory = Object.keys(productListMap).find((key) =>
+  //       productId.includes(key)
+  //     ) as ProductCategory | undefined;
+
+  //     if (productCategory) {
+  //       const foundProduct = productListMap[productCategory].find(
+  //         (p: ListItemProps) => p.productId === productId
+  //       );
+  //       setProduct(foundProduct ?? null);
+  //     }
+  //     setLoading(false);
+  //   };
+
+  //   fetchProduct();
+  // }, [productId]);
+
   useEffect(() => {
-    const fetchProduct = () => {
-      const productListMap = {
-        bricks: BRICKS_ITEMS,
-        bajri: BAJRI_ITEMS,
-        grit: GRIT_ITEMS,
-        cement: CEMENT_ITEMS,
-        sand: SAND_ITEMS,
-      };
-
-      type ProductCategory = keyof typeof productListMap;
-
-      const productCategory = Object.keys(productListMap).find((key) =>
-        productId.includes(key)
-      ) as ProductCategory | undefined;
-
-      if (productCategory) {
-        const foundProduct = productListMap[productCategory].find(
-          (p: ListItemProps) => p.productId === productId
-        );
-        setProduct(foundProduct ?? null);
+    const fetchProduct = async () => {
+      try {
+        const data = await getProductById(productId);
+        setProduct(data);
+      } catch (error) {
+        // Handle error
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchProduct();
@@ -91,22 +109,22 @@ const ProductDetailPage = () => {
 
   return (
     <ThemedView style={{ flex: 1 }}>
-      <ProductHeader heading={product.heading} />
+      <ProductHeader heading={product.productType} />
       <FlatList
         style={{ flex: 1 }}
         data={[
           () => (
             <View style={styles.productContainer}>
               <LargeImageView
-                imageUrl={product.imageUrl}
+                imageUrl={product.productImage}
                 style={{ marginHorizontal: 0 }}
               />
               {!isPricingVisible && (
                 <>
                   <ThemedText style={styles.productDescription}>
-                    {t(product.productDescription ?? "")}
+                    {t(product.productDetails ?? "")}
                   </ThemedText>
-                  <ProductFeaturesCard price={Number(product.price)} />
+                  <ProductFeaturesCard price={Number(product.productPrize)} />
                 </>
               )}
             </View>
@@ -220,10 +238,10 @@ const renderFeatureItem = (
   </View>
 );
 
-const PricingCard = ({ item }: { item: ListItemProps }) => {
+const PricingCard = ({ item }: { item: Product }) => {
   const [quantity, setQuantity] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("paymentNow");
-  const itemPrice = Number(item.price ?? 0);
+  const itemPrice = Number(item.productPrize ?? 0);
   const loadingCharges = (quantity * itemPrice * 0.05).toFixed(2);
   const brokerCharges = (quantity * itemPrice * 0.1).toFixed(2);
   const platformFees = (quantity * itemPrice * 0.2).toFixed(2);

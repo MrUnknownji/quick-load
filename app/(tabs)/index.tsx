@@ -15,6 +15,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -30,25 +31,29 @@ import { Colors } from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import {
   CATEGORIES,
-  BRICKS_BRANDS,
-  BAJRI_BRANDS,
-  GRIT_BRANDS,
-  CEMENT_BRANDS,
-  SAND_BRANDS,
+  //   BRICKS_BRANDS,
+  //   BAJRI_BRANDS,
+  //   GRIT_BRANDS,
+  //   CEMENT_BRANDS,
+  //   SAND_BRANDS,
 } from "@/assets/data/DATA";
 import { Brand, Category } from "@/types/types";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "@/components/ThemedView";
-import { useFetchProducts } from "@/hooks/useFetchProduct";
+import {
+  useFetchProductOwnersByType,
+  useFetchProducts,
+} from "@/hooks/useFetchProduct";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const MAX_ITEMS = Math.max(
-  BRICKS_BRANDS.length,
-  BAJRI_BRANDS.length,
-  GRIT_BRANDS.length,
-  CEMENT_BRANDS.length,
-  SAND_BRANDS.length
+  // BRICKS_BRANDS.length,
+  // BAJRI_BRANDS.length,
+  // GRIT_BRANDS.length,
+  // CEMENT_BRANDS.length,
+  // SAND_BRANDS.length,
+  100
 );
 
 if (
@@ -78,7 +83,30 @@ const HomeScreen: React.FC = () => {
     "background"
   );
 
-  const { products, loading, error } = useFetchProducts();
+  const {
+    products,
+    loading: productsLoading,
+    error: productsError,
+  } = useFetchProducts();
+
+  const {
+    productOwners,
+    loading: ownersLoading,
+    error: ownersError,
+  } = useFetchProductOwnersByType(selectedCategory);
+
+  const uniqueCategories = useMemo(() => {
+    if (productsLoading || productsError) return [];
+
+    const categorySet = new Set<string>();
+    products.forEach((product) => categorySet.add(product.productType));
+    return Array.from(categorySet).map((categoryName) => ({
+      name: categoryName,
+      url:
+        CATEGORIES.find((c) => c.name === categoryName)?.url ??
+        `https://placehold.co/150x150?text=${categoryName}`,
+    }));
+  }, [products, productsLoading, productsError]);
 
   const resetAnimations = useCallback(() => {
     heroScaleAnim.setValue(0.9);
@@ -135,8 +163,8 @@ const HomeScreen: React.FC = () => {
   );
 
   useEffect(() => {
-    console.log(products);
-  }, [loading]);
+    console.log(productOwners);
+  }, [ownersLoading]);
 
   useEffect(() => {
     if (activePath === "index") {
@@ -183,8 +211,8 @@ const HomeScreen: React.FC = () => {
     }
   }, []);
 
-  const renderBrandItem = useCallback(
-    (brands: Brand[]) => {
+  const renderProductOwners = useCallback(
+    (brands?: any[]) => {
       const backgroundColor = useThemeColor(
         {
           light: Colors.light.backgroundSecondary,
@@ -192,45 +220,77 @@ const HomeScreen: React.FC = () => {
         },
         "backgroundSecondary"
       );
-      return brands.map((brand, index) => (
-        <Animated.View
-          key={brand.brandId}
-          style={{ transform: [{ scale: listItemsAnim[index] }] }}
+      // return brands.map((brand, index) => (
+      //   <Animated.View
+      //     key={brand.brandId}
+      //     style={{ transform: [{ scale: listItemsAnim[index] }] }}
+      //   >
+      //     <LargeListItem
+      //       {...brand}
+      //       onPress={() =>
+      //         router.push({
+      //           pathname: "/brand-items",
+      //           params: { brandId: brand.brandId },
+      //         })
+      //       }
+      //       mesurementType={getMeasurementType(selectedCategory)}
+      //       buttonTitle={t("More Information")}
+      //       style={{ backgroundColor }}
+      //     />
+      //   </Animated.View>
+      // ));
+      return ownersLoading ? (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <LargeListItem
-            {...brand}
-            onPress={() =>
-              router.push({
-                pathname: "/brand-items",
-                params: { brandId: brand.brandId },
-              })
-            }
-            mesurementType={getMeasurementType(selectedCategory)}
-            buttonTitle={t("More Information")}
-            style={{ backgroundColor }}
-          />
-        </Animated.View>
-      ));
+          <ActivityIndicator size={"large"} />
+        </View>
+      ) : (
+        productOwners.map((owner, index) => (
+          <Animated.View
+            key={owner.productOwnerId}
+            style={{ transform: [{ scale: listItemsAnim[index] }] }}
+          >
+            <LargeListItem
+              heading={owner.productOwnerName}
+              imageUrl={owner.productImage}
+              price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
+              onPress={() =>
+                router.push({
+                  pathname: "/product-items",
+                  params: {
+                    productOwnerId: owner.productOwnerId,
+                    productType: selectedCategory,
+                  },
+                })
+              }
+              mesurementType={getMeasurementType(selectedCategory)}
+              buttonTitle={t("More Information")}
+              style={{ backgroundColor }}
+            />
+          </Animated.View>
+        ))
+      );
     },
     [listItemsAnim, selectedCategory, getMeasurementType]
   );
 
-  const categoryItems = useMemo(() => {
-    switch (selectedCategory) {
-      case "Bricks":
-        return BRICKS_BRANDS;
-      case "Bajri":
-        return BAJRI_BRANDS;
-      case "Grit":
-        return GRIT_BRANDS;
-      case "Cement":
-        return CEMENT_BRANDS;
-      case "Sand":
-        return SAND_BRANDS;
-      default:
-        return [];
-    }
-  }, [selectedCategory]);
+  // const categoryItems = useMemo(() => {
+  //   switch (selectedCategory) {
+  //     case "Bricks":
+  //     return BRICKS_BRANDS;
+  //     case "Bajri":
+  //     return BAJRI_BRANDS;
+  //     case "Grit":
+  //     return GRIT_BRANDS;
+  //     case "Cement":
+  //     return CEMENT_BRANDS;
+  //     case "Sand":
+  //     return SAND_BRANDS;
+  //     default:
+  //       return [];
+  //   }
+  // }, [selectedCategory]);
 
   return (
     <ThemedView style={styles.container}>
@@ -255,23 +315,28 @@ const HomeScreen: React.FC = () => {
           ]}
           style={{ transform: [{ translateY: categoriesTranslateY }] }}
         >
-          {CATEGORIES.map((category, index) => (
-            <View key={index} style={styles.category}>
-              <TouchableOpacity onPress={() => handleCategoryPress(category)}>
-                <View
-                  style={[
-                    styles.categoryImageContainer,
-                    selectedCategory === category.name && { borderColor },
-                  ]}
-                >
-                  <Image source={category.url} style={styles.categoryImage} />
-                </View>
-              </TouchableOpacity>
-              <ThemedText style={styles.categoryLabel}>
-                {t(category.name)}
-              </ThemedText>
-            </View>
-          ))}
+          {/* {CATEGORIES.map((category, index) => ( */}
+          {productsLoading ? (
+            <ActivityIndicator />
+          ) : (
+            uniqueCategories.map((category, index) => (
+              <View key={index} style={styles.category}>
+                <TouchableOpacity onPress={() => handleCategoryPress(category)}>
+                  <View
+                    style={[
+                      styles.categoryImageContainer,
+                      selectedCategory === category.name && { borderColor },
+                    ]}
+                  >
+                    <Image source={category.url} style={styles.categoryImage} />
+                  </View>
+                </TouchableOpacity>
+                <ThemedText style={styles.categoryLabel}>
+                  {t(category.name)}
+                </ThemedText>
+              </View>
+            ))
+          )}
         </Animated.ScrollView>
       </View>
       <ScrollView
@@ -289,7 +354,8 @@ const HomeScreen: React.FC = () => {
             />
           )}
           <View style={styles.itemsContainer}>
-            {renderBrandItem(categoryItems)}
+            {/* {renderProductOwners(categoryItems)} */}
+            {renderProductOwners()}
           </View>
         </SafeAreaView>
       </ScrollView>
