@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAVG7LI9MB_sd4iwI4ZZF6HQAC9vGRYnXI</string>
+	<string>AIzaSyB6pQjSzQriUJRJhrN5bO4uDhh_2ls1VO8</string>
 	<key>GCM_SENDER_ID</key>
-	<string>179715165099</string>
+	<string>151875711795</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.load.quickload</string>
 	<key>PROJECT_ID</key>
-	<string>quick-load-a8aa6</string>
+	<string>moving-rolls</string>
 	<key>STORAGE_BUCKET</key>
-	<string>quick-load-a8aa6.appspot.com</string>
+	<string>moving-rolls.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:179715165099:ios:f45bfaf32c194898a260ee</string>
+	<string>1:151875711795:ios:c2a1fba7474d675a8ec446</string>
 </dict>
 </plist>

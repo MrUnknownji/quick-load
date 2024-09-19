@@ -15,7 +15,6 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
-  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -29,32 +28,18 @@ import LargeImageView from "@/components/image-views/LargeImageView";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
 import { Colors } from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
-import {
-  CATEGORIES,
-  //   BRICKS_BRANDS,
-  //   BAJRI_BRANDS,
-  //   GRIT_BRANDS,
-  //   CEMENT_BRANDS,
-  //   SAND_BRANDS,
-} from "@/assets/data/DATA";
-import { Brand, Category } from "@/types/types";
+import { Category } from "@/types/types";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "@/components/ThemedView";
 import {
   useFetchProductOwnersByType,
   useFetchProducts,
 } from "@/hooks/useFetchProduct";
+import Loading from "@/components/Loading";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const MAX_ITEMS = Math.max(
-  // BRICKS_BRANDS.length,
-  // BAJRI_BRANDS.length,
-  // GRIT_BRANDS.length,
-  // CEMENT_BRANDS.length,
-  // SAND_BRANDS.length,
-  100
-);
+const MAX_ITEMS = 100;
 
 if (
   Platform.OS === "android" &&
@@ -102,9 +87,7 @@ const HomeScreen: React.FC = () => {
     products.forEach((product) => categorySet.add(product.productType));
     return Array.from(categorySet).map((categoryName) => ({
       name: categoryName,
-      url:
-        CATEGORIES.find((c) => c.name === categoryName)?.url ??
-        `https://placehold.co/150x150?text=${categoryName}`,
+      url: `https://placehold.co/150x150?text=${categoryName}`,
     }));
   }, [products, productsLoading, productsError]);
 
@@ -220,30 +203,11 @@ const HomeScreen: React.FC = () => {
         },
         "backgroundSecondary"
       );
-      // return brands.map((brand, index) => (
-      //   <Animated.View
-      //     key={brand.brandId}
-      //     style={{ transform: [{ scale: listItemsAnim[index] }] }}
-      //   >
-      //     <LargeListItem
-      //       {...brand}
-      //       onPress={() =>
-      //         router.push({
-      //           pathname: "/brand-items",
-      //           params: { brandId: brand.brandId },
-      //         })
-      //       }
-      //       mesurementType={getMeasurementType(selectedCategory)}
-      //       buttonTitle={t("More Information")}
-      //       style={{ backgroundColor }}
-      //     />
-      //   </Animated.View>
-      // ));
       return ownersLoading ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <ActivityIndicator size={"large"} />
+          <Loading />
         </View>
       ) : (
         productOwners.map((owner, index) => (
@@ -275,23 +239,6 @@ const HomeScreen: React.FC = () => {
     [listItemsAnim, selectedCategory, getMeasurementType]
   );
 
-  // const categoryItems = useMemo(() => {
-  //   switch (selectedCategory) {
-  //     case "Bricks":
-  //     return BRICKS_BRANDS;
-  //     case "Bajri":
-  //     return BAJRI_BRANDS;
-  //     case "Grit":
-  //     return GRIT_BRANDS;
-  //     case "Cement":
-  //     return CEMENT_BRANDS;
-  //     case "Sand":
-  //     return SAND_BRANDS;
-  //     default:
-  //       return [];
-  //   }
-  // }, [selectedCategory]);
-
   return (
     <ThemedView style={styles.container}>
       <SearchHeader />
@@ -315,9 +262,8 @@ const HomeScreen: React.FC = () => {
           ]}
           style={{ transform: [{ translateY: categoriesTranslateY }] }}
         >
-          {/* {CATEGORIES.map((category, index) => ( */}
           {productsLoading ? (
-            <ActivityIndicator />
+            <Loading />
           ) : (
             uniqueCategories.map((category, index) => (
               <View key={index} style={styles.category}>
@@ -344,7 +290,7 @@ const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <SafeAreaView edges={["bottom"]}>
-          {selectedCategory === "" && (
+          {selectedCategory === "" ? (
             <LargeImageView
               animationValue={fastDeliveryScaleAnim}
               imageUrl={`https://placehold.co/${
@@ -352,11 +298,9 @@ const HomeScreen: React.FC = () => {
               }x200?text=Fast-delivery`}
               style={{ elevation: 3 }}
             />
+          ) : (
+            <View style={styles.itemsContainer}>{renderProductOwners()}</View>
           )}
-          <View style={styles.itemsContainer}>
-            {/* {renderProductOwners(categoryItems)} */}
-            {renderProductOwners()}
-          </View>
         </SafeAreaView>
       </ScrollView>
     </ThemedView>

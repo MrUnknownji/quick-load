@@ -14,7 +14,7 @@ import { Image } from "expo-image";
 import * as DocumentPicker from "expo-document-picker";
 import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
-import SelectList from "@/components/input-fields/SelectList";
+import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
@@ -28,7 +28,7 @@ type CustomFile = {
 };
 
 type FormField = {
-  type: "TextInputField" | "SelectList" | "FileUploadField";
+  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
   props: any;
 };
 
@@ -49,29 +49,6 @@ const UserInformationPage: React.FC = () => {
     panCardFile: undefined as CustomFile | undefined,
     aadhaarCardFile: undefined as CustomFile | undefined,
   });
-
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      (e) => {
-        setKeyboardVisible(true);
-      }
-    );
-
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setKeyboardVisible(false);
-      }
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
 
   const handleInputChange = (field: string) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -162,7 +139,7 @@ const UserInformationPage: React.FC = () => {
       },
     },
     {
-      type: "SelectList",
+      type: "SelectListWithDialog",
       props: {
         label: t("User Type"),
         iconName: "people",
@@ -172,36 +149,14 @@ const UserInformationPage: React.FC = () => {
         disabled,
       },
     },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Vehicle Number"),
-        iconName: "car",
-        value: formState.vehicleNumber,
-        onChangeText: handleInputChange("vehicleNumber"),
-        disabled,
-      },
-    },
-    {
-      type: "SelectList",
-      props: {
-        label: t("Vehicle Type"),
-        iconName: "truck",
-        iconType: "FontAwesome",
-        options: ["Dumper", "Trailer", "Container"],
-        selectedOption: formState.vehicleType,
-        onSelect: handleInputChange("vehicleType"),
-        disabled,
-      },
-    },
   ];
 
   const renderItem: ListRenderItem<FormField> = ({ item }) => {
     const Component =
       item.type === "TextInputField"
         ? TextInputField
-        : item.type === "SelectList"
-        ? SelectList
+        : item.type === "SelectListWithDialog"
+        ? SelectListWithDialog
         : item.type === "FileUploadField"
         ? FileUploadField
         : View;
@@ -225,8 +180,7 @@ const UserInformationPage: React.FC = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.type}-${index}`}
           contentContainerStyle={{
-            paddingBottom: isKeyboardVisible ? 0 : 200,
-            paddingTop: 20,
+            paddingVertical: 30,
           }}
         />
         <IconButton
@@ -262,7 +216,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     zIndex: 2,
     top: -50,
-    width: screenWidth,
+    width: screenWidth - Sizes.paddingMedium * 2,
     height: 100,
     alignItems: "center",
     justifyContent: "center",
