@@ -14,7 +14,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.load.quickload"
+      "bundleIdentifier": "com.load.quickload",
+      "googleServicesFile": "./firebase/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -25,7 +26,8 @@
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
-      ]
+      ],
+      "googleServicesFile": "./firebase/google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -40,7 +42,17 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow $(Quick-Load) to use your location."
         }
-      ]
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "179715165099",
+    "project_id": "quick-load-a8aa6",
+    "storage_bucket": "quick-load-a8aa6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179715165099:android:8edaf46ecc037dd0a260ee",
+        "android_client_info": {
+          "package_name": "com.load.quickload"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCERwWacVpQJVtQJaSm1XGMboDeoFNKItw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

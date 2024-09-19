@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -16,7 +16,11 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { auth } from "@/firebase/firebase";
 import { ThemedText } from "@/components/ThemedText";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
 type InputProps = {
   placeholder: string;
@@ -142,7 +146,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onToggle }) => {
 };
 
 type SignupFormProps = {
-  onSubmit: (mobileNumber: string, password: string) => void;
+  onSubmit: (mobileNumber: string) => void;
   onToggle: (mode: "login" | "signup" | "otp") => void;
 };
 
@@ -156,6 +160,14 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary"
   );
+
+  const handleSubmit = () => {
+    if (isAgree && mobileNumber) {
+      onSubmit(mobileNumber);
+    } else {
+      alert(t("Please agree to the terms and enter a valid mobile number"));
+    }
+  };
 
   return (
     <>
@@ -181,7 +193,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
         variant="primary"
         size="medium"
         style={styles.button}
-        onPress={() => onSubmit(mobileNumber, password)}
+        onPress={handleSubmit}
       />
       <View style={styles.switchAuthContainer}>
         <ThemedText>{t("Already have an account?")} </ThemedText>
@@ -195,21 +207,17 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSubmit, onToggle }) => {
   );
 };
 
-type OTPVerificationProps = {
+const OTPVerification: React.FC<{
   mobileNumber: string;
+  verificationId: string;
   onVerify: (otp: string) => void;
   onResend: () => void;
-};
-
-const OTPVerification: React.FC<OTPVerificationProps> = ({
-  mobileNumber,
-  onVerify,
-  onResend,
-}) => {
-  const [otp, setOtp] = useState(["", "", "", ""]);
+}> = ({ mobileNumber, verificationId, onVerify, onResend }) => {
+  const [otp, setOtp] = useState(Array(6).fill(""));
   const [resendDisabled, setResendDisabled] = useState(true);
   const [timer, setTimer] = useState(60);
   const { t } = useTranslation();
+  const inputRefs = useRef<(TextInput | null)[]>([]);
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
     "primary"
@@ -236,6 +244,19 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
+
+    if (value.length === 1 && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleVerify = () => {
+    const otpString = otp.join("");
+    if (otpString.length === 6) {
+      onVerify(otpString);
+    } else {
+      alert(t("Please enter a valid 6-digit OTP"));
+    }
   };
 
   const handleResend = () => {
@@ -249,7 +270,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
       <ThemedText style={styles.otpTitle}>{t("OTP Verification")}</ThemedText>
       <ThemedText style={styles.otpSubtitle}>
         {t("Enter the verification code we just sent to your number")}{" "}
-        {mobileNumber.replace(/(\d{3})(\d{3})(\d{2})/, "+233 ******$3")}.
+        {mobileNumber.replace(/(\d{3})(\d{3})(\d{2})/, "+91 ******$3")}.
       </ThemedText>
       <View style={styles.otpInputContainer}>
         {otp.map((digit, index) => (
@@ -260,6 +281,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
             onChangeText={(value) => handleOtpChange(value, index)}
             keyboardType="number-pad"
             maxLength={1}
+            ref={(el) => (inputRefs.current[index] = el)}
           />
         ))}
       </View>
@@ -281,7 +303,7 @@ const OTPVerification: React.FC<OTPVerificationProps> = ({
         variant="primary"
         size="medium"
         style={styles.button}
-        onPress={() => onVerify(otp.join(""))}
+        onPress={handleVerify}
       />
     </View>
   );
@@ -291,6 +313,23 @@ const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">("login");
   const [mobileNumber, setMobileNumber] = useState("");
   const [fadeAnim] = useState(new Animated.Value(1));
+  const [verificationId, setVerificationId] = useState("");
+
+  useEffect(() => {
+    const accessToken = async () => {
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      if (accessToken) {
+        auth().signInWithCustomToken(accessToken);
+        Alert.alert("Access Token", accessToken);
+        router.push("/");
+      }
+    };
+    accessToken();
+  }, []);
+  const formatPhoneNumber = (phone: string) => {
+    const countryCode = "+91";
+    return `${countryCode}${phone}`;
+  };
 
   const toggleAuthMode = (mode: "login" | "signup" | "otp") => {
     Animated.sequence([
@@ -311,24 +350,53 @@ const Authentication: React.FC = () => {
       setAuthMode(mode);
     }, 150);
   };
+  const [confirm, setConfirm] =
+    useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
 
+  const handleSignup = async (mobile: string) => {
+    try {
+      const formattedPhone = formatPhoneNumber(mobile);
+      console.log(formattedPhone);
+      const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
+      setConfirm(confirmation);
+      setMobileNumber(mobile);
+      toggleAuthMode("otp");
+    } catch (error) {
+      console.error("Signup error:", error);
+    }
+  };
+
+  const handleOtpVerify = async (otp: string) => {
+    if (!confirm) {
+      console.error("No confirmation result");
+      return;
+    }
+    try {
+      const userCredential = await confirm.confirm(otp);
+      const idToken = await userCredential?.user.getIdToken();
+      if (idToken) await AsyncStorage.setItem("accessToken", idToken);
+      Alert.alert("Access Token", idToken);
+      router.push("/");
+    } catch (error) {
+      console.error("OTP verification error:", error);
+    }
+  };
+
+  const handleOtpResend = async () => {
+    if (!mobileNumber) {
+      console.error("No mobile number");
+      return;
+    }
+    try {
+      const confirmation = await auth().signInWithPhoneNumber(mobileNumber);
+      setConfirm(confirmation);
+    } catch (error) {
+      console.error("OTP resend error:", error);
+    }
+  };
   const handleLogin = (mobile: string, password: string) => {
     console.log("Login:", mobile, password);
     router.replace("/");
-  };
-
-  const handleSignup = (mobile: string, password: string) => {
-    setMobileNumber(mobile);
-    toggleAuthMode("otp");
-  };
-
-  const handleOtpVerify = (otp: string) => {
-    console.log("Verifying OTP:", otp);
-    router.push("/");
-  };
-
-  const handleOtpResend = () => {
-    console.log("Resending OTP");
   };
 
   return (
@@ -344,6 +412,7 @@ const Authentication: React.FC = () => {
         {authMode === "otp" && (
           <OTPVerification
             mobileNumber={mobileNumber}
+            verificationId={verificationId}
             onVerify={handleOtpVerify}
             onResend={handleOtpResend}
           />
@@ -423,7 +492,7 @@ const styles = StyleSheet.create({
   otpInputContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "80%",
+    width: "auto",
     marginBottom: 20,
   },
   otpInput: {

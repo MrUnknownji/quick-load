@@ -10,6 +10,7 @@ import LogoutDialog from "@/components/popups/LogoutDialog";
 import LanguageDialog from "@/components/popups/LanguageDialog";
 import AccountDeleteDialog from "@/components/popups/AccountDeleteDialog";
 import { ThemedView } from "@/components/ThemedView";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -17,8 +18,9 @@ const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
   const handleLogout = () => {
-    console.log("Logging out...");
+    AsyncStorage.removeItem("accessToken");
     setIsDialogVisible(false);
+    router.replace("/authentication");
   };
 
   return (

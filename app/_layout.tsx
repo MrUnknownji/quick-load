@@ -82,7 +82,7 @@ export default function RootLayout() {
                 <Stack.Screen name="product-detail/[productId]" />
                 <Stack.Screen name="thank-you/index" />
                 <Stack.Screen name="order-detail/order-track/index" />
-                <Stack.Screen name="brand-items/index" />
+                <Stack.Screen name="product-items/index" />
                 <Stack.Screen name="find-route/index" />
                 <Stack.Screen name="route-map/index" />
                 <Stack.Screen name="+not-found" />
