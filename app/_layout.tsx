@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font";
-import { Stack, useRouter } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
@@ -11,6 +11,7 @@ import { LanguageProvider } from "./Context/LanguageContext";
 import { ForceUpdateProvider } from "./Context/ForceUpdateProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemeProvider } from "./Context/AppThemeProvider";
+import NavigationBarManager from "@/components/NavigationBarManager";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,37 +57,15 @@ export default function RootLayout() {
         <LanguageProvider>
           <I18nextProvider i18n={i18n}>
             <StatusBarManager />
+            <NavigationBarManager />
             <GestureHandlerRootView style={{ flex: 1 }}>
-              <Stack
+              <Slot
                 screenOptions={{
                   headerShown: false,
                   animation: "fade_from_bottom",
                   animationDuration: 100,
                 }}
-              >
-                <Stack.Screen
-                  name="onboarding/index"
-                  options={{
-                    animation: "fade_from_bottom",
-                  }}
-                />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="profile" />
-                <Stack.Screen
-                  name="authentication/index"
-                  options={{
-                    animation: "fade_from_bottom",
-                  }}
-                />
-                <Stack.Screen name="subscription/index" />
-                <Stack.Screen name="product-detail/[productId]" />
-                <Stack.Screen name="thank-you/index" />
-                <Stack.Screen name="order-detail/order-track/index" />
-                <Stack.Screen name="product-items/index" />
-                <Stack.Screen name="find-route/index" />
-                <Stack.Screen name="route-map/index" />
-                <Stack.Screen name="+not-found" />
-              </Stack>
+              />
             </GestureHandlerRootView>
           </I18nextProvider>
         </LanguageProvider>

@@ -50,22 +50,24 @@ if (
 
 const HomeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [categoryChangeToFetch, setCategoryChangeToFetch] =
+    useState<string>("");
   const heroScaleAnim = useRef(new Animated.Value(0.9)).current;
   const categoriesTranslateY = useRef(new Animated.Value(50)).current;
   const fastDeliveryScaleAnim = useRef(new Animated.Value(0.9)).current;
   const listItemsAnim = useRef(
     Array(MAX_ITEMS)
       .fill(0)
-      .map(() => new Animated.Value(0))
+      .map(() => new Animated.Value(0)),
   ).current;
   const { activePath } = usePathChangeListener();
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
 
   const {
@@ -78,7 +80,8 @@ const HomeScreen: React.FC = () => {
     productOwners,
     loading: ownersLoading,
     error: ownersError,
-  } = useFetchProductOwnersByType(selectedCategory);
+    fetchOwners,
+  } = useFetchProductOwnersByType(categoryChangeToFetch);
 
   const uniqueCategories = useMemo(() => {
     if (productsLoading || productsError) return [];
@@ -135,32 +138,34 @@ const HomeScreen: React.FC = () => {
               friction: 7,
               delay: index * 100,
               useNativeDriver: true,
-            })
+            }),
           );
         });
       }
 
       Animated.parallel(animations).start();
     },
-    [heroScaleAnim, categoriesTranslateY, fastDeliveryScaleAnim, listItemsAnim]
+    [heroScaleAnim, categoriesTranslateY, fastDeliveryScaleAnim, listItemsAnim],
   );
 
   useEffect(() => {
     console.log(productOwners);
-  }, [ownersLoading]);
+  }, [productOwners]);
 
   useEffect(() => {
     if (activePath === "index") {
       resetAnimations();
       playAnimations();
     }
-  }, [resetAnimations, playAnimations]);
+  }, [activePath, resetAnimations, playAnimations]);
 
   const handleCategoryPress = useCallback(
     (category: Category) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       if (selectedCategory !== category.name) {
         setSelectedCategory(category.name);
+        setCategoryChangeToFetch(category.name);
+        fetchOwners(category.name);
         listItemsAnim.forEach((anim) => anim.setValue(0));
         playAnimations(false);
         setTimeout(() => {
@@ -172,15 +177,15 @@ const HomeScreen: React.FC = () => {
                 tension: 50,
                 friction: 7,
                 useNativeDriver: true,
-              })
-            )
+              }),
+            ),
           ).start();
         }, 300);
       } else {
         setSelectedCategory("");
       }
     },
-    [selectedCategory, listItemsAnim, playAnimations]
+    [selectedCategory, listItemsAnim, playAnimations, fetchOwners],
   );
 
   const getMeasurementType = useCallback((category: string): string => {
@@ -194,50 +199,49 @@ const HomeScreen: React.FC = () => {
     }
   }, []);
 
-  const renderProductOwners = useCallback(
-    (brands?: any[]) => {
-      const backgroundColor = useThemeColor(
-        {
-          light: Colors.light.backgroundSecondary,
-          dark: Colors.dark.backgroundSecondary,
-        },
-        "backgroundSecondary"
-      );
-      return ownersLoading ? (
+  const renderProductOwners = useCallback(() => {
+    if (ownersLoading) {
+      return (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <Loading />
         </View>
-      ) : (
-        productOwners.map((owner, index) => (
-          <Animated.View
-            key={owner.productOwnerId}
-            style={{ transform: [{ scale: listItemsAnim[index] }] }}
-          >
-            <LargeListItem
-              heading={owner.productOwnerName}
-              imageUrl={owner.productImage}
-              price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
-              onPress={() =>
-                router.push({
-                  pathname: "/product-items",
-                  params: {
-                    productOwnerId: owner.productOwnerId,
-                    productType: selectedCategory,
-                  },
-                })
-              }
-              mesurementType={getMeasurementType(selectedCategory)}
-              buttonTitle={t("More Information")}
-              style={{ backgroundColor }}
-            />
-          </Animated.View>
-        ))
       );
-    },
-    [listItemsAnim, selectedCategory, getMeasurementType]
-  );
+    }
+
+    return productOwners.map((owner, index) => (
+      <Animated.View
+        key={owner.productOwnerId}
+        style={{ transform: [{ scale: listItemsAnim[index] }] }}
+      >
+        <LargeListItem
+          heading={owner.productOwnerName}
+          imageUrl={owner.productImage}
+          price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
+          onPress={() =>
+            router.push({
+              pathname: "/product-items",
+              params: {
+                productOwnerId: owner.productOwnerId,
+                productType: selectedCategory,
+              },
+            })
+          }
+          mesurementType={getMeasurementType(selectedCategory)}
+          buttonTitle={t("More Information")}
+          location={owner.productLocation}
+          rating={owner.productRating}
+        />
+      </Animated.View>
+    ));
+  }, [
+    productOwners,
+    ownersLoading,
+    listItemsAnim,
+    selectedCategory,
+    getMeasurementType,
+  ]);
 
   return (
     <ThemedView style={styles.container}>

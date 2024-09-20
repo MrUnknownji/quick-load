@@ -3,6 +3,9 @@ import {
   fetchProductById,
   fetchProductsByType,
   fetchProductOwnersByType,
+  addProduct,
+  addProductOwner,
+  updateProduct,
 } from "../api/productApi";
 import { Product, ProductOwner } from "../types/Product";
 
@@ -16,13 +19,32 @@ export const getProductById = async (id: string): Promise<Product> => {
 
 export const getProductsByOwnerAndType = async (
   owner: string,
-  type: string
+  type: string,
 ): Promise<Product[]> => {
   return await fetchProductsByType(owner, type);
 };
 
 export const getProductOwnersByType = async (
-  type: string
+  type: string,
 ): Promise<ProductOwner[]> => {
   return await fetchProductOwnersByType(type);
+};
+
+export const addNewProduct = async (
+  productData: FormData,
+): Promise<Product> => {
+  return await addProduct(productData);
+};
+
+export const addNewProductOwner = async (
+  productOwnerData: FormData,
+): Promise<ProductOwner> => {
+  return await addProductOwner(productOwnerData);
+};
+
+export const updateExistingProduct = async (
+  productId: string,
+  productData: FormData,
+): Promise<Product> => {
+  return await updateProduct(productId, productData);
 };

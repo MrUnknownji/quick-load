@@ -7,7 +7,6 @@ import { auth } from "@/firebase/firebase";
 import { SignupForm } from "./components/SignUpForm";
 import { LoginForm } from "./components/LoginForm";
 import { OTPVerification } from "./components/OTPVerification";
-import { Alert } from "react-native";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import Loading from "@/components/Loading";
 
@@ -20,15 +19,22 @@ const Authentication: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const checkAccessToken = async () => {
-      const accessToken = await AsyncStorage.getItem("accessToken");
-      if (accessToken) {
-        await auth().signInWithCustomToken(accessToken);
-        Alert.alert("Access Token", accessToken);
-        router.push("/");
-      }
+    const checkAuthState = () => {
+      const unsubscribe = auth().onAuthStateChanged(async (user) => {
+        if (user) {
+          const token = await user.getIdToken();
+          await AsyncStorage.setItem("accessToken", token);
+          console.log("User is signed in and token refreshed");
+          router.replace("/");
+          alert("Access token is " + token);
+        } else {
+          await AsyncStorage.removeItem("accessToken");
+          console.log("User is signed out");
+        }
+      });
+      return () => unsubscribe();
     };
-    checkAccessToken();
+    checkAuthState();
   }, []);
 
   const toggleAuthMode = (mode: "login" | "signup" | "otp") => {
@@ -76,8 +82,8 @@ const Authentication: React.FC = () => {
       const userCredential = await confirm.confirm(otp);
       const idToken = await userCredential?.user.getIdToken();
       if (idToken) await AsyncStorage.setItem("accessToken", idToken);
-      Alert.alert("Access Token", idToken);
-      router.push("/");
+      alert("Access Token" + idToken);
+      router.replace("/");
     } catch (error) {
       console.error("OTP verification error:", error);
     } finally {
@@ -92,7 +98,7 @@ const Authentication: React.FC = () => {
     }
     try {
       const confirmation = await auth().signInWithPhoneNumber(
-        `+91${mobileNumber}`
+        `+91${mobileNumber}`,
       );
       setConfirm(confirmation);
     } catch (error) {

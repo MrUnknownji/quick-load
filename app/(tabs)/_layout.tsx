@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { Tabs } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import * as NavigationBar from "expo-navigation-bar";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -34,6 +33,46 @@ const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
 const MIN_TRANSLATE_Y = Sizes.tabBarHeight;
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+
+const MemoizedAnimatedTabBarIcon = React.memo(AnimatedTabBarIcon);
+const MemoizedAnimatedTabBarLabel = React.memo(AnimatedTabBarLabel);
+
+function TabBarIcon({
+  name,
+  label,
+  color,
+  focused,
+}: {
+  name: IconName;
+  label: string;
+  color: string;
+  focused: boolean;
+}) {
+  const getIconName = (baseName: IconName, isFocused: boolean): IconName => {
+    if (isFocused) return baseName;
+    const outlineName = `${baseName}-outline` as IconName;
+    return MaterialCommunityIcons.hasOwnProperty(outlineName)
+      ? outlineName
+      : baseName;
+  };
+
+  return (
+    <View style={styles.iconContainer}>
+      <MemoizedAnimatedTabBarIcon
+        name={getIconName(name, focused)}
+        color={color}
+        focused={focused}
+      />
+      <MemoizedAnimatedTabBarLabel
+        label={label}
+        color={color}
+        focused={focused}
+      />
+    </View>
+  );
+}
+
+const MemoizedTabBarIcon = React.memo(TabBarIcon);
 
 function CustomTabBarButton({
   children,
@@ -76,12 +115,10 @@ function RotatingIcon({ focused }: { focused: boolean }) {
 
 function AnimatedTabBarIcon({
   name,
-  label,
   color,
   focused,
 }: {
   name: IconName;
-  label: string;
   color: string;
   focused: boolean;
 }) {
@@ -101,16 +138,13 @@ function AnimatedTabBarIcon({
   });
 
   return (
-    <View style={styles.iconContainer}>
-      <Animated.View style={animatedStyle}>
-        <MaterialCommunityIcons
-          name={focused ? name : (`${name}-outline` as IconName)}
-          color={color}
-          size={Sizes.icon["medium"]}
-        />
-      </Animated.View>
-      <AnimatedTabBarLabel label={label} color={color} focused={focused} />
-    </View>
+    <Animated.View style={animatedStyle}>
+      <MaterialCommunityIcons
+        name={name}
+        color={color}
+        size={Sizes.icon["medium"]}
+      />
+    </Animated.View>
   );
 }
 
@@ -156,10 +190,6 @@ export default function TabLayout() {
   const { loading } = useLanguage();
 
   useEffect(() => {
-    NavigationBar.setBackgroundColorAsync(Colors.light.primary);
-  }, []);
-
-  useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
@@ -168,7 +198,7 @@ export default function TabLayout() {
           return true;
         }
         return false;
-      }
+      },
     );
     return () => backHandler.remove();
   }, [isCreateActive]);
@@ -190,7 +220,7 @@ export default function TabLayout() {
     .onUpdate((event) => {
       translateY.value = Math.max(
         Math.min(event.translationY + context.value.y, MIN_TRANSLATE_Y),
-        MAX_TRANSLATE_Y
+        MAX_TRANSLATE_Y,
       );
     })
     .onEnd(() => {
@@ -207,7 +237,7 @@ export default function TabLayout() {
       translateY.value,
       [MAX_TRANSLATE_Y + Sizes.borderRadiusSmall, MAX_TRANSLATE_Y],
       [Sizes.borderRadiusMedium, Sizes.borderRadiusSmall],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
     return { borderRadius, transform: [{ translateY: translateY.value }] };
   });
@@ -223,7 +253,7 @@ export default function TabLayout() {
 
   function preventTabPress(
     e: EventArg<"tabPress", true, undefined> & { target?: string },
-    tabName: string
+    tabName: string,
   ) {
     setActivePath(tabName);
     if (isCreateActive) e.preventDefault();
@@ -248,7 +278,7 @@ export default function TabLayout() {
             route.name === "create" ? (
               <RotatingIcon focused={isCreateActive} />
             ) : (
-              <AnimatedTabBarIcon
+              <MemoizedTabBarIcon
                 name={getIconName(route.name)}
                 color={color}
                 focused={activePath.includes(route.name)}

@@ -1,8 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getProducts,
   getProductOwnersByType,
   getProductsByOwnerAndType,
+  addNewProduct,
+  addNewProductOwner,
+  updateExistingProduct,
 } from "../services/productService";
 import { Product, ProductOwner } from "../types/Product";
 
@@ -34,28 +37,28 @@ export const useFetchProductOwnersByType = (productType: string) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchOwners = useCallback(async (type: string) => {
     setLoading(true);
-    const fetchData = async () => {
-      try {
-        const data = await getProductOwnersByType(productType);
-        setProductOwners(data);
-      } catch (err) {
-        setError("Failed to fetch product owners");
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      const data = await getProductOwnersByType(type);
+      setProductOwners(data);
+    } catch (err) {
+      setError("Failed to fetch product owners");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    fetchData();
-  }, [productType]);
+  useEffect(() => {
+    fetchOwners(productType);
+  }, [productType, fetchOwners]);
 
-  return { productOwners, loading, error };
+  return { productOwners, loading, error, fetchOwners };
 };
 
 export const useFetchProductsByOwnerAndType = (
   productOwner: string,
-  productType: string
+  productType: string,
 ) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -77,4 +80,61 @@ export const useFetchProductsByOwnerAndType = (
   }, [productOwner, productType]);
 
   return { products, loading, error };
+};
+
+export const useAddProduct = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addProduct = async (productData: FormData) => {
+    setLoading(true);
+    try {
+      const result = await addNewProduct(productData);
+      setLoading(false);
+      return result;
+    } catch (err) {
+      setError("Failed to add product");
+      setLoading(false);
+    }
+  };
+
+  return { addProduct, loading, error };
+};
+
+export const useAddProductOwner = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addProductOwner = async (productOwnerData: FormData) => {
+    setLoading(true);
+    try {
+      const result = await addNewProductOwner(productOwnerData);
+      setLoading(false);
+      return result;
+    } catch (err) {
+      setError("Failed to add product owner");
+      setLoading(false);
+    }
+  };
+
+  return { addProductOwner, loading, error };
+};
+
+export const useUpdateProduct = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateProduct = async (productId: string, productData: FormData) => {
+    setLoading(true);
+    try {
+      const result = await updateExistingProduct(productId, productData);
+      setLoading(false);
+      return result;
+    } catch (err) {
+      setError("Failed to update product");
+      setLoading(false);
+    }
+  };
+
+  return { updateProduct, loading, error };
 };

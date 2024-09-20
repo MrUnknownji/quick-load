@@ -4,20 +4,12 @@ import {
   Dimensions,
   FlatList,
   StyleSheet,
-  Text,
   View,
   TextInput,
   LayoutAnimation,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  BRICKS_ITEMS,
-  BAJRI_ITEMS,
-  GRIT_ITEMS,
-  CEMENT_ITEMS,
-  SAND_ITEMS,
-  FEATURES,
-} from "@/assets/data/DATA";
+import { FEATURES } from "@/assets/data/DATA";
 import IconButton from "@/components/button/IconButton";
 import Sizes from "@/constants/Sizes";
 import { Ionicons } from "@expo/vector-icons";
@@ -38,38 +30,9 @@ const { width: screenWidth } = Dimensions.get("screen");
 
 const ProductDetailPage = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
-  // const [product, setProduct] = useState<ListItemProps | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPricingVisible, setIsPricingVisible] = useState(false);
-
-  // useEffect(() => {
-  //   const fetchProduct = () => {
-  //     const productListMap = {
-  //       bricks: BRICKS_ITEMS,
-  //       bajri: BAJRI_ITEMS,
-  //       grit: GRIT_ITEMS,
-  //       cement: CEMENT_ITEMS,
-  //       sand: SAND_ITEMS,
-  //     };
-
-  //     type ProductCategory = keyof typeof productListMap;
-
-  //     const productCategory = Object.keys(productListMap).find((key) =>
-  //       productId.includes(key)
-  //     ) as ProductCategory | undefined;
-
-  //     if (productCategory) {
-  //       const foundProduct = productListMap[productCategory].find(
-  //         (p: ListItemProps) => p.productId === productId
-  //       );
-  //       setProduct(foundProduct ?? null);
-  //     }
-  //     setLoading(false);
-  //   };
-
-  //   fetchProduct();
-  // }, [productId]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -77,7 +40,6 @@ const ProductDetailPage = () => {
         const data = await getProductById(productId);
         setProduct(data);
       } catch (error) {
-        // Handle error
       } finally {
         setLoading(false);
       }
@@ -152,7 +114,7 @@ const ProductDetailPage = () => {
               pathname: "/thank-you",
               params: {
                 message: t(
-                  "Thank you for the purchase. You will receive your product shortly."
+                  "Thank you for the purchase. You will receive your product shortly.",
                 ),
               },
             });
@@ -191,7 +153,7 @@ const CenteredContainer = ({ children }: { children: React.ReactNode }) => (
 const ProductFeaturesCard = ({ price }: { price?: number }) => {
   const primaryTextColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "text"
+    "text",
   );
   return (
     <ThemedView style={styles.productFeaturesCard}>
@@ -226,7 +188,7 @@ const renderFeatureItem = (
   }: {
     item: string;
   },
-  primaryTextColor: string
+  primaryTextColor: string,
 ) => (
   <View style={styles.featureItem}>
     <Ionicons
@@ -257,7 +219,7 @@ const PricingCard = ({ item }: { item: Product }) => {
 
   const placeholderColor = useThemeColor(
     { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
-    "textSecondary"
+    "textSecondary",
   );
 
   const handleQuantityChange = (input: string) => {
@@ -310,7 +272,7 @@ const PricingCard = ({ item }: { item: Product }) => {
           <ThemedText style={styles2.totalPrice}>
             {t("Rs.")}{" "}
             {(parseFloat(totalPrice) - parseFloat(discount.toString())).toFixed(
-              2
+              2,
             )}
           </ThemedText>
         </PricingCardItem>
