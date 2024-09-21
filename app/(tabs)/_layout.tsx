@@ -331,6 +331,7 @@ const styles = StyleSheet.create({
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingExtraSmall,
     height: Sizes.tabBarHeight,
+    bottom: 0,
   },
   customButton: {
     top: -Sizes.customButtonOffset,

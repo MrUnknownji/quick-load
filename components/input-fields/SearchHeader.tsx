@@ -1,11 +1,25 @@
-import React from "react";
-import { Platform, StatusBar, StyleSheet, TextInput, View } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Platform,
+  StatusBar,
+  StyleSheet,
+  TextInput,
+  View,
+  Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "../button/IconButton";
 import Notifications from "@/components/notifications/Notification";
 import { t } from "i18next";
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from "expo-speech-recognition";
+import LottieView from "lottie-react-native";
 
 interface SearchHeaderProps {
   isPaddingNeeded?: boolean;
@@ -14,29 +28,94 @@ interface SearchHeaderProps {
 const SearchHeader: React.FC<SearchHeaderProps> = ({
   isPaddingNeeded = true,
 }) => {
+  const [searchText, setSearchText] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const [showListeningModal, setShowListeningModal] = useState(false);
+  const lottieRef = useRef<LottieView>(null);
+  const textInputRef = useRef<TextInput>(null);
+
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const searchBackgroundColor = useThemeColor(
     {
       light: Colors.light.backgroundSecondary,
       dark: Colors.dark.backgroundSecondary,
     },
-    "backgroundSecondary"
+    "backgroundSecondary",
   );
   const borderColor = useThemeColor(
     { light: Colors.light.border, dark: Colors.dark.border },
-    "border"
+    "border",
   );
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
   const iconColor = useThemeColor(
     { light: Colors.light.icon, dark: Colors.dark.icon },
-    "icon"
+    "icon",
   );
+
+  const startListening = async () => {
+    try {
+      const result =
+        await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      if (!result.granted) {
+        console.warn("Permissions not granted", result);
+        return;
+      }
+
+      setIsListening(true);
+      setShowListeningModal(true);
+      lottieRef.current?.play();
+      ExpoSpeechRecognitionModule.start({
+        lang: "en-US",
+        interimResults: true,
+        maxAlternatives: 1,
+        continuous: false,
+      });
+    } catch (error) {
+      console.error("Error starting speech recognition:", error);
+      setIsListening(false);
+      setShowListeningModal(false);
+    }
+  };
+
+  const stopListening = () => {
+    ExpoSpeechRecognitionModule.stop();
+    setIsListening(false);
+    setShowListeningModal(false);
+    lottieRef.current?.reset();
+    setTimeout(() => {
+      textInputRef.current?.blur();
+      textInputRef.current?.focus();
+    }, 0);
+  };
+
+  useSpeechRecognitionEvent("result", (event) => {
+    setSearchText(event.results[0]?.transcript || "");
+    stopListening();
+  });
+
+  useSpeechRecognitionEvent("error", (event) => {
+    console.log("Speech recognition error:", event.error, event.message);
+    stopListening();
+  });
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
+
+  const handleSearch = () => {
+    console.log("Search text:", searchText);
+    Keyboard.dismiss();
+  };
 
   return (
     <View
@@ -64,9 +143,15 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           variant="transparent"
         />
         <TextInput
+          ref={textInputRef}
           placeholder={t("Search")}
           placeholderTextColor={iconColor}
           style={[styles.searchInput, { color: textColor }]}
+          value={searchText}
+          onChangeText={setSearchText}
+          keyboardType="web-search"
+          returnKeyType="search"
+          onSubmitEditing={handleSearch}
         />
         <IconButton
           iconName="microphone"
@@ -75,9 +160,32 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           size="small"
           style={styles.microphoneIcon}
           variant="transparent"
+          onPress={toggleListening}
         />
       </View>
       <Notifications />
+      <Modal
+        visible={showListeningModal}
+        transparent={true}
+        animationType="fade"
+        statusBarTranslucent={true}
+      >
+        <TouchableWithoutFeedback onPress={stopListening}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <LottieView
+                  ref={lottieRef}
+                  source={require("@/assets/animations/listening-animation.json")}
+                  style={styles.lottieAnimation}
+                  autoPlay={false}
+                  loop={true}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -118,5 +226,22 @@ const styles = StyleSheet.create({
   },
   microphoneIcon: {
     padding: Sizes.paddingSmall,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  lottieAnimation: {
+    width: 200,
+    height: 200,
   },
 });

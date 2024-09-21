@@ -26,7 +26,6 @@ import { ThemedText } from "@/components/ThemedText";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import ImageCarousel from "@/components/image-views/ImageCarousel";
 import LargeImageView from "@/components/image-views/LargeImageView";
-import usePathChangeListener from "@/hooks/usePathChangeListener";
 import { Colors } from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -61,7 +60,6 @@ const HomeScreen: React.FC = () => {
       .fill(0)
       .map(() => new Animated.Value(0)),
   ).current;
-  const { activePath } = usePathChangeListener();
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
@@ -161,11 +159,9 @@ const HomeScreen: React.FC = () => {
   }, [productOwners]);
 
   useEffect(() => {
-    if (activePath === "index") {
-      resetAnimations();
-      playAnimations();
-    }
-  }, [activePath, resetAnimations, playAnimations]);
+    resetAnimations();
+    playAnimations();
+  }, [resetAnimations, playAnimations]);
 
   const handleCategoryPress = useCallback(
     (category: any) => {
