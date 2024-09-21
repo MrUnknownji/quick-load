@@ -14,7 +14,7 @@ import { ThemedText } from "../ThemedText";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { t } from "i18next";
-import { useTheme } from "@/app/Context/AppThemeProvider";
+import { useTheme } from "@/contexts/AppThemeProvider";
 
 interface ThemeChangerDialogProps {
   isVisible: boolean;
@@ -63,16 +63,16 @@ const ThemeChangerDialog = ({
 
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
 
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
 
   return (

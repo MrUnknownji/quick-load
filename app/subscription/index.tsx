@@ -10,7 +10,6 @@ import {
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import IconButton from "@/components/button/IconButton";
@@ -78,12 +77,12 @@ const SUBSCRIPTION_TYPES: SubscriptionType[] = [
 const Subscription: React.FC = () => {
   const renderItem: ListRenderItem<SubscriptionType> = useCallback(
     ({ item }) => <SubscriptionItem item={item} />,
-    []
+    [],
   );
 
   const keyExtractor = useCallback(
     (item: SubscriptionType) => item.heading,
-    []
+    [],
   );
 
   return (
@@ -163,7 +162,7 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
         />
       </View>
     );
-  }
+  },
 );
 
 const styles = StyleSheet.create({

@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, View, Linking } from "react-native";
 import React from "react";
 import { Image } from "expo-image";
 import Sizes from "@/constants/Sizes";
@@ -11,6 +11,16 @@ import { ThemedText } from "@/components/ThemedText";
 const { width: screenWidth } = Dimensions.get("window");
 
 const ContactUs = () => {
+  const phoneNumber = "999999999";
+
+  const handleCall = () => {
+    Linking.openURL(`tel:${phoneNumber}`);
+  };
+
+  const handleWhatsApp = () => {
+    Linking.openURL(`whatsapp://send?phone=${phoneNumber}`);
+  };
+
   return (
     <ThemedView style={{ flex: 1 }}>
       <View style={styles.iconContainer}>
@@ -31,13 +41,14 @@ const ContactUs = () => {
             marginVertical: 0,
           }}
         />
-        <ThemedText style={styles.contactCardText}>+91 9876543210</ThemedText>
+        <ThemedText style={styles.contactCardText}>{phoneNumber}</ThemedText>
         <IconButton
           iconName="phone"
           size="medium"
           variant="primary"
           iconLibrary="FontAwesome"
           title={t("Call Us")}
+          onPress={handleCall}
         />
         <IconButton
           iconName="whatsapp"
@@ -45,6 +56,7 @@ const ContactUs = () => {
           variant="primary"
           iconLibrary="FontAwesome"
           title={t("WhatsApp")}
+          onPress={handleWhatsApp}
         />
       </ThemedView>
     </ThemedView>

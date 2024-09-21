@@ -15,81 +15,98 @@ const LargeListItem: React.FC<ListItemProps> = memo(
     price,
     location,
     rating,
-    mesurementType = "Qui.",
+    imageUrl,
+    measurementType = "Qui.",
     onPress,
     buttonTitle,
+    style,
   }) => {
     const backgroundColor = useThemeColor(
       {
         light: Colors.light.cardBackground,
         dark: Colors.dark.backgroundSecondary,
       },
-      "backgroundSecondary"
+      "backgroundSecondary",
     );
     const textColor = useThemeColor(
       { light: Colors.light.text, dark: Colors.dark.text },
-      "text"
+      "text",
     );
     const primaryColor = useThemeColor(
       { light: Colors.light.primary, dark: Colors.dark.secondary },
-      "primary"
+      "primary",
     );
     const shadowColor = useThemeColor(
       { light: Colors.light.shadow, dark: Colors.dark.shadow },
-      "shadow"
+      "shadow",
     );
 
     return (
       <Pressable
         onPress={onPress}
-        style={[styles.container, { backgroundColor, shadowColor }]}
+        style={[styles.container, { backgroundColor, shadowColor }, style]}
       >
         <View style={styles.imageContainer}>
           <Image
-            source={`https://placehold.co/150x150?text=${heading}`}
+            source={imageUrl || `https://placehold.co/150x150?text=${heading}`}
             style={styles.image}
             contentFit="cover"
           />
         </View>
         <View style={styles.contentContainer}>
           <View style={styles.detailsContainer}>
-            <Text style={[styles.listHeading, { color: textColor }]}>
+            <Text
+              style={[styles.listHeading, { color: textColor }]}
+              numberOfLines={2}
+            >
               {t(heading)}
             </Text>
-            <Text style={[styles.priceText, { color: primaryColor }]}>
-              {t("Rs.")} {price}
-              <Text style={styles.perPieceText}>/{t(mesurementType)}</Text>
-            </Text>
-            <View style={styles.infoContainer}>
-              <MaterialIcons
-                name="location-on"
-                size={Sizes.icon["extraSmall"]}
-                color={textColor}
-              />
-              <Text style={[styles.infoText, { color: textColor }]}>
-                {location}
+            {price && (
+              <Text style={[styles.priceText, { color: primaryColor }]}>
+                {t("Rs.")} {price}
+                <Text style={styles.perPieceText}>/{t(measurementType)}</Text>
               </Text>
-            </View>
-            <View style={styles.infoContainer}>
-              <MaterialIcons
-                name="star"
-                size={Sizes.icon["extraSmall"]}
-                color={primaryColor}
-              />
-              <Text style={[styles.infoText, { color: textColor }]}>
-                {rating}
-              </Text>
-            </View>
+            )}
+            {location && (
+              <View style={styles.infoContainer}>
+                <MaterialIcons
+                  name="location-on"
+                  size={Sizes.icon["extraSmall"]}
+                  color={textColor}
+                />
+                <Text
+                  style={[styles.infoText, { color: textColor }]}
+                  numberOfLines={1}
+                >
+                  {location}
+                </Text>
+              </View>
+            )}
+            {rating !== undefined && (
+              <View style={styles.infoContainer}>
+                <MaterialIcons
+                  name="star"
+                  size={Sizes.icon["extraSmall"]}
+                  color={primaryColor}
+                />
+                <Text style={[styles.infoText, { color: textColor }]}>
+                  {rating.toFixed(1)}
+                </Text>
+              </View>
+            )}
           </View>
-          <Button
-            title={buttonTitle ?? t("Buy Now")}
-            variant="primary"
-            size="small"
-          />
+          {buttonTitle && (
+            <Button
+              title={buttonTitle}
+              variant="primary"
+              size="small"
+              onPress={onPress}
+            />
+          )}
         </View>
       </Pressable>
     );
-  }
+  },
 );
 
 export default LargeListItem;

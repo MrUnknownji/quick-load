@@ -17,70 +17,44 @@ import Animated, {
   interpolate,
   withSpring,
   runOnJS,
-  Extrapolation,
 } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
-import { EventArg } from "@react-navigation/native";
-import Create from "./create";
+import FindRouteBottomSheet from "./bottom-sheet";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
-import { useLanguage } from "../Context/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
 const MIN_TRANSLATE_Y = Sizes.tabBarHeight;
 
-type IconName = React.ComponentProps<typeof MaterialCommunityIcons>["name"];
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
-const MemoizedAnimatedTabBarIcon = React.memo(AnimatedTabBarIcon);
-const MemoizedAnimatedTabBarLabel = React.memo(AnimatedTabBarLabel);
-
-function TabBarIcon({
-  name,
-  label,
-  color,
-  focused,
-}: {
+interface TabBarIconProps {
   name: IconName;
   label: string;
   color: string;
   focused: boolean;
-}) {
-  const getIconName = (baseName: IconName, isFocused: boolean): IconName => {
-    if (isFocused) return baseName;
-    const outlineName = `${baseName}-outline` as IconName;
-    return MaterialCommunityIcons.hasOwnProperty(outlineName)
-      ? outlineName
-      : baseName;
-  };
+}
 
+function TabBarIcon({ name, label, color, focused }: TabBarIconProps) {
+  const iconName = focused ? name : (`${name}-outline` as IconName);
   return (
     <View style={styles.iconContainer}>
-      <MemoizedAnimatedTabBarIcon
-        name={getIconName(name, focused)}
-        color={color}
-        focused={focused}
-      />
-      <MemoizedAnimatedTabBarLabel
-        label={label}
-        color={color}
-        focused={focused}
-      />
+      <AnimatedTabBarIcon name={iconName} color={color} focused={focused} />
+      <AnimatedTabBarLabel label={label} color={color} focused={focused} />
     </View>
   );
 }
 
-const MemoizedTabBarIcon = React.memo(TabBarIcon);
-
-function CustomTabBarButton({
-  children,
-  onPress,
-}: {
+interface CustomTabBarButtonProps {
   children: React.ReactNode;
   onPress: () => void;
-}) {
+}
+
+function CustomTabBarButton({ children, onPress }: CustomTabBarButtonProps) {
   return (
     <Pressable style={styles.customButton} onPress={onPress}>
       <View style={styles.customButtonInner}>{children}</View>
@@ -88,88 +62,90 @@ function CustomTabBarButton({
   );
 }
 
-function RotatingIcon({ focused }: { focused: boolean }) {
-  const rotation = useSharedValue(0);
+interface RotatingIconProps {
+  focused: boolean;
+}
 
+function RotatingIcon({ focused }: RotatingIconProps) {
+  const rotation = useSharedValue(0);
   useEffect(() => {
     rotation.value = withTiming(focused ? 1 : 0, {
       duration: Sizes.animationDurationShort,
     });
   }, [focused]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const rotate = interpolate(rotation.value, [0, 1], [0, 45]);
-    return { transform: [{ rotate: `${rotate}deg` }] };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${interpolate(rotation.value, [0, 1], [0, 45])}deg` },
+    ],
+  }));
 
   return (
     <Animated.View style={animatedStyle}>
       <Ionicons
         name="add-circle"
         color={Colors.light.backgroundSecondary}
-        size={Sizes.icon["extraLarge"]}
+        size={Sizes.icon.extraLarge}
       />
     </Animated.View>
   );
 }
 
-function AnimatedTabBarIcon({
-  name,
-  color,
-  focused,
-}: {
+interface AnimatedTabBarIconProps {
   name: IconName;
   color: string;
   focused: boolean;
-}) {
-  const animation = useSharedValue(0);
+}
 
+function AnimatedTabBarIcon({ name, color, focused }: AnimatedTabBarIconProps) {
+  const animation = useSharedValue(0);
   useEffect(() => {
     animation.value = withSpring(focused ? 1 : 0, {
       duration: Sizes.animationDurationMedium,
     });
   }, [focused]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(animation.value, [0, 1], [0.8, 1]);
-    const scale = interpolate(animation.value, [0, 1], [0.9, 1]);
-    const translateY = interpolate(animation.value, [0, 1], [10, 0]);
-    return { opacity, transform: [{ scale }, { translateY }] };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(animation.value, [0, 1], [0.8, 1]),
+    transform: [
+      { scale: interpolate(animation.value, [0, 1], [0.9, 1]) },
+      { translateY: interpolate(animation.value, [0, 1], [10, 0]) },
+    ],
+  }));
 
   return (
     <Animated.View style={animatedStyle}>
       <MaterialCommunityIcons
         name={name}
         color={color}
-        size={Sizes.icon["medium"]}
+        size={Sizes.icon.medium}
       />
     </Animated.View>
   );
+}
+
+interface AnimatedTabBarLabelProps {
+  label: string;
+  color: string;
+  focused: boolean;
 }
 
 function AnimatedTabBarLabel({
   label,
   color,
   focused,
-}: {
-  label: string;
-  color: string;
-  focused: boolean;
-}) {
+}: AnimatedTabBarLabelProps) {
   const animation = useSharedValue(0);
-
   useEffect(() => {
     animation.value = withTiming(focused ? 1 : 0, {
       duration: Sizes.animationDurationMedium,
     });
   }, [focused]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(animation.value, [0, 1], [0.8, 1]);
-    const scale = interpolate(animation.value, [0, 1], [0, 1]);
-    return { opacity, transform: [{ scale }] };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(animation.value, [0, 1], [0.8, 1]),
+    transform: [{ scale: interpolate(animation.value, [0, 1], [0, 1]) }],
+  }));
 
   return (
     <Animated.Text
@@ -183,7 +159,7 @@ function AnimatedTabBarLabel({
 }
 
 export default function TabLayout() {
-  const [isCreateActive, setIsCreateActive] = useState(false);
+  const [isBottomSheetActive, setIsBottomSheetActive] = useState(false);
   const translateY = useSharedValue(MIN_TRANSLATE_Y);
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
   const { activePath, setActivePath } = usePathChangeListener();
@@ -193,7 +169,7 @@ export default function TabLayout() {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
       () => {
-        if (isCreateActive) {
+        if (isBottomSheetActive) {
           closeBottomSheet();
           return true;
         }
@@ -201,17 +177,17 @@ export default function TabLayout() {
       },
     );
     return () => backHandler.remove();
-  }, [isCreateActive]);
+  }, [isBottomSheetActive]);
 
-  const scrollTo = (destination: number) => {
+  const scrollTo = useCallback((destination: number) => {
     "worklet";
     translateY.value = withTiming(destination);
-  };
+  }, []);
 
   const closeBottomSheet = useCallback(() => {
     scrollTo(MIN_TRANSLATE_Y);
-    setIsCreateActive(false);
-  }, []);
+    setIsBottomSheetActive(false);
+  }, [scrollTo]);
 
   const gesture = Gesture.Pan()
     .onStart(() => {
@@ -226,45 +202,44 @@ export default function TabLayout() {
     .onEnd(() => {
       if (translateY.value > -SCREEN_HEIGHT / 1.5) {
         scrollTo(MIN_TRANSLATE_Y);
-        runOnJS(setIsCreateActive)(false);
+        runOnJS(setIsBottomSheetActive)(false);
       } else {
         scrollTo(MAX_TRANSLATE_Y);
       }
     });
 
-  const rBottomSheetStyle = useAnimatedStyle(() => {
-    const borderRadius = interpolate(
+  const rBottomSheetStyle = useAnimatedStyle(() => ({
+    borderTopLeftRadius: interpolate(
       translateY.value,
-      [MAX_TRANSLATE_Y + Sizes.borderRadiusSmall, MAX_TRANSLATE_Y],
-      [Sizes.borderRadiusMedium, Sizes.borderRadiusSmall],
-      Extrapolation.CLAMP,
-    );
-    return { borderRadius, transform: [{ translateY: translateY.value }] };
-  });
+      [MIN_TRANSLATE_Y, MAX_TRANSLATE_Y],
+      [0, Sizes.borderRadiusMedium],
+    ),
+    borderTopRightRadius: interpolate(
+      translateY.value,
+      [MIN_TRANSLATE_Y, MAX_TRANSLATE_Y],
+      [0, Sizes.borderRadiusMedium],
+    ),
+    transform: [{ translateY: translateY.value }],
+  }));
 
-  const handleCreatePress = () => {
-    if (!isCreateActive) {
-      setIsCreateActive(true);
+  const handleToggleBottomSheet = useCallback(() => {
+    if (!isBottomSheetActive) {
+      setIsBottomSheetActive(true);
       scrollTo(MAX_TRANSLATE_Y);
     } else {
       closeBottomSheet();
     }
-  };
+  }, [isBottomSheetActive, scrollTo, closeBottomSheet]);
 
-  function preventTabPress(
-    e: EventArg<"tabPress", true, undefined> & { target?: string },
-    tabName: string,
-  ) {
-    setActivePath(tabName);
-    if (isCreateActive) e.preventDefault();
-  }
+  const preventTabPress = useCallback(
+    (e: { preventDefault: () => void }, tabName: string) => {
+      setActivePath(tabName);
+      if (isBottomSheetActive) e.preventDefault();
+    },
+    [isBottomSheetActive, setActivePath],
+  );
 
-  if (loading)
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  if (loading) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
 
   return (
     <>
@@ -275,10 +250,10 @@ export default function TabLayout() {
           headerShown: false,
           tabBarStyle: styles.tabBar,
           tabBarIcon: ({ color, focused }) =>
-            route.name === "create" ? (
-              <RotatingIcon focused={isCreateActive} />
+            route.name === "bottom-sheet" ? (
+              <RotatingIcon focused={isBottomSheetActive} />
             ) : (
-              <MemoizedTabBarIcon
+              <TabBarIcon
                 name={getIconName(route.name)}
                 color={color}
                 focused={activePath.includes(route.name)}
@@ -286,9 +261,12 @@ export default function TabLayout() {
               />
             ),
           tabBarButton:
-            route.name === "create"
+            route.name === "bottom-sheet"
               ? (props) => (
-                  <CustomTabBarButton {...props} onPress={handleCreatePress} />
+                  <CustomTabBarButton
+                    {...props}
+                    onPress={handleToggleBottomSheet}
+                  />
                 )
               : undefined,
         })}
@@ -301,7 +279,7 @@ export default function TabLayout() {
           name="track-order"
           listeners={{ tabPress: (e) => preventTabPress(e, "track-order") }}
         />
-        <Tabs.Screen name="create" options={{ tabBarShowLabel: false }} />
+        <Tabs.Screen name="bottom-sheet" options={{ tabBarShowLabel: false }} />
         <Tabs.Screen
           name="contact-us"
           listeners={{ tabPress: (e) => preventTabPress(e, "contact-us") }}
@@ -312,10 +290,10 @@ export default function TabLayout() {
         />
       </Tabs>
       <GestureDetector gesture={gesture}>
-        <Animated.View style={[styles.createScreen, rBottomSheetStyle]}>
+        <Animated.View style={[styles.bottomSheetScreen, rBottomSheetStyle]}>
           <View style={styles.line} />
-          <View style={styles.createContent}>
-            <Create />
+          <View style={styles.bottomSheetContent}>
+            <FindRouteBottomSheet />
           </View>
         </Animated.View>
       </GestureDetector>
@@ -323,9 +301,30 @@ export default function TabLayout() {
   );
 }
 
+function getIconName(routeName: string): IconName {
+  const iconMap: Record<string, IconName> = {
+    index: "home",
+    "track-order": "truck",
+    "contact-us": "phone",
+    profile: "account",
+  };
+  return iconMap[routeName] || "help-circle";
+}
+
+function getLabelName(routeName: string): string {
+  const labelMap: Record<string, string> = {
+    index: "Home",
+    "track-order": "Track Order",
+    "contact-us": "Contact Us",
+    profile: "Profile",
+  };
+  return t(labelMap[routeName] || "Other");
+}
+
 const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
+    borderTopWidth: 0,
     backgroundColor: Colors.light.primary,
     borderTopLeftRadius: Sizes.borderRadiusMedium,
     borderTopRightRadius: Sizes.borderRadiusMedium,
@@ -352,16 +351,14 @@ const styles = StyleSheet.create({
     maxWidth: Sizes.tabLabelMaxWidth,
     textAlign: "center",
   },
-  createScreen: {
+  bottomSheetScreen: {
     height: SCREEN_HEIGHT,
     width: "100%",
     backgroundColor: Colors.light.primary,
     position: "absolute",
     top: SCREEN_HEIGHT,
-    borderTopLeftRadius: Sizes.borderRadiusMedium,
-    borderTopRightRadius: Sizes.borderRadiusMedium,
   },
-  createContent: {
+  bottomSheetContent: {
     flex: 1,
     padding: Sizes.paddingMedium,
   },
@@ -374,33 +371,3 @@ const styles = StyleSheet.create({
     borderRadius: Sizes.bottomSheetLineHeight / 2,
   },
 });
-
-function getIconName(routeName: string): IconName {
-  switch (routeName) {
-    case "index":
-      return "home";
-    case "track-order":
-      return "truck";
-    case "contact-us":
-      return "phone";
-    case "profile":
-      return "account";
-    default:
-      return "help-circle";
-  }
-}
-
-function getLabelName(routeName: string): string {
-  switch (routeName) {
-    case "index":
-      return t("Home");
-    case "track-order":
-      return t("Track Order");
-    case "contact-us":
-      return t("Contact Us");
-    case "profile":
-      return t("Profile");
-    default:
-      return t("Other");
-  }
-}

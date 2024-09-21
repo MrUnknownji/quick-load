@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { t } from "i18next";
-import { useLanguage } from "@/app/Context/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "../ThemedText";
 
@@ -55,16 +55,16 @@ const LanguageDialog: React.FC<LanguageDialogProps> = ({
 
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
 
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
 
   return (

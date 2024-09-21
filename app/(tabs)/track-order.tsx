@@ -1,23 +1,32 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import Sizes from "@/constants/Sizes";
 import { ListItemProps } from "@/types/types";
-import { BRICKS_ITEMS, GRIT_ITEMS } from "@/assets/data/DATA";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import { router } from "expo-router";
 import { t } from "i18next";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-
-const PENDING_ORDERS: ListItemProps[] = [BRICKS_ITEMS[0], GRIT_ITEMS[3]];
-const DELIVERED_ORDERS: ListItemProps[] = [GRIT_ITEMS[1], BRICKS_ITEMS[2]];
+import { useUser } from "@/contexts/UserContext";
+import { ORDERS } from "@/assets/data/DATA";
+import { Order } from "@/types/Order";
 
 const TrackOrder = () => {
-  const onItemPress = (productId: string) => {
+  const { currentUser } = useUser();
+
+  const userOrders = ORDERS.filter((order) => order.userId === currentUser?.id);
+  const pendingOrders = userOrders.filter(
+    (order) => order.status === "pending",
+  );
+  const deliveredOrders = userOrders.filter(
+    (order) => order.status === "delivered",
+  );
+
+  const onItemPress = (orderId: string) => {
     router.push({
       pathname: "/order-detail/order-track",
-      params: { productId },
+      params: { orderId },
     });
   };
 
@@ -29,24 +38,26 @@ const TrackOrder = () => {
     item,
     section,
   }: {
-    item: ListItemProps;
+    item: Order;
     section: { title: string };
   }) => (
     <LargeListItem
-      {...item}
+      heading={item.productName}
+      price={item.price.toString()}
+      onPress={() => onItemPress(item.id)}
+      measurementType="Qui."
       buttonTitle={
         section.title === t("Pending Orders")
           ? t("Track Order")
           : t("Delivered")
       }
-      onPress={() => onItemPress(item.productId ?? "")}
-      mesurementType={"Qui."}
+      imageUrl={`https://placehold.co/150x150?text=${item.productName}`}
     />
   );
 
-  const sections = [
-    { title: t("Pending Orders"), data: PENDING_ORDERS },
-    { title: t("Delivered Orders"), data: DELIVERED_ORDERS },
+  const sections: { title: string; data: Order[] }[] = [
+    { title: t("Pending Orders"), data: pendingOrders },
+    { title: t("Delivered Orders"), data: deliveredOrders },
   ];
 
   return (
@@ -64,7 +75,7 @@ const TrackOrder = () => {
             <FlatList
               data={section.data}
               renderItem={({ item }) => renderItem({ item, section })}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item.id}
             />
           </View>
         )}

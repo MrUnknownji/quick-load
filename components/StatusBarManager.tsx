@@ -1,7 +1,7 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
-import { useTheme } from "@/app/Context/AppThemeProvider";
+import { useTheme } from "@/contexts/AppThemeProvider";
 
 const StatusBarManager = () => {
   const { activePath } = usePathChangeListener();

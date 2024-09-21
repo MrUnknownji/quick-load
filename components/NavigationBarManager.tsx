@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import * as NavigationBar from "expo-navigation-bar";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
-import { useTheme } from "@/app/Context/AppThemeProvider";
+import { useTheme } from "@/contexts/AppThemeProvider";
 import { Platform } from "react-native";
 import Colors from "@/constants/Colors";
 
@@ -18,9 +18,9 @@ const NavigationBarManager = () => {
         case "track-order":
         case "contact-us":
         case "profile":
-          return Colors.dark.background;
+          return Colors.dark.primary;
         default:
-          return "transparent";
+          return Colors.dark.background;
       }
     } else {
       switch (route) {

@@ -9,7 +9,7 @@ import Button from "@/components/button/Button";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
-import { useLanguage } from "../Context/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -23,7 +23,7 @@ const Onboarding = () => {
 
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
 
   const handleNext = async () => {

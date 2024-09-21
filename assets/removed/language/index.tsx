@@ -6,7 +6,7 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "@/components/button/IconButton";
 import { t } from "i18next";
-import { useLanguage } from "@/app/Context/LanguageContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Language = () => {
   const { appLanguage, setAppLanguage, loading } = useLanguage();
@@ -31,12 +31,12 @@ const Language = () => {
       Alert.alert(
         t("Language Saved"),
         t("You have selected ") +
-          (selectedLanguage == "en" ? "English" : "Hindi")
+          (selectedLanguage == "en" ? "English" : "Hindi"),
       );
     } else {
       Alert.alert(
         t("No Language Selected"),
-        t("Please select a language first.")
+        t("Please select a language first."),
       );
     }
   };

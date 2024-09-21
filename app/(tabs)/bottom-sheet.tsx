@@ -6,7 +6,7 @@ import { t } from "i18next";
 
 const USER_TYPE = "driver";
 
-const SelectRoute = () => {
+const FindRouteBottomSheet = () => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -31,7 +31,7 @@ const SelectRoute = () => {
   );
 };
 
-export default SelectRoute;
+export default FindRouteBottomSheet;
 
 const styles = StyleSheet.create({
   container: {

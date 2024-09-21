@@ -6,21 +6,6 @@ import {
 } from "@expo/vector-icons";
 import { ViewStyle } from "react-native";
 
-interface Category {
-  name: string;
-  url: string;
-}
-
-interface Brand {
-  brandId: string;
-  heading: string;
-  category: string;
-  location?: string;
-  rating?: number;
-  imageUrl: string;
-  price?: string;
-}
-
 interface ListItemProps {
   productId?: string;
   heading: string;
@@ -29,7 +14,7 @@ interface ListItemProps {
   location?: string;
   imageUrl: string;
   rating?: number;
-  mesurementType?:
+  measurementType?:
     | "Qui."
     | "Piece"
     | "Packet"
@@ -74,11 +59,9 @@ type IconTypeProp =
 type IoniconsIconProps = keyof typeof Ionicons.glyphMap;
 
 export {
-  Category,
   ListItemProps,
   IconTypeProp,
   IoniconsIconProps,
   VehicleTypeProps,
   CustomFile,
-  Brand,
 };

@@ -15,6 +15,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -28,7 +29,6 @@ import LargeImageView from "@/components/image-views/LargeImageView";
 import usePathChangeListener from "@/hooks/usePathChangeListener";
 import { Colors } from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
-import { Category } from "@/types/types";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "@/components/ThemedView";
 import {
@@ -52,6 +52,7 @@ const HomeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [categoryChangeToFetch, setCategoryChangeToFetch] =
     useState<string>("");
+  const [refreshing, setRefreshing] = useState(false);
   const heroScaleAnim = useRef(new Animated.Value(0.9)).current;
   const categoriesTranslateY = useRef(new Animated.Value(50)).current;
   const fastDeliveryScaleAnim = useRef(new Animated.Value(0.9)).current;
@@ -65,15 +66,12 @@ const HomeScreen: React.FC = () => {
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
-  const backgroundColor = useThemeColor(
-    { light: Colors.light.background, dark: Colors.dark.background },
-    "background",
-  );
 
   const {
     products,
     loading: productsLoading,
     error: productsError,
+    fetchProducts,
   } = useFetchProducts();
 
   const {
@@ -148,6 +146,16 @@ const HomeScreen: React.FC = () => {
     [heroScaleAnim, categoriesTranslateY, fastDeliveryScaleAnim, listItemsAnim],
   );
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    setSelectedCategory("");
+    setCategoryChangeToFetch("");
+    await Promise.all([fetchProducts(), fetchOwners("")]);
+    resetAnimations();
+    playAnimations();
+    setRefreshing(false);
+  }, [fetchProducts, fetchOwners, resetAnimations, playAnimations]);
+
   useEffect(() => {
     console.log(productOwners);
   }, [productOwners]);
@@ -160,7 +168,7 @@ const HomeScreen: React.FC = () => {
   }, [activePath, resetAnimations, playAnimations]);
 
   const handleCategoryPress = useCallback(
-    (category: Category) => {
+    (category: any) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       if (selectedCategory !== category.name) {
         setSelectedCategory(category.name);
@@ -228,7 +236,7 @@ const HomeScreen: React.FC = () => {
               },
             })
           }
-          mesurementType={getMeasurementType(selectedCategory)}
+          measurementType={getMeasurementType(selectedCategory)}
           buttonTitle={t("More Information")}
           location={owner.productLocation}
           rating={owner.productRating}
@@ -246,7 +254,13 @@ const HomeScreen: React.FC = () => {
   return (
     <ThemedView style={styles.container}>
       <SearchHeader />
-      <View>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={false}
+      >
         {selectedCategory === "" && (
           <Animated.View
             style={[
@@ -260,10 +274,7 @@ const HomeScreen: React.FC = () => {
         <Animated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.categories,
-            { backgroundColor: backgroundColor },
-          ]}
+          contentContainerStyle={styles.categories}
           style={{ transform: [{ translateY: categoriesTranslateY }] }}
         >
           {productsLoading ? (
@@ -288,11 +299,6 @@ const HomeScreen: React.FC = () => {
             ))
           )}
         </Animated.ScrollView>
-      </View>
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
-      >
         <SafeAreaView edges={["bottom"]}>
           {selectedCategory === "" ? (
             <LargeImageView
@@ -328,6 +334,7 @@ const styles = StyleSheet.create({
   categories: {
     paddingHorizontal: Sizes.paddingHorizontal,
     paddingTop: Sizes.paddingMedium,
+    backgroundColor: "transparent",
   },
   category: {
     alignItems: "center",
