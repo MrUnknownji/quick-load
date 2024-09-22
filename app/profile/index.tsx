@@ -7,15 +7,15 @@ import Colors from "@/constants/Colors";
 import { router } from "expo-router";
 import { t } from "i18next";
 import LogoutDialog from "@/components/popups/LogoutDialog";
-import LanguageDialog from "@/components/popups/LanguageDialog";
-import AccountDeleteDialog from "@/components/popups/AccountDeleteDialog";
 import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User } from "@/types/User";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const handleLogout = () => {
     AsyncStorage.removeItem("accessToken");
@@ -23,10 +23,27 @@ const Profile = () => {
     router.replace("/authentication");
   };
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("currentUser");
+        if (userData) {
+          setCurrentUser(JSON.parse(userData));
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
-        <Text style={styles.profileHeading}>{t("Username")}</Text>
+        <Text style={styles.profileHeading}>
+          {currentUser?.name || t("Username")}
+        </Text>
       </View>
       <ThemedView style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
@@ -42,7 +59,7 @@ const Profile = () => {
             onPress={() =>
               router.push({
                 pathname: "/profile/my-information/[userId]",
-                params: { userId: "user23432" },
+                params: { userId: currentUser?.id || "user23432" },
               })
             }
           />
@@ -51,16 +68,21 @@ const Profile = () => {
             iconName="card"
             onPress={() => router.push("/subscription")}
           />
-          <SmallListItem
-            title={t("Admin Dashboard")}
-            iconName="person"
-            onPress={() => router.push("/admin")}
-          />
-          <SmallListItem
-            title={t("My Vehicles")}
-            iconName="car"
-            onPress={() => router.push("/profile/vehicles")}
-          />
+          {currentUser?.type === "admin" && (
+            <SmallListItem
+              title={t("Admin Dashboard")}
+              iconName="person"
+              onPress={() => router.push("/admin")}
+            />
+          )}
+          {(currentUser?.type === "driver" ||
+            currentUser?.type === "admin") && (
+            <SmallListItem
+              title={t("My Vehicles")}
+              iconName="car"
+              onPress={() => router.push("/profile/vehicles")}
+            />
+          )}
           <SmallListItem
             title={t("Union Support")}
             iconName="heart"

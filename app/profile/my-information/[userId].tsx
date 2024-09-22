@@ -156,10 +156,10 @@ const UserInformationPage: React.FC = () => {
       item.type === "TextInputField"
         ? TextInputField
         : item.type === "SelectListWithDialog"
-        ? SelectListWithDialog
-        : item.type === "FileUploadField"
-        ? FileUploadField
-        : View;
+          ? SelectListWithDialog
+          : item.type === "FileUploadField"
+            ? FileUploadField
+            : View;
     return <Component {...item.props} />;
   };
 

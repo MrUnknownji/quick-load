@@ -9,6 +9,7 @@ import { LoginForm } from "./components/LoginForm";
 import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import Loading from "@/components/Loading";
+import { USERS } from "@/assets/data/DATA";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">("login");
@@ -19,20 +20,14 @@ const Authentication: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const checkAuthState = () => {
-      const unsubscribe = auth().onAuthStateChanged(async (user) => {
-        if (user) {
-          const token = await user.getIdToken();
-          await AsyncStorage.setItem("accessToken", token);
-          console.log("User is signed in and token refreshed");
-          router.replace("/");
-          alert("Access token is " + token);
-        } else {
-          await AsyncStorage.removeItem("accessToken");
-          console.log("User is signed out");
-        }
-      });
-      return () => unsubscribe();
+    const checkAuthState = async () => {
+      const token = await AsyncStorage.getItem("accessToken");
+      if (token) {
+        console.log("User is signed in");
+        router.replace("/");
+      } else {
+        console.log("User is signed out");
+      }
     };
     checkAuthState();
   }, []);
@@ -106,13 +101,38 @@ const Authentication: React.FC = () => {
     }
   };
 
-  const handleLogin = (mobile: string, password: string) => {
+  const handleLogin = async (mobile: string, password: string) => {
     setLoading(true);
     try {
-      console.log("Login:", mobile, password);
-      router.replace("/");
+      const credentials = [
+        { mobile: "9999999999", password: "123", type: "admin" },
+        { mobile: "9876543210", password: "123", type: "driver" },
+        { mobile: "9876543211", password: "123", type: "merchant" },
+        { mobile: "9876543212", password: "123", type: "customer" },
+      ];
+
+      const matchedCredential = credentials.find(
+        (cred) => cred.mobile === mobile && cred.password === password,
+      );
+
+      if (matchedCredential) {
+        const randomUser = USERS.find(
+          (user) => user.type === matchedCredential.type,
+        );
+        if (randomUser) {
+          await AsyncStorage.setItem("accessToken", "dummy-token");
+          await AsyncStorage.setItem("currentUser", JSON.stringify(randomUser));
+          console.log("Login successful:", randomUser);
+          router.replace("/");
+        } else {
+          throw new Error("User not found");
+        }
+      } else {
+        throw new Error("Invalid credentials");
+      }
     } catch (error) {
       console.log("Login error:", error);
+      alert("Login failed: " + (error as Error).message);
     } finally {
       setLoading(false);
     }
