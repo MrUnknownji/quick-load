@@ -97,7 +97,7 @@ export const USERS: User[] = [
     isActivated: true,
     isVerified: true,
     deviceId: "device101",
-    platform: "web",
+    platform: "ios",
     deletedAt: null,
   },
 ];

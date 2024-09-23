@@ -21,13 +21,10 @@ export const editUserProfile = async (token: string, userData: FormData) => {
   return response.data;
 };
 
-export const registerUser = async (userData: any) => {
-  const response = await apiClient.post("/user", userData);
-  return response.data;
-};
-
-export const loginUser = async (credentials: any) => {
-  const response = await apiClient.post("/user/login", credentials);
+export const loginUser = async (accessToken: string) => {
+  const response = await apiClient.post("/user/firebase-login", {
+    access_token: accessToken,
+  });
   return response.data;
 };
 
@@ -42,15 +39,5 @@ export const refreshToken = async (refreshToken: string) => {
   const response = await apiClient.post("/user/refresh-token", {
     refreshToken,
   });
-  return response.data;
-};
-
-export const sendOTP = async (phone: string) => {
-  const response = await apiClient.post("/user/send-otp", { phone });
-  return response.data;
-};
-
-export const verifyOTP = async (phone: string, otp: string) => {
-  const response = await apiClient.post("/user/verify-otp", { phone, otp });
   return response.data;
 };

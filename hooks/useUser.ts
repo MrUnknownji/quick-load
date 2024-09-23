@@ -3,14 +3,11 @@ import {
   deleteUserAccount,
   getCurrentUser,
   updateUserProfile,
-  registerNewUser,
   loginUserAccount,
   logoutUserAccount,
   refreshUserToken,
-  sendUserOTP,
-  verifyUserOTP,
 } from "../services/userService";
-import { User, UserRegistration, UserLogin, UserEdit } from "../types/User";
+import { User, UserEdit } from "../types/User";
 
 export const useUser = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -59,25 +56,11 @@ export const useUser = () => {
     [],
   );
 
-  const register = useCallback(async (userData: UserRegistration) => {
+  const login = useCallback(async (accessToken: string) => {
     setLoading(true);
     setError(null);
     try {
-      const newUser = await registerNewUser(userData);
-      setUser(newUser.user);
-      return newUser;
-    } catch (err) {
-      setError("Failed to register");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const login = useCallback(async (credentials: UserLogin) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const loggedInUser = await loginUserAccount(credentials);
+      const loggedInUser = await loginUserAccount(accessToken);
       setUser(loggedInUser.user);
       return loggedInUser;
     } catch (err) {
@@ -112,30 +95,6 @@ export const useUser = () => {
     }
   }, []);
 
-  const sendOTP = useCallback(async (phone: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      return await sendUserOTP(phone);
-    } catch (err) {
-      setError("Failed to send OTP");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const verifyOTP = useCallback(async (phone: string, otp: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      return await verifyUserOTP(phone, otp);
-    } catch (err) {
-      setError("Failed to verify OTP");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   return {
     user,
     loading,
@@ -143,11 +102,8 @@ export const useUser = () => {
     deleteAccount,
     getUser,
     updateProfile,
-    register,
     login,
     logout,
     refreshToken,
-    sendOTP,
-    verifyOTP,
   };
 };

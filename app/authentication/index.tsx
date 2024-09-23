@@ -10,6 +10,7 @@ import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import Loading from "@/components/Loading";
 import { USERS } from "@/assets/data/DATA";
+import { loginUser } from "@/api/userApi";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">("login");
@@ -75,12 +76,23 @@ const Authentication: React.FC = () => {
     }
     try {
       const userCredential = await confirm.confirm(otp);
-      const idToken = await userCredential?.user.getIdToken();
-      if (idToken) await AsyncStorage.setItem("accessToken", idToken);
-      alert("Access Token" + idToken);
-      router.replace("/");
+      const firebaseToken = await userCredential?.user.getIdToken();
+      if (firebaseToken) {
+        const loginResponse = await loginUser(firebaseToken);
+        await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
+        await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
+        await AsyncStorage.setItem(
+          "currentUser",
+          JSON.stringify(loginResponse.user),
+        );
+        console.log("Login successful:", loginResponse.user);
+        router.replace("/");
+      } else {
+        throw new Error("Failed to get Firebase token");
+      }
     } catch (error) {
-      console.error("OTP verification error:", error);
+      console.error("OTP verification or login error:", error);
+      alert("Verification failed: " + (error as Error).message);
     } finally {
       setLoading(false);
     }
