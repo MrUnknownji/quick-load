@@ -12,20 +12,20 @@ const ProfileLayout = () => {
   const title = pathname.includes("union-support")
     ? "Union Support"
     : pathname.includes("language")
-    ? "Language"
-    : pathname.includes("add-vehicles")
-    ? "Add Vehicles"
-    : pathname.includes("vehicles")
-    ? "Vehicles"
-    : pathname.includes("my-information")
-    ? "My Information"
-    : pathname.includes("settings")
-    ? "Settings"
-    : pathname.includes("privacy-and-policy")
-    ? "Privacy and Policy"
-    : pathname.includes("admin")
-    ? "Admin Dashboard"
-    : "Profile";
+      ? "Language"
+      : pathname.includes("add-vehicles")
+        ? "Add Vehicles"
+        : pathname.includes("vehicles")
+          ? "Vehicles"
+          : pathname.includes("my-information")
+            ? "My Information"
+            : pathname.includes("settings")
+              ? "Settings"
+              : pathname.includes("privacy-and-policy")
+                ? "Privacy and Policy"
+                : pathname.includes("admin")
+                  ? "Admin Dashboard"
+                  : "Profile";
 
   return (
     <View style={styles.container}>

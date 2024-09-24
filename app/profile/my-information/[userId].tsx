@@ -7,9 +7,9 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import Alert from "@/components/popups/Alert";
+import { useLocalSearchParams, router } from "expo-router";
 import { Image } from "expo-image";
 import * as DocumentPicker from "expo-document-picker";
 import IconButton from "@/components/button/IconButton";
@@ -19,13 +19,8 @@ import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
-
-type CustomFile = {
-  uri: string;
-  name: string;
-  size?: number;
-  type: string;
-};
+import { useUser } from "@/contexts/UserContext";
+import { User } from "@/types/User";
 
 type FormField = {
   type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
@@ -36,36 +31,48 @@ const { width: screenWidth } = Dimensions.get("window");
 
 const UserInformationPage: React.FC = () => {
   const { userId } = useLocalSearchParams<{ userId: string }>();
-  const [disabled, setDisabled] = useState(true);
-  const [formState, setFormState] = useState({
-    username: userId,
-    email: "email@example.com",
-    phone: "+91 9876543210",
-    address: "123 Main Street",
-    city: "New York",
-    userType: "Customer",
-    vehicleNumber: "XX3422",
-    vehicleType: "Dumper",
-    panCardFile: undefined as CustomFile | undefined,
-    aadhaarCardFile: undefined as CustomFile | undefined,
+  const { currentUser, setCurrentUser } = useUser();
+  const [isNewUser, setIsNewUser] = useState(true);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [formState, setFormState] = useState<Partial<User>>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    type: "customer",
+    panCard: "",
+    aadharCard: "",
+    username: "",
+    language: "en",
+    gender: "other",
+    countryCode: "+91",
+    timezone: 0,
+    birthDate: "",
+    isActivated: false,
+    isVerified: false,
+    deviceId: "",
+    platform: "android",
   });
 
-  const handleInputChange = (field: string) => (value: string) => {
+  useEffect(() => {
+    if (currentUser) {
+      setIsNewUser(!currentUser.isVerified);
+      setFormState(currentUser);
+    }
+  }, [currentUser]);
+
+  const handleInputChange = (field: keyof User) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleFileSelect =
-    (field: "panCardFile" | "aadhaarCardFile") =>
+    (field: "panCard" | "aadharCard") =>
     (file: DocumentPicker.DocumentPickerResult) => {
       if (file.assets && file.assets.length > 0) {
         const selectedFile = file.assets[0];
-        const customFile: CustomFile = {
-          uri: selectedFile.uri,
-          name: selectedFile.name || "unknown",
-          size: selectedFile.size,
-          type: selectedFile.mimeType || "unknown",
-        };
-        setFormState((prev) => ({ ...prev, [field]: customFile }));
+        setFormState((prev) => ({ ...prev, [field]: selectedFile.name }));
       }
     };
 
@@ -75,9 +82,8 @@ const UserInformationPage: React.FC = () => {
       props: {
         label: t("Name"),
         iconName: "person",
-        value: formState.username,
-        onChangeText: handleInputChange("username"),
-        disabled,
+        value: formState.name,
+        onChangeText: handleInputChange("name"),
       },
     },
     {
@@ -87,7 +93,6 @@ const UserInformationPage: React.FC = () => {
         iconName: "mail",
         value: formState.email,
         onChangeText: handleInputChange("email"),
-        disabled,
       },
     },
     {
@@ -97,7 +102,6 @@ const UserInformationPage: React.FC = () => {
         iconName: "call",
         value: formState.phone,
         onChangeText: handleInputChange("phone"),
-        disabled,
       },
     },
     {
@@ -107,7 +111,6 @@ const UserInformationPage: React.FC = () => {
         iconName: "location",
         value: formState.address,
         onChangeText: handleInputChange("address"),
-        disabled,
       },
     },
     {
@@ -117,25 +120,22 @@ const UserInformationPage: React.FC = () => {
         iconName: "business",
         value: formState.city,
         onChangeText: handleInputChange("city"),
-        disabled,
       },
     },
     {
       type: "FileUploadField",
       props: {
         label: t("Pan Card"),
-        onFileSelect: handleFileSelect("panCardFile"),
-        selectedFile: formState.panCardFile?.name,
-        disabled,
+        onFileSelect: handleFileSelect("panCard"),
+        selectedFile: formState.panCard,
       },
     },
     {
       type: "FileUploadField",
       props: {
         label: t("Aadhaar Card"),
-        onFileSelect: handleFileSelect("aadhaarCardFile"),
-        selectedFile: formState.aadhaarCardFile?.name,
-        disabled,
+        onFileSelect: handleFileSelect("aadharCard"),
+        selectedFile: formState.aadharCard,
       },
     },
     {
@@ -143,10 +143,9 @@ const UserInformationPage: React.FC = () => {
       props: {
         label: t("User Type"),
         iconName: "people",
-        options: ["Customer", "Driver"],
-        selectedOption: formState.userType,
-        onSelect: handleInputChange("userType"),
-        disabled,
+        options: ["customer", "driver", "merchant"],
+        selectedOption: formState.type,
+        onSelect: handleInputChange("type"),
       },
     },
   ];
@@ -161,6 +160,54 @@ const UserInformationPage: React.FC = () => {
             ? FileUploadField
             : View;
     return <Component {...item.props} />;
+  };
+
+  const handleSave = () => {
+    const requiredFields: (keyof User)[] = [
+      "name",
+      "email",
+      "phone",
+      "address",
+      "city",
+      "type",
+      "panCard",
+      "aadharCard",
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !formState[field] || formState[field] === "",
+    );
+
+    if (missingFields.length > 0) {
+      const missingFieldNames = missingFields
+        .map((field) => field.charAt(0).toUpperCase() + field.slice(1))
+        .join(", ");
+
+      setAlertMessage(
+        `Please fill in the following required fields:\n\n${missingFieldNames}`,
+      );
+      setAlertVisible(true);
+      return;
+    }
+
+    const updatedUser = { ...formState, isVerified: true } as User;
+    setCurrentUser(updatedUser);
+
+    if (isNewUser) {
+      router.replace({
+        pathname: "/thank-you",
+        params: {
+          message: "Your information has been saved successfully.",
+          type: "new_user",
+        },
+      });
+    } else {
+      router.replace("/");
+    }
+  };
+
+  const handleCloseAlert = () => {
+    setAlertVisible(false);
   };
 
   return (
@@ -184,21 +231,27 @@ const UserInformationPage: React.FC = () => {
           }}
         />
         <IconButton
-          iconName={disabled ? "account-edit" : "content-save-check"}
+          iconName="content-save-check"
           size="small"
           variant="primary"
+          title={t("Save")}
           style={{
             position: "absolute",
             bottom: Sizes.marginLarge,
             right: Sizes.marginHorizontal,
             borderRadius: Sizes.borderRadiusFull,
+            paddingHorizontal: Sizes.paddingMedium,
           }}
           iconLibrary="MaterialCommunityIcons"
-          onPress={() => {
-            setDisabled(!disabled);
-          }}
+          onPress={handleSave}
         />
       </ThemedView>
+      <Alert
+        message={alertMessage}
+        type="error"
+        visible={alertVisible}
+        onClose={handleCloseAlert}
+      />
     </KeyboardAvoidingView>
   );
 };

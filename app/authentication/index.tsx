@@ -10,6 +10,7 @@ import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { USERS } from "@/assets/data/DATA";
 import { loginUser } from "@/api/userApi";
+import Alert from "@/components/popups/Alert";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">("login");
@@ -17,6 +18,15 @@ const Authentication: React.FC = () => {
   const [fadeAnim] = useState(new Animated.Value(1));
   const [confirm, setConfirm] =
     useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  }>({
+    visible: false,
+    message: "",
+    type: "info",
+  });
 
   useEffect(() => {
     const checkAuthState = async () => {
@@ -51,6 +61,13 @@ const Authentication: React.FC = () => {
     }, 150);
   };
 
+  const showAlert = (
+    message: string,
+    type: "success" | "error" | "warning" | "info",
+  ) => {
+    setAlert({ visible: true, message, type });
+  };
+
   const handleSignup = async (mobile: string) => {
     try {
       const formattedPhone = `+91${mobile}`;
@@ -60,42 +77,76 @@ const Authentication: React.FC = () => {
       toggleAuthMode("otp");
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Signup failed: " + (error as Error).message);
+      showAlert("Signup failed: Please try again.", "error");
     }
   };
 
   const handleOtpVerify = async (otp: string) => {
     if (!confirm) {
       console.error("No confirmation result");
-      throw new Error("Verification failed. Please try again.");
+      showAlert("Verification failed. Please try again.", "error");
+      return;
     }
+
     try {
       const userCredential = await confirm.confirm(otp);
-      const firebaseToken = await userCredential?.user.getIdToken();
-      console.log("Firebase token:", firebaseToken);
-      if (firebaseToken) {
-        let loginResponse;
-        try {
-          loginResponse = await loginUser(firebaseToken);
-          console.log(loginResponse);
-        } catch (error) {
-          console.log(error);
-          throw new Error("Login failed after verification");
-        }
-        await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
-        await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
-        await AsyncStorage.setItem(
-          "currentUser",
-          JSON.stringify(loginResponse.user),
-        );
-        console.log("Login successful:", loginResponse.user);
-        router.replace("/");
-      } else {
+
+      if (!userCredential || !userCredential.user) {
+        throw new Error("Failed to confirm OTP");
+      }
+
+      const firebaseToken = await userCredential.user.getIdToken();
+
+      if (!firebaseToken) {
         throw new Error("Failed to get Firebase token");
       }
+
+      const loginResponse = await loginUser(firebaseToken);
+
+      if (
+        !loginResponse ||
+        !loginResponse.accessToken ||
+        !loginResponse.refreshToken ||
+        !loginResponse.user
+      ) {
+        throw new Error("Invalid login response");
+      }
+
+      await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
+      await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
+      await AsyncStorage.setItem(
+        "currentUser",
+        JSON.stringify(loginResponse.user),
+      );
+
+      console.log("Login successful:", loginResponse.user);
+      showAlert("Login successful!", "success");
+      router.replace(`/profile/my-information/${loginResponse.user.id}`);
     } catch (error) {
-      console.error("OTP verification or login error:", error);
-      throw error;
+      if (error instanceof Error) {
+        if (
+          error.message.includes("invalid-verification-code") ||
+          error.message.includes("Failed to confirm OTP")
+        ) {
+          console.error("OTP verification error:", error);
+          showAlert("Incorrect OTP. Please check and try again.", "error");
+        } else if (
+          error.message.includes("Firebase token") ||
+          error.message.includes("login response")
+        ) {
+          console.error("Login error:", error);
+          showAlert("Login failed. Please try again later.", "error");
+        } else {
+          console.error(
+            "Unexpected error during verification or login:",
+            error,
+          );
+          showAlert("An unexpected error occurred. Please try again.", "error");
+        }
+      } else {
+        console.error("Unknown error:", error);
+        showAlert("An unknown error occurred. Please try again.", "error");
+      }
     }
   };
 
@@ -109,9 +160,10 @@ const Authentication: React.FC = () => {
         `+91${mobileNumber}`,
       );
       setConfirm(confirmation);
+      showAlert("OTP resent successfully", "success");
     } catch (error) {
       console.error("OTP resend error:", error);
-      alert("OTP resend failed: " + (error as Error).message);
+      showAlert("OTP resend failed: " + (error as Error).message, "error");
     }
   };
 
@@ -138,14 +190,14 @@ const Authentication: React.FC = () => {
           console.log("Login successful:", randomUser);
           router.replace("/");
         } else {
-          throw new Error("User not found");
+          showAlert("User not found", "error");
         }
       } else {
-        throw new Error("Invalid credentials");
+        showAlert("Invalid credentials", "error");
       }
     } catch (error) {
       console.log("Login error:", error);
-      alert("Login failed: " + (error as Error).message);
+      showAlert("Login failed: " + (error as Error).message, "error");
     }
   };
 
@@ -167,6 +219,12 @@ const Authentication: React.FC = () => {
           />
         )}
       </Animated.View>
+      <Alert
+        message={alert.message}
+        type={alert.type}
+        visible={alert.visible}
+        onClose={() => setAlert({ ...alert, visible: false })}
+      />
     </View>
   );
 };

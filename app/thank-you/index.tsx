@@ -31,6 +31,13 @@ const ThankYou = () => {
       />
       <ThemedText style={styles.heading}>{t("Thank You!")}</ThemedText>
       <ThemedText style={styles.message}>{t(message)}</ThemedText>
+
+      {type === "new_user" && (
+        <ThemedText style={styles.reviewMessage}>
+          {t("Your account is under review and will be verified soon.")}
+        </ThemedText>
+      )}
+
       {type === "route" && (
         <View style={styles.routeInfoContainer}>
           <RouteInfoItem icon="location" text={from} />
@@ -39,6 +46,7 @@ const ThankYou = () => {
           <RouteInfoItem icon="car" text={vehicle} />
         </View>
       )}
+
       <Button
         title={t("Back to Home")}
         variant="primary"
@@ -105,5 +113,12 @@ const styles = StyleSheet.create({
   button: {
     marginTop: Sizes.marginLarge,
     width: screenWidth - Sizes.marginHorizontal * 4,
+  },
+  reviewMessage: {
+    fontSize: Sizes.textMedium,
+    textAlign: "center",
+    marginTop: Sizes.marginMedium,
+    marginHorizontal: Sizes.marginLarge,
+    fontStyle: "italic",
   },
 });

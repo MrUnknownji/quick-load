@@ -12,7 +12,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(USERS[3]);
+  const [currentUser, setCurrentUser] = useState<User | null>(USERS[0]);
 
   return (
     <UserContext.Provider value={{ currentUser, setCurrentUser }}>
