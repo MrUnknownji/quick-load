@@ -8,7 +8,6 @@ import { SignupForm } from "./components/SignUpForm";
 import { LoginForm } from "./components/LoginForm";
 import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import Loading from "@/components/Loading";
 import { USERS } from "@/assets/data/DATA";
 import { loginUser } from "@/api/userApi";
 
@@ -18,7 +17,6 @@ const Authentication: React.FC = () => {
   const [fadeAnim] = useState(new Animated.Value(1));
   const [confirm, setConfirm] =
     useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const checkAuthState = async () => {
@@ -54,7 +52,6 @@ const Authentication: React.FC = () => {
   };
 
   const handleSignup = async (mobile: string) => {
-    setLoading(true);
     try {
       const formattedPhone = `+91${mobile}`;
       const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
@@ -63,22 +60,28 @@ const Authentication: React.FC = () => {
       toggleAuthMode("otp");
     } catch (error) {
       console.error("Signup error:", error);
-    } finally {
-      setLoading(false);
+      alert("Signup failed: " + (error as Error).message);
     }
   };
 
   const handleOtpVerify = async (otp: string) => {
-    setLoading(true);
     if (!confirm) {
       console.error("No confirmation result");
-      return;
+      throw new Error("Verification failed. Please try again.");
     }
     try {
       const userCredential = await confirm.confirm(otp);
       const firebaseToken = await userCredential?.user.getIdToken();
+      console.log("Firebase token:", firebaseToken);
       if (firebaseToken) {
-        const loginResponse = await loginUser(firebaseToken);
+        let loginResponse;
+        try {
+          loginResponse = await loginUser(firebaseToken);
+          console.log(loginResponse);
+        } catch (error) {
+          console.log(error);
+          throw new Error("Login failed after verification");
+        }
         await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
         await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
         await AsyncStorage.setItem(
@@ -92,9 +95,7 @@ const Authentication: React.FC = () => {
       }
     } catch (error) {
       console.error("OTP verification or login error:", error);
-      alert("Verification failed: " + (error as Error).message);
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
@@ -110,11 +111,11 @@ const Authentication: React.FC = () => {
       setConfirm(confirmation);
     } catch (error) {
       console.error("OTP resend error:", error);
+      alert("OTP resend failed: " + (error as Error).message);
     }
   };
 
   const handleLogin = async (mobile: string, password: string) => {
-    setLoading(true);
     try {
       const credentials = [
         { mobile: "9999999999", password: "123", type: "admin" },
@@ -145,36 +146,29 @@ const Authentication: React.FC = () => {
     } catch (error) {
       console.log("Login error:", error);
       alert("Login failed: " + (error as Error).message);
-    } finally {
-      setLoading(false);
     }
   };
 
-  if (loading) return <Loading />;
-  else
-    return (
-      <View style={styles.container}>
-        <Image
-          source={require("@/assets/images/icon.png")}
-          style={styles.icon}
-        />
-        <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
-          {authMode === "login" && (
-            <LoginForm onSubmit={handleLogin} onToggle={toggleAuthMode} />
-          )}
-          {authMode === "signup" && (
-            <SignupForm onSubmit={handleSignup} onToggle={toggleAuthMode} />
-          )}
-          {authMode === "otp" && (
-            <OTPVerification
-              mobileNumber={mobileNumber}
-              onVerify={handleOtpVerify}
-              onResend={handleOtpResend}
-            />
-          )}
-        </Animated.View>
-      </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
+      <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
+        {authMode === "login" && (
+          <LoginForm onSubmit={handleLogin} onToggle={toggleAuthMode} />
+        )}
+        {authMode === "signup" && (
+          <SignupForm onSubmit={handleSignup} onToggle={toggleAuthMode} />
+        )}
+        {authMode === "otp" && (
+          <OTPVerification
+            mobileNumber={mobileNumber}
+            onVerify={handleOtpVerify}
+            onResend={handleOtpResend}
+          />
+        )}
+      </Animated.View>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({

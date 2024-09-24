@@ -7,7 +7,7 @@ import Colors from "@/constants/Colors";
 
 interface OTPVerificationProps {
   mobileNumber: string;
-  onVerify: (otp: string) => void;
+  onVerify: (otp: string) => Promise<void>;
   onResend: () => void;
 }
 
@@ -19,15 +19,16 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [resendDisabled, setResendDisabled] = useState(true);
   const [timer, setTimer] = useState(60);
+  const [isVerifying, setIsVerifying] = useState(false);
   const { t } = useTranslation();
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "primary"
+    "primary",
   );
   const secondaryTextColor = useThemeColor(
     { light: Colors.light.border, dark: Colors.dark.border },
-    "border"
+    "border",
   );
 
   useEffect(() => {
@@ -53,10 +54,24 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
     }
   };
 
-  const handleVerify = () => {
+  const handleKeyPress = (e: any, index: number) => {
+    if (e.nativeEvent.key === "Backspace" && index > 0 && !otp[index]) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerify = async () => {
     const otpString = otp.join("");
     if (otpString.length === 6) {
-      onVerify(otpString);
+      setIsVerifying(true);
+      try {
+        await onVerify(otpString);
+      } catch (error) {
+        console.error("Verification error:", error);
+        alert(t("Verification failed. Please try again."));
+      } finally {
+        setIsVerifying(false);
+      }
     } else {
       alert(t("Please enter a valid 6-digit OTP"));
     }
@@ -67,6 +82,8 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
     setResendDisabled(true);
     setTimer(60);
   };
+
+  const isOtpComplete = otp.every((digit) => digit !== "");
 
   return (
     <View style={styles.otpContainer}>
@@ -82,19 +99,24 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
             style={[styles.otpInput, { color: textColor }]}
             value={digit}
             onChangeText={(value) => handleOtpChange(value, index)}
+            onKeyPress={(e) => handleKeyPress(e, index)}
             keyboardType="number-pad"
             maxLength={1}
             ref={(el) => (inputRefs.current[index] = el)}
+            editable={!isVerifying}
           />
         ))}
       </View>
       <View style={styles.resendContainer}>
         <Text>{t("Didn't receive code?")} </Text>
-        <Pressable onPress={handleResend} disabled={resendDisabled}>
+        <Pressable
+          onPress={handleResend}
+          disabled={resendDisabled || isVerifying}
+        >
           <Text
             style={[
               styles.resendButtonText,
-              resendDisabled && { color: secondaryTextColor },
+              (resendDisabled || isVerifying) && { color: secondaryTextColor },
             ]}
           >
             {resendDisabled ? `${t("Resend in")} ${timer}s` : t("Resend")}
@@ -102,11 +124,12 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
         </Pressable>
       </View>
       <Button
-        title={t("Verify")}
+        title={isVerifying ? t("Verifying...") : t("Verify")}
         variant="primary"
         size="medium"
         style={styles.button}
         onPress={handleVerify}
+        disabled={!isOtpComplete || isVerifying}
       />
     </View>
   );
@@ -132,17 +155,18 @@ const styles = StyleSheet.create({
   },
   otpInputContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    width: "auto",
+    justifyContent: "center",
+    width: "100%",
     marginBottom: 20,
   },
   otpInput: {
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     borderWidth: 1,
     borderRadius: 10,
     textAlign: "center",
-    fontSize: 24,
+    fontSize: 20,
+    marginHorizontal: 3,
   },
   resendContainer: {
     flexDirection: "row",

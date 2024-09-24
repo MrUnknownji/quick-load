@@ -10,27 +10,42 @@ import { ThemedText } from "@/components/ThemedText";
 interface CheckboxProps {
   checked: boolean;
   onToggle: () => void;
+  disabled?: boolean;
 }
 
-export const Checkbox: React.FC<CheckboxProps> = ({ checked, onToggle }) => {
+export const Checkbox: React.FC<CheckboxProps> = ({
+  checked,
+  onToggle,
+  disabled = false,
+}) => {
   const { t } = useTranslation();
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
+  );
+  const disabledColor = useThemeColor(
+    { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
+    "textSecondary",
   );
 
   return (
-    <Pressable onPress={onToggle} style={styles.checkboxContainer}>
+    <Pressable
+      onPress={onToggle}
+      style={[styles.checkboxContainer, disabled && styles.disabled]}
+      disabled={disabled}
+    >
       <Ionicons
         name={checked ? "checkmark-circle" : "ellipse-outline"}
         size={Sizes.icon.small}
-        color={checked ? iconColor : textColor}
+        color={disabled ? disabledColor : checked ? iconColor : textColor}
       />
-      <ThemedText style={styles.checkboxText}>
+      <ThemedText
+        style={[styles.checkboxText, disabled && styles.disabledText]}
+      >
         {t("I agree with the Terms and Conditions")}
       </ThemedText>
     </Pressable>
@@ -45,5 +60,11 @@ const styles = StyleSheet.create({
   },
   checkboxText: {
     marginLeft: 8,
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  disabledText: {
+    color: Colors.light.textSecondary,
   },
 });
