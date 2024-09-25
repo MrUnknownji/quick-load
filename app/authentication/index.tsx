@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Animated } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Animated,
+  ToastAndroid,
+  Platform,
+} from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -11,6 +17,7 @@ import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { USERS } from "@/assets/data/DATA";
 import { loginUser } from "@/api/userApi";
 import Alert from "@/components/popups/Alert";
+import * as Clipboard from "expo-clipboard";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">("login");
@@ -81,6 +88,14 @@ const Authentication: React.FC = () => {
     }
   };
 
+  const showToast = (message: string) => {
+    if (Platform.OS === "android") {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+    } else {
+      console.log(message);
+    }
+  };
+
   const handleOtpVerify = async (otp: string) => {
     if (!confirm) {
       console.error("No confirmation result");
@@ -100,7 +115,10 @@ const Authentication: React.FC = () => {
       if (!firebaseToken) {
         throw new Error("Failed to get Firebase token");
       }
+      await Clipboard.setStringAsync(firebaseToken);
+      showToast("Firebase Token copied to clipboard");
 
+      console.log(firebaseToken);
       const loginResponse = await loginUser(firebaseToken);
 
       if (
@@ -112,6 +130,9 @@ const Authentication: React.FC = () => {
         throw new Error("Invalid login response");
       }
 
+      await Clipboard.setStringAsync(loginResponse.accessToken);
+      showToast("Access Token copied to clipboard");
+
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
       await AsyncStorage.setItem(
@@ -119,7 +140,7 @@ const Authentication: React.FC = () => {
         JSON.stringify(loginResponse.user),
       );
 
-      console.log("Login successful:", loginResponse.user);
+      console.log(loginResponse);
       showAlert("Login successful!", "success");
       router.replace(`/profile/my-information/${loginResponse.user.id}`);
     } catch (error) {
@@ -201,6 +222,11 @@ const Authentication: React.FC = () => {
     }
   };
 
+  const handleBackToSignup = () => {
+    toggleAuthMode("signup");
+    setConfirm(null);
+  };
+
   return (
     <View style={styles.container}>
       <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
@@ -216,6 +242,7 @@ const Authentication: React.FC = () => {
             mobileNumber={mobileNumber}
             onVerify={handleOtpVerify}
             onResend={handleOtpResend}
+            onBack={handleBackToSignup}
           />
         )}
       </Animated.View>

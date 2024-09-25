@@ -4,17 +4,20 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
+import IconButton from "@/components/button/IconButton";
 
 interface OTPVerificationProps {
   mobileNumber: string;
   onVerify: (otp: string) => Promise<void>;
   onResend: () => void;
+  onBack: () => void;
 }
 
 export const OTPVerification: React.FC<OTPVerificationProps> = ({
   mobileNumber,
   onVerify,
   onResend,
+  onBack,
 }) => {
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [resendDisabled, setResendDisabled] = useState(true);
@@ -131,6 +134,9 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
         onPress={handleVerify}
         disabled={!isOtpComplete || isVerifying}
       />
+      <Pressable onPress={onBack}>
+        <Text style={styles.wrongNumberText}>{t("Wrong number?")}</Text>
+      </Pressable>
     </View>
   );
 };
@@ -175,5 +181,10 @@ const styles = StyleSheet.create({
   },
   resendButtonText: {
     fontWeight: "bold",
+  },
+  wrongNumberText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: Colors.light.primary,
   },
 });
