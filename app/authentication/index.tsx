@@ -115,10 +115,8 @@ const Authentication: React.FC = () => {
       if (!firebaseToken) {
         throw new Error("Failed to get Firebase token");
       }
-      await Clipboard.setStringAsync(firebaseToken);
-      showToast("Firebase Token copied to clipboard");
 
-      console.log(firebaseToken);
+      console.log("Firebase Token:", firebaseToken);
       const loginResponse = await loginUser(firebaseToken);
 
       if (
@@ -129,7 +127,6 @@ const Authentication: React.FC = () => {
       ) {
         throw new Error("Invalid login response");
       }
-
       await Clipboard.setStringAsync(loginResponse.accessToken);
       showToast("Access Token copied to clipboard");
 
@@ -140,7 +137,7 @@ const Authentication: React.FC = () => {
         JSON.stringify(loginResponse.user),
       );
 
-      console.log(loginResponse);
+      console.log("Login Response:", loginResponse);
       showAlert("Login successful!", "success");
       router.replace(`/profile/my-information/${loginResponse.user.id}`);
     } catch (error) {
