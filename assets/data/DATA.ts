@@ -123,62 +123,44 @@ export const ORDERS: Order[] = [
     status: "pending",
     createdAt: "2023-06-05",
   },
-  {
-    id: "order3",
-    userId: "user1",
-    productName: "Cement",
-    quantity: 100,
-    price: 6000,
-    status: "delivered",
-    createdAt: "2023-05-15",
-  },
-  {
-    id: "order4",
-    userId: "user1",
-    productName: "Sand",
-    quantity: 200,
-    price: 3000,
-    status: "delivered",
-    createdAt: "2023-05-20",
-  },
 
   // Merchant Orders
-  {
-    id: "order5",
-    userId: "user2",
-    productName: "Steel",
-    quantity: 50,
-    price: 25000,
-    status: "pending",
-    createdAt: "2023-06-10",
-  },
-  {
-    id: "order6",
-    userId: "user2",
-    productName: "Tiles",
-    quantity: 1000,
-    price: 10000,
-    status: "pending",
-    createdAt: "2023-06-12",
-  },
-  {
-    id: "order7",
-    userId: "user2",
-    productName: "Paint",
-    quantity: 100,
-    price: 15000,
-    status: "delivered",
-    createdAt: "2023-05-25",
-  },
-  {
-    id: "order8",
-    userId: "user2",
-    productName: "Wood",
-    quantity: 200,
-    price: 20000,
-    status: "delivered",
-    createdAt: "2023-05-30",
-  },
+  // {
+  //   id: "order5",
+  //   userId: "user2",
+  //   productName: "Steel",
+  //   quantity: 50,
+  //   price: 25000,
+  //   status: "pending",
+  //   createdAt: "2023-06-10",
+  // },
+  // {
+  //   id: "order6",
+  //   userId: "user2",
+  //   productName: "Tiles",
+  //   quantity: 1000,
+  //   price: 10000,
+  //   status: "pending",
+  //   createdAt: "2023-06-12",
+  // },
+  // {
+  //   id: "order7",
+  //   userId: "user2",
+  //   productName: "Paint",
+  //   quantity: 100,
+  //   price: 15000,
+  //   status: "delivered",
+  //   createdAt: "2023-05-25",
+  // },
+  // {
+  //   id: "order8",
+  //   userId: "user2",
+  //   productName: "Wood",
+  //   quantity: 200,
+  //   price: 20000,
+  //   status: "delivered",
+  //   createdAt: "2023-05-30",
+  // },
 
   // Driver Orders
   {
@@ -190,24 +172,24 @@ export const ORDERS: Order[] = [
     status: "pending",
     createdAt: "2023-06-15",
   },
-  {
-    id: "order10",
-    userId: "user3",
-    productName: "Cement",
-    quantity: 150,
-    price: 9000,
-    status: "pending",
-    createdAt: "2023-06-18",
-  },
-  {
-    id: "order11",
-    userId: "user3",
-    productName: "Sand",
-    quantity: 300,
-    price: 4500,
-    status: "delivered",
-    createdAt: "2023-06-01",
-  },
+  // {
+  //   id: "order10",
+  //   userId: "user3",
+  //   productName: "Cement",
+  //   quantity: 150,
+  //   price: 9000,
+  //   status: "pending",
+  //   createdAt: "2023-06-18",
+  // },
+  // {
+  //   id: "order11",
+  //   userId: "user3",
+  //   productName: "Sand",
+  //   quantity: 300,
+  //   price: 4500,
+  //   status: "delivered",
+  //   createdAt: "2023-06-01",
+  // },
   {
     id: "order12",
     userId: "user3",
@@ -219,64 +201,53 @@ export const ORDERS: Order[] = [
   },
 
   // Admin Orders
-  {
-    id: "order13",
-    userId: "user4",
-    productName: "Steel",
-    quantity: 100,
-    price: 50000,
-    status: "pending",
-    createdAt: "2023-06-20",
-  },
-  {
-    id: "order14",
-    userId: "user4",
-    productName: "Tiles",
-    quantity: 2000,
-    price: 20000,
-    status: "pending",
-    createdAt: "2023-06-22",
-  },
-  {
-    id: "order15",
-    userId: "user4",
-    productName: "Paint",
-    quantity: 200,
-    price: 30000,
-    status: "delivered",
-    createdAt: "2023-06-10",
-  },
-  {
-    id: "order16",
-    userId: "user4",
-    productName: "Wood",
-    quantity: 300,
-    price: 30000,
-    status: "delivered",
-    createdAt: "2023-06-12",
-  },
+  // {
+  //   id: "order13",
+  //   userId: "user4",
+  //   productName: "Steel",
+  //   quantity: 100,
+  //   price: 50000,
+  //   status: "pending",
+  //   createdAt: "2023-06-20",
+  // },
+  // {
+  //   id: "order14",
+  //   userId: "user4",
+  //   productName: "Tiles",
+  //   quantity: 2000,
+  //   price: 20000,
+  //   status: "pending",
+  //   createdAt: "2023-06-22",
+  // },
+  // {
+  //   id: "order15",
+  //   userId: "user4",
+  //   productName: "Paint",
+  //   quantity: 200,
+  //   price: 30000,
+  //   status: "delivered",
+  //   createdAt: "2023-06-10",
+  // },
+  // {
+  //   id: "order16",
+  //   userId: "user4",
+  //   productName: "Wood",
+  //   quantity: 300,
+  //   price: 30000,
+  //   status: "delivered",
+  //   createdAt: "2023-06-12",
+  // },
 ];
 
 const CAROUSEL_IMAGES = [
   {
-    uri: `https://placehold.co/${
-      screenWidth - Sizes.marginHorizontal * 2
-    }x${200}?text=Hero+Image+1`,
+    uri: `https://quick-load.onrender.com/assets/carousal-image-1.png`,
   },
   {
-    uri: `https://placehold.co/${
-      screenWidth - Sizes.marginHorizontal * 2
-    }x${200}?text=Hero+Image+2`,
+    uri: `https://quick-load.onrender.com/assets/carousal-image-2.png`,
   },
   {
-    uri: `https://placehold.co/${
-      screenWidth - Sizes.marginHorizontal * 2
-    }x${200}?text=Hero+Image+3`,
-  },
-  {
-    uri: `https://placehold.co/${
-      screenWidth - Sizes.marginHorizontal * 2
-    }x${200}?text=Hero+Image+4`,
+    uri: `https://quick-load.onrender.com/assets/carousal-image-3.png`,
   },
 ];
 

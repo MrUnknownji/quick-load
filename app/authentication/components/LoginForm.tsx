@@ -5,6 +5,7 @@ import { Input } from "./Input";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
+import { ThemedText } from "@/components/ThemedText";
 
 interface LoginFormProps {
   onSubmit: (mobileNumber: string, password: string) => Promise<void>;
@@ -75,7 +76,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, onToggle }) => {
         disabled={!isFormValid || isLoading}
       />
       <View style={styles.switchAuthContainer}>
-        <Text>{t("Don't have an account?")} </Text>
+        <ThemedText>{t("Don't have an account?")} </ThemedText>
         <Pressable onPress={() => onToggle("signup")} disabled={isLoading}>
           <Text style={[styles.switchAuthButton, { color: primaryTextColor }]}>
             {t("Sign up")}

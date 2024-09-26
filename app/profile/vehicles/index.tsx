@@ -1,24 +1,33 @@
-import { StyleSheet, Text, TouchableNativeFeedback, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
+import { StyleSheet, TouchableNativeFeedback, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { Image } from "expo-image";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import IconButton from "@/components/button/IconButton";
-import { VehicleTypeProps } from "@/types/types";
-import { VEHICLES_LIST } from "@/assets/data/DATA";
 import { router } from "expo-router";
 import { t } from "i18next";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
+import { Vehicle } from "@/types/Vehicle";
+import { useDeleteVehicle, useFetchVehicles } from "@/hooks/useFetchVehicle";
+import Alert from "@/components/popups/Alert";
 
-const VehicleItem = ({ vehicle }: { vehicle: VehicleTypeProps }) => {
+const VehicleItem = ({
+  vehicle,
+  onDelete,
+  onLongPress,
+}: {
+  vehicle: Vehicle;
+  onDelete: () => void;
+  onLongPress: () => void;
+}) => {
   const listItemBackgroundColor = useThemeColor(
     {
       light: Colors.light.backgroundSecondary,
       dark: Colors.dark.backgroundSecondary,
     },
-    "background"
+    "background",
   );
   return (
     <View
@@ -33,9 +42,11 @@ const VehicleItem = ({ vehicle }: { vehicle: VehicleTypeProps }) => {
         onPress={() =>
           router.push({
             pathname: "/profile/vehicles/add-vehicles",
-            params: { vehicleId: vehicle.id, isEdit: "true" },
+            params: { vehicleId: vehicle.vehicleId, isEdit: "true" },
           })
         }
+        onLongPress={onLongPress}
+        delayLongPress={500}
       >
         <View
           style={[
@@ -43,7 +54,10 @@ const VehicleItem = ({ vehicle }: { vehicle: VehicleTypeProps }) => {
             { backgroundColor: listItemBackgroundColor },
           ]}
         >
-          <Image source={vehicle.image} style={styles.listItemImage} />
+          <Image
+            source={{ uri: vehicle.vehicleImage }}
+            style={styles.listItemImage}
+          />
           <View style={styles.listItemDetails}>
             <ThemedText style={styles.listItemType}>
               {t(vehicle.vehicleType)}
@@ -51,7 +65,9 @@ const VehicleItem = ({ vehicle }: { vehicle: VehicleTypeProps }) => {
             <ThemedText style={styles.listItemNumber}>
               {vehicle.vehicleNumber}
             </ThemedText>
-            <Text style={styles.listItemBrand}>{vehicle.brand}</Text>
+            <ThemedText style={styles.listItemBrand}>
+              {vehicle.driverName}
+            </ThemedText>
           </View>
         </View>
       </TouchableNativeFeedback>
@@ -60,26 +76,76 @@ const VehicleItem = ({ vehicle }: { vehicle: VehicleTypeProps }) => {
 };
 
 const Vehicles = () => {
-  return (
-    <View style={styles.container}>
+  const { vehicles, loading, error, fetchVehicles } = useFetchVehicles();
+  const {
+    deleteVehicle,
+    loading: deleteLoading,
+    error: deleteError,
+  } = useDeleteVehicle();
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  const handleDeleteVehicle = async (vehicleId: string) => {
+    try {
+      await deleteVehicle(vehicleId);
+      fetchVehicles();
+      setAlertVisible(false);
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+    }
+  };
+
+  const handleLongPress = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setAlertVisible(true);
+  };
+
+  const renderContent = () => {
+    if (loading) {
+      return <ThemedText>Loading...</ThemedText>;
+    }
+
+    if (error) {
+      return <ThemedText>Error: {error}</ThemedText>;
+    }
+
+    return (
       <FlatList
-        data={VEHICLES_LIST}
-        renderItem={({ item }) => <VehicleItem vehicle={item} />}
-        keyExtractor={(item, index) =>
-          `${item.id.toString()}-${index.toString()}`
-        }
+        data={vehicles}
+        renderItem={({ item }) => (
+          <VehicleItem
+            vehicle={item}
+            onDelete={() => handleDeleteVehicle(item.vehicleId)}
+            onLongPress={() => handleLongPress(item)}
+          />
+        )}
+        keyExtractor={(item) => item.vehicleId}
         contentContainerStyle={styles.listContainer}
       />
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      {renderContent()}
       <IconButton
         iconName="add"
         size="medium"
         variant="primary"
-        style={{
-          position: "absolute",
-          right: Sizes.marginHorizontal,
-          bottom: Sizes.marginMedium,
-        }}
+        style={styles.addButton}
         onPress={() => router.push("/profile/vehicles/add-vehicles")}
+      />
+      <Alert
+        message={`Are you sure you want to delete ${selectedVehicle?.vehicleNumber}?`}
+        type="warning"
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+        onConfirm={() => {
+          if (selectedVehicle) {
+            handleDeleteVehicle(selectedVehicle.vehicleId);
+          }
+        }}
       />
     </View>
   );
@@ -121,5 +187,10 @@ const styles = StyleSheet.create({
   listItemBrand: {
     fontSize: Sizes.textNormal,
     color: Colors.light.textSecondary,
+  },
+  addButton: {
+    position: "absolute",
+    right: Sizes.marginHorizontal,
+    bottom: Sizes.marginMedium,
   },
 });

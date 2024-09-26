@@ -11,31 +11,22 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
 import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
-import SelectList from "@/components/input-fields/SelectList";
+import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
-import { VEHICLES_LIST } from "@/assets/data/DATA";
-import { CustomFile, VehicleTypeProps } from "@/types/types";
+import { VehicleFormState } from "@/types/Vehicle";
 import { ThemedView } from "@/components/ThemedView";
+import {
+  useFetchVehicleById,
+  useAddVehicle,
+  useUpdateVehicle,
+  useFetchVehicleTypes,
+} from "@/hooks/useFetchVehicle";
 
 type FormField = {
-  type: "TextInputField" | "SelectList" | "FileUploadField";
+  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
   props: any;
-};
-
-const dummyVehicle: VehicleTypeProps = {
-  id: "user23432",
-  phone: "+91 9876543210",
-  vehicleNumber: "GJ 12 K 0005",
-  vehicleType: "Dumper",
-  vehicleCapacity: "20-25tn",
-  drivingLicense: undefined as CustomFile | undefined,
-  vehicleRC: undefined as CustomFile | undefined,
-  panCardFile: undefined as CustomFile | undefined,
-  aadhaarCardFile: undefined as CustomFile | undefined,
-  image: "https://placehold.co/200x200?text=Dumper",
-  brand: "Tata",
 };
 
 const AddVehicles: React.FC = () => {
@@ -43,51 +34,64 @@ const AddVehicles: React.FC = () => {
     vehicleId: string;
     isEdit: string;
   }>();
-  const [formState, setFormState] = useState<VehicleTypeProps>(dummyVehicle);
+  const [formState, setFormState] = useState<VehicleFormState>({});
+
+  const {
+    vehicle,
+    loading: vehicleLoading,
+    error: vehicleError,
+  } = useFetchVehicleById(vehicleId || "");
+  const {
+    vehicleTypes,
+    loading: typesLoading,
+    error: typesError,
+  } = useFetchVehicleTypes();
+  const { addVehicle, loading: addLoading, error: addError } = useAddVehicle();
+  const {
+    updateVehicle,
+    loading: updateLoading,
+    error: updateError,
+  } = useUpdateVehicle();
 
   useEffect(() => {
-    if (vehicleId) {
-      const vehicle = VEHICLES_LIST.find((vehicle) => vehicle.id === vehicleId);
-      setFormState((prev) => ({ ...prev, ...vehicle }));
+    if (vehicleId && isEdit === "true" && vehicle) {
+      setFormState(vehicle);
     }
-  }, []);
+  }, [vehicleId, isEdit, vehicle]);
 
-  const handleInputChange = (field: string) => (value: string) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-  };
+  const handleInputChange =
+    (field: keyof VehicleFormState) => (value: string) => {
+      setFormState((prev) => ({ ...prev, [field]: value }));
+    };
 
-  const handleSaveVehicle = () => {
-    if (isEdit && vehicleId) {
-      const vehicleIndex = VEHICLES_LIST.findIndex((v) => v.id === vehicleId);
-      if (vehicleIndex !== -1) {
-        VEHICLES_LIST[vehicleIndex] = {
-          ...VEHICLES_LIST[vehicleIndex],
-          ...formState,
-        };
-      }
-    } else {
-      VEHICLES_LIST.push({
-        ...formState,
-        id: `vehicle${VEHICLES_LIST.length + 1}`,
+  const handleSaveVehicle = async () => {
+    try {
+      const formData = new FormData();
+      Object.entries(formState).forEach(([key, value]) => {
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else if (typeof value === "string") {
+          formData.append(key, value);
+        }
       });
+
+      if (isEdit === "true" && vehicleId) {
+        await updateVehicle(vehicleId, formData);
+      } else {
+        await addVehicle(formData);
+      }
+      router.back();
+    } catch (error) {
+      console.error("Error saving vehicle:", error);
     }
-    router.back();
   };
 
   const handleFileSelect =
-    (
-      field: "panCardFile" | "aadhaarCardFile" | "drivingLicense" | "vehicleRC"
-    ) =>
+    (field: keyof VehicleFormState) =>
     (file: DocumentPicker.DocumentPickerResult) => {
       if (file.assets && file.assets.length > 0) {
         const selectedFile = file.assets[0];
-        const customFile: CustomFile = {
-          uri: selectedFile.uri,
-          name: selectedFile.name || "unknown",
-          size: selectedFile.size,
-          type: selectedFile.mimeType || "unknown",
-        };
-        setFormState((prev) => ({ ...prev, [field]: customFile }));
+        setFormState((prev) => ({ ...prev, [field]: selectedFile }));
       }
     };
 
@@ -97,8 +101,8 @@ const AddVehicles: React.FC = () => {
       props: {
         label: t("Driver's Name"),
         iconName: "person",
-        value: formState.id,
-        onChangeText: handleInputChange("username"),
+        value: formState.driverName,
+        onChangeText: handleInputChange("driverName"),
       },
     },
     {
@@ -106,8 +110,8 @@ const AddVehicles: React.FC = () => {
       props: {
         label: t("Phone"),
         iconName: "call",
-        value: formState.phone,
-        onChangeText: handleInputChange("phone"),
+        value: formState.phoneNumber,
+        onChangeText: handleInputChange("phoneNumber"),
       },
     },
     {
@@ -116,72 +120,60 @@ const AddVehicles: React.FC = () => {
         label: t("Vehicle Number"),
         iconName: "text",
         value: formState.vehicleNumber,
-        onChangeText: handleInputChange("address"),
+        onChangeText: handleInputChange("vehicleNumber"),
       },
     },
     {
-      type: "TextInputField",
-      props: {
-        label: t("Brand"),
-        iconName: "business",
-        iconType: "MaterialIcons",
-        value: formState.brand || "",
-        onChangeText: handleInputChange("brand"),
-      },
-    },
-    {
-      type: "SelectList",
+      type: "SelectListWithDialog",
       props: {
         label: t("Vehicle Type"),
         iconName: "truck",
         iconType: "FontAwesome",
-        options: ["Dumper", "Trailer", "Container"],
+        options: vehicleTypes,
         selectedOption: formState.vehicleType,
         onSelect: handleInputChange("vehicleType"),
-      },
-    },
-    {
-      type: "SelectList",
-      props: {
-        label: t("Vehicle Load Capacity"),
-        iconName: "weight",
-        iconType: "MaterialCommunityIcons",
-        options: ["20-25tn", "25-30tn", "30-35tn", "35-40tn", "40-45tn"],
-        selectedOption: formState.vehicleCapacity,
-        onSelect: handleInputChange("vehicleCapacity"),
-        placeholder: t("Select a capacity"),
       },
     },
     {
       type: "FileUploadField",
       props: {
         label: t("Driving License"),
-        onFileSelect: handleFileSelect("drivingLicense"),
-        selectedFile: formState.drivingLicense?.name,
+        onFileSelect: handleFileSelect("drivingLicence"),
+        selectedFile:
+          formState.drivingLicence instanceof File
+            ? formState.drivingLicence.name
+            : formState.drivingLicence,
       },
     },
     {
       type: "FileUploadField",
       props: {
         label: t("RC"),
-        onFileSelect: handleFileSelect("vehicleRC"),
-        selectedFile: formState.vehicleRC?.name,
+        onFileSelect: handleFileSelect("rc"),
+        selectedFile:
+          formState.rc instanceof File ? formState.rc.name : formState.rc,
       },
     },
     {
       type: "FileUploadField",
       props: {
         label: t("Pan Card"),
-        onFileSelect: handleFileSelect("panCardFile"),
-        selectedFile: formState.panCardFile?.name,
+        onFileSelect: handleFileSelect("panCard"),
+        selectedFile:
+          formState.panCard instanceof File
+            ? formState.panCard.name
+            : formState.panCard,
       },
     },
     {
       type: "FileUploadField",
       props: {
         label: t("Aadhaar Card"),
-        onFileSelect: handleFileSelect("aadhaarCardFile"),
-        selectedFile: formState.aadhaarCardFile?.name,
+        onFileSelect: handleFileSelect("aadharCard"),
+        selectedFile:
+          formState.aadharCard instanceof File
+            ? formState.aadharCard.name
+            : formState.aadharCard,
       },
     },
   ];
@@ -190,11 +182,11 @@ const AddVehicles: React.FC = () => {
     const Component =
       item.type === "TextInputField"
         ? TextInputField
-        : item.type === "SelectList"
-        ? SelectList
-        : item.type === "FileUploadField"
-        ? FileUploadField
-        : View;
+        : item.type === "SelectListWithDialog"
+          ? SelectListWithDialog
+          : item.type === "FileUploadField"
+            ? FileUploadField
+            : View;
     return <Component {...item.props} />;
   };
 

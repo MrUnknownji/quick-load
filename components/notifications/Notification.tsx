@@ -48,30 +48,28 @@ const dummyNotifications: Notification[] = [
   },
 ];
 
-interface NotificationItemProps {
-  item: Notification;
-  onPress: (notification: Notification) => void;
-}
-
-const NotificationItem: React.FC<NotificationItemProps> = ({
+const NotificationItem = ({
   item,
   onPress,
+}: {
+  item: Notification;
+  onPress: (notification: Notification) => void;
 }) => {
   const backgroundColor = useThemeColor(
     { light: Colors.light.cardBackground, dark: Colors.dark.cardBackground },
-    "cardBackground"
+    "cardBackground",
   );
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
   const secondaryTextColor = useThemeColor(
     { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
-    "textSecondary"
+    "textSecondary",
   );
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
 
   return (
@@ -79,9 +77,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       onPress={() => onPress(item)}
       style={[styles.notificationItem, { backgroundColor }]}
     >
-      <View style={styles.notificationIcon}>
-        <Ionicons name="notifications" size={24} color={iconColor} />
-      </View>
+      <Ionicons
+        name="notifications"
+        size={24}
+        color={iconColor}
+        style={styles.notificationIcon}
+      />
       <View style={styles.notificationContent}>
         <Text style={[styles.notificationTitle, { color: textColor }]}>
           {t(item.title)}
@@ -102,46 +103,34 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   );
 };
 
-interface NotificationDialogProps {
-  notification: Notification | null;
-  visible: boolean;
-  onClose: () => void;
-}
-
-const NotificationDialog: React.FC<NotificationDialogProps> = ({
+const NotificationDialog = ({
   notification,
   visible,
   onClose,
+}: {
+  notification: Notification | null;
+  visible: boolean;
+  onClose: () => void;
 }) => {
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
   const secondaryTextColor = useThemeColor(
     { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
-    "textSecondary"
+    "textSecondary",
   );
-
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (visible) {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(scaleAnim, {
-        toValue: 0,
-        duration: 200,
-        easing: Easing.ease,
-        useNativeDriver: true,
-      }).start();
-    }
+    Animated.spring(scaleAnim, {
+      toValue: visible ? 1 : 0,
+      useNativeDriver: true,
+    }).start();
   }, [visible]);
 
   return (
@@ -185,20 +174,18 @@ const NotificationDialog: React.FC<NotificationDialogProps> = ({
   );
 };
 
-const Notifications: React.FC = () => {
+const Notifications = () => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
-
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const iconColor = useThemeColor(
     { light: Colors.light.icon, dark: Colors.dark.icon },
-    "icon"
+    "icon",
   );
-
   const dropdownAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -210,28 +197,16 @@ const Notifications: React.FC = () => {
   }, [isDropdownVisible]);
 
   const toggleDropdown = () => setIsDropdownVisible(!isDropdownVisible);
-
   const handleNotificationPress = (notification: Notification) => {
     setSelectedNotification(notification);
     setIsDropdownVisible(false);
   };
 
-  const closeDropdown = () => setIsDropdownVisible(false);
-
   return (
     <>
       {isDropdownVisible && (
-        <TouchableWithoutFeedback onPress={closeDropdown}>
-          <View
-            style={{
-              position: "absolute",
-              top: 0,
-              height: screenHeight,
-              width: screenWidth,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              zIndex: 100,
-            }}
-          />
+        <TouchableWithoutFeedback onPress={() => setIsDropdownVisible(false)}>
+          <View style={styles.overlay} />
         </TouchableWithoutFeedback>
       )}
       <View style={styles.container}>
@@ -396,6 +371,7 @@ const styles = StyleSheet.create({
     top: 15,
     right: 15,
   },
+  overlay: {},
 });
 
 export default Notifications;

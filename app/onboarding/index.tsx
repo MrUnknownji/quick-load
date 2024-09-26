@@ -78,9 +78,7 @@ const Onboarding = () => {
       {selectedPage === 1 && (
         <View style={{ flex: 1, width: "100%", height: "100%" }}>
           <Image
-            source={`https://placehold.co/${screenWidth}x${
-              screenHeight + 50
-            }?text=Cheepest+Transport`}
+            source={`https://quick-load.onrender.com/assets/cheep-transport.png`}
             style={styles.fullScreenImage}
           />
         </View>
@@ -88,9 +86,7 @@ const Onboarding = () => {
       {selectedPage === 2 && (
         <View style={{ flex: 1, width: "100%", height: "100%" }}>
           <Image
-            source={`https://placehold.co/${screenWidth}x${
-              screenHeight + 50
-            }?text=Cheepest+Building+Materials`}
+            source={`https://quick-load.onrender.com/assets/cheep-material.png`}
             style={styles.fullScreenImage}
           />
         </View>

@@ -1,4 +1,4 @@
-import apiClient from "./apiClient";
+import { apiClient } from "./apiClient";
 
 export const deleteUser = async (token: string) => {
   const response = await apiClient.delete("/user", {

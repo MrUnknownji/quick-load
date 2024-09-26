@@ -9,13 +9,13 @@ import { t } from "i18next";
 import LogoutDialog from "@/components/popups/LogoutDialog";
 import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "@/types/User";
+import { useUser } from "@/contexts/UserContext";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser, setCurrentUser } = useUser();
 
   const handleLogout = () => {
     AsyncStorage.removeItem("accessToken");
@@ -48,7 +48,7 @@ const Profile = () => {
       <ThemedView style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
           <Image
-            source={"https://placehold.co/200x200?text=User"}
+            source={"https://quick-load.onrender.com/assets/default-avatar.png"}
             style={styles.userImage}
           />
         </View>
@@ -68,15 +68,16 @@ const Profile = () => {
             iconName="card"
             onPress={() => router.push("/subscription")}
           />
-          {currentUser?.type === "admin" && (
+          {/* currentUser?.type === "admin" && (
             <SmallListItem
               title={t("Admin Dashboard")}
               iconName="person"
               onPress={() => router.push("/admin")}
             />
-          )}
+          ) */}
           {(currentUser?.type === "driver" ||
-            currentUser?.type === "admin") && (
+            currentUser?.type === "admin" ||
+            currentUser?.type === "merchant-driver") && (
             <SmallListItem
               title={t("My Vehicles")}
               iconName="car"

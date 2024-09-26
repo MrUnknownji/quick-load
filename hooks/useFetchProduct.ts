@@ -19,8 +19,10 @@ export const useFetchProducts = () => {
     setError(null);
     try {
       const data = await getProducts();
+      console.log("Fetched products:", data);
       setProducts(data);
     } catch (err) {
+      console.error("Error fetching products:", err);
       setError("Failed to fetch products");
     } finally {
       setLoading(false);

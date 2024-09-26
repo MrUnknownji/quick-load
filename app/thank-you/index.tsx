@@ -9,17 +9,26 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const ThankYou = () => {
-  const { message, type, from, to, vehicle } = useLocalSearchParams<{
-    message: string;
-    type?: string;
-    from?: string;
-    to?: string;
-    vehicle?: string;
-  }>();
+  const { message, type, from, to, vehicle, orderNumber, issueDetails } =
+    useLocalSearchParams<{
+      message: string;
+      type?: string;
+      from?: string;
+      to?: string;
+      vehicle?: string;
+      orderNumber?: string;
+      issueDetails?: string;
+    }>();
+
+  const iconColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.light.secondary },
+    "text",
+  );
 
   return (
     <ThemedView style={styles.container}>
@@ -40,10 +49,33 @@ const ThankYou = () => {
 
       {type === "route" && (
         <View style={styles.routeInfoContainer}>
-          <RouteInfoItem icon="location" text={from} />
-          <RouteInfoItem icon="arrow-forward" text={t("to")} />
-          <RouteInfoItem icon="location" text={to} />
-          <RouteInfoItem icon="car" text={vehicle} />
+          <RouteInfoItem icon="location" text={from} iconColor={iconColor} />
+          <RouteInfoItem
+            icon="arrow-forward"
+            text={t("to")}
+            iconColor={iconColor}
+          />
+          <RouteInfoItem icon="location" text={to} iconColor={iconColor} />
+          <RouteInfoItem icon="car" text={vehicle} iconColor={iconColor} />
+        </View>
+      )}
+
+      {type === "union_support" && (
+        <View style={styles.unionSupportContainer}>
+          <ThemedText style={styles.unionSupportTitle}>
+            {t("Support Request Details")}
+          </ThemedText>
+          <ThemedText style={styles.unionSupportText}>
+            {t("Order Number")}: {orderNumber}
+          </ThemedText>
+          <ThemedText style={styles.unionSupportText}>
+            {t("Issue Details")}: {issueDetails}
+          </ThemedText>
+          <ThemedText style={styles.unionSupportMessage}>
+            {t(
+              "Our customer care representative will contact you soon regarding your issue.",
+            )}
+          </ThemedText>
         </View>
       )}
 
@@ -58,9 +90,17 @@ const ThankYou = () => {
   );
 };
 
-const RouteInfoItem = ({ icon, text }: { icon: string; text?: string }) => (
+const RouteInfoItem = ({
+  icon,
+  text,
+  iconColor,
+}: {
+  icon: string;
+  text?: string;
+  iconColor: string;
+}) => (
   <View style={styles.routeInfoItem}>
-    <Ionicons name={icon as any} size={24} color={Colors.light.primary} />
+    <Ionicons name={icon as any} size={24} color={iconColor} />
     <ThemedText style={styles.routeInfoText}>{text}</ThemedText>
   </View>
 );
@@ -120,5 +160,24 @@ const styles = StyleSheet.create({
     marginTop: Sizes.marginMedium,
     marginHorizontal: Sizes.marginLarge,
     fontStyle: "italic",
+  },
+  unionSupportContainer: {
+    marginTop: Sizes.marginLarge,
+    alignItems: "flex-start",
+    width: "100%",
+  },
+  unionSupportTitle: {
+    fontSize: Sizes.textLarge,
+    fontWeight: "bold",
+    marginBottom: Sizes.marginMedium,
+  },
+  unionSupportText: {
+    fontSize: Sizes.textMedium,
+    marginBottom: Sizes.marginSmall,
+  },
+  unionSupportMessage: {
+    fontSize: Sizes.textMedium,
+    fontStyle: "italic",
+    marginTop: Sizes.marginMedium,
   },
 });

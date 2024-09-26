@@ -1,7 +1,7 @@
 export interface Product {
   _id: string;
   productOwner: string;
-  productPrize: number;
+  productPrice: number;
   productSize: string;
   productQuantity: number;
   productLocation: string;
@@ -19,8 +19,8 @@ export interface ProductOwner {
   _id: string;
   productOwnerId: string;
   productOwnerName: string;
-  productPrizeFrom: number;
-  productPrizeTo: number;
+  productPriceFrom: number;
+  productPriceTo: number;
   productLocation: string;
   productRating: number;
   productType: string;
@@ -61,4 +61,13 @@ export interface UpdateProduct {
   productType?: string;
   productDetails?: string;
   productImage?: File;
+}
+
+export interface ApiResponse<T> {
+  resultMessage: {
+    en: string;
+    tr: string;
+  };
+  resultCode: string;
+  data: T;
 }

@@ -31,14 +31,14 @@ const ContactUs = () => {
       </View>
       <ThemedView style={styles.contactCard}>
         <LargeImageView
-          imageUrl={`https://placehold.co/${
-            screenWidth - Sizes.marginHorizontal * 2 - Sizes.paddingMedium * 2
-          }x${Sizes.carouselHeight}?text=Contact+Us`}
+          imageUrl={`https://quick-load.onrender.com/assets/contact-us.jpeg`}
+          height={200}
           style={{
             padding: 0,
             margin: 0,
             marginHorizontal: 0,
             marginVertical: 0,
+            borderRadius: Sizes.borderRadiusMedium,
           }}
         />
         <ThemedText style={styles.contactCardText}>{phoneNumber}</ThemedText>

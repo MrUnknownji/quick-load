@@ -14,9 +14,18 @@ interface AlertProps {
   type: "success" | "error" | "warning" | "info";
   visible: boolean;
   onClose: () => void;
+  onConfirm?: () => void;
 }
 
-const Alert: React.FC<AlertProps> = ({ message, type, visible, onClose }) => {
+const Alert: React.FC<AlertProps> = ({
+  message,
+  type,
+  visible,
+  onClose,
+  onConfirm,
+}) => {
+  const backgroundColor = styles[type].backgroundColor;
+
   return (
     <Modal
       animationType="fade"
@@ -31,7 +40,7 @@ const Alert: React.FC<AlertProps> = ({ message, type, visible, onClose }) => {
         onPress={onClose}
       >
         <SafeAreaView style={styles.safeArea}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor }]}>
             <TouchableOpacity
               style={styles.closeButton}
               onPress={onClose}
@@ -39,12 +48,25 @@ const Alert: React.FC<AlertProps> = ({ message, type, visible, onClose }) => {
             >
               <Ionicons name="close" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-            <View style={[styles.alertContainer, styles[type]]}>
+            <View style={styles.alertContainer}>
               <View style={styles.iconContainer}>
                 <Ionicons name={getIconName(type)} size={28} color="#FFFFFF" />
               </View>
               <Text style={styles.message}>{message}</Text>
             </View>
+            {onConfirm && (
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={onClose}>
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={onConfirm}
+                >
+                  <Text style={styles.buttonText}>Confirm</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         </SafeAreaView>
       </TouchableOpacity>
@@ -80,7 +102,6 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "90%",
     maxWidth: 400,
-    backgroundColor: "#FFFFFF",
     borderRadius: 15,
     overflow: "hidden",
     elevation: 5,
@@ -119,6 +140,24 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     zIndex: 1,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    padding: 10,
+  },
+  button: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  confirmButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 });
 

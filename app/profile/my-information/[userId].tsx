@@ -21,6 +21,8 @@ import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/contexts/UserContext";
 import { User } from "@/types/User";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { editUserProfile, getUserInfo } from "@/api/userApi";
 
 type FormField = {
   type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
@@ -41,7 +43,7 @@ const UserInformationPage: React.FC = () => {
     phone: "",
     address: "",
     city: "",
-    type: "customer",
+    type: "merchant-driver",
     panCard: "",
     aadharCard: "",
     username: "",
@@ -57,11 +59,24 @@ const UserInformationPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (currentUser) {
-      setIsNewUser(!currentUser.isVerified);
-      setFormState(currentUser);
-    }
-  }, [currentUser]);
+    const fetchUserData = async () => {
+      try {
+        const token = await AsyncStorage.getItem("accessToken");
+        if (token) {
+          const userData = await getUserInfo(token);
+          setCurrentUser(userData);
+          setIsNewUser(!userData.isVerified);
+          setFormState(userData);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setAlertMessage("Failed to fetch user data. Please try again.");
+        setAlertVisible(true);
+      }
+    };
+
+    fetchUserData();
+  }, [setCurrentUser]);
 
   const handleInputChange = (field: keyof User) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -128,6 +143,7 @@ const UserInformationPage: React.FC = () => {
         label: t("Pan Card"),
         onFileSelect: handleFileSelect("panCard"),
         selectedFile: formState.panCard,
+        allowedExtensions: ["jpg", "png", "pdf"],
       },
     },
     {
@@ -136,6 +152,7 @@ const UserInformationPage: React.FC = () => {
         label: t("Aadhaar Card"),
         onFileSelect: handleFileSelect("aadharCard"),
         selectedFile: formState.aadharCard,
+        allowedExtensions: ["jpg", "png", "pdf"],
       },
     },
     {
@@ -143,7 +160,7 @@ const UserInformationPage: React.FC = () => {
       props: {
         label: t("User Type"),
         iconName: "people",
-        options: ["customer", "driver", "merchant"],
+        options: ["customer", "driver", "merchant", "merchant-driver"],
         selectedOption: formState.type,
         onSelect: handleInputChange("type"),
       },
@@ -162,17 +179,8 @@ const UserInformationPage: React.FC = () => {
     return <Component {...item.props} />;
   };
 
-  const handleSave = () => {
-    const requiredFields: (keyof User)[] = [
-      "name",
-      "email",
-      "phone",
-      "address",
-      "city",
-      "type",
-      "panCard",
-      "aadharCard",
-    ];
+  const handleSave = async () => {
+    const requiredFields: (keyof User)[] = ["name", "phone", "address", "city"];
 
     const missingFields = requiredFields.filter(
       (field) => !formState[field] || formState[field] === "",
@@ -190,18 +198,37 @@ const UserInformationPage: React.FC = () => {
       return;
     }
 
-    const updatedUser = { ...formState, isVerified: true } as User;
-    setCurrentUser(updatedUser);
+    try {
+      const token = await AsyncStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
 
-    if (isNewUser) {
-      router.replace({
-        pathname: "/thank-you",
-        params: {
-          message: "Your information has been saved successfully.",
-          type: "new_user",
-        },
+      const formData = new FormData();
+      Object.entries(formState).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
       });
-    } else {
+
+      const updatedUser = await editUserProfile(token, formData);
+      setCurrentUser(updatedUser);
+
+      if (isNewUser) {
+        router.replace({
+          pathname: "/thank-you",
+          params: {
+            message: "Your information has been saved successfully.",
+            type: "new_user",
+          },
+        });
+      } else {
+        router.replace("/");
+      }
+    } catch (error) {
+      console.error("Error saving user data:", error);
+      setAlertMessage("Failed to save user data. Please try again.");
+      setAlertVisible(true);
       router.replace("/");
     }
   };
@@ -218,7 +245,7 @@ const UserInformationPage: React.FC = () => {
       <ThemedView style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
           <Image
-            source={"https://placehold.co/200x200?text=User"}
+            source={"https://quick-load.onrender.com/assets/default-avatar.png"}
             style={styles.userImage}
           />
         </View>

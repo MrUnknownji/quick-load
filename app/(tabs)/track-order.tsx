@@ -13,9 +13,10 @@ import { ORDERS } from "@/assets/data/DATA";
 import { Order } from "@/types/Order";
 
 const TrackOrder = () => {
-  const { currentUser } = useUser();
+  // const { currentUser } = useUser();
 
-  const userOrders = ORDERS.filter((order) => order.userId === currentUser?.id);
+  // const userOrders = ORDERS.filter((order) => order.userId === currentUser?.id);
+  const userOrders = ORDERS;
   const pendingOrders = userOrders.filter(
     (order) => order.status === "pending",
   );
@@ -51,7 +52,7 @@ const TrackOrder = () => {
           ? t("Track Order")
           : t("Delivered")
       }
-      imageUrl={`https://placehold.co/150x150?text=${item.productName}`}
+      imageUrl={`https://quick-load.onrender.com/assets/${item.productName.toLowerCase() === "grit" ? "product-grit-3.jpeg" : "product-bricks-3.jpeg"}`}
     />
   );
 

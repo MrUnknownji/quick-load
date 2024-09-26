@@ -1,9 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
-import { router, usePathname } from "expo-router";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
@@ -11,34 +11,37 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
 
 const UnionSupport = () => {
-  const [orderNumber, setOrderNumber] = React.useState("");
-  const [issueDetails, setIssueDetails] = React.useState("");
-  const [inputHeight, setInputHeight] = React.useState(Sizes.searchBarHeight);
-  const [successMessage, setSuccessMessage] = React.useState(
-    `${t("Our customer care representative will contact you soon.")} ${t(
-      "Your order number is "
-    )} ${orderNumber}`
-  );
-  const pathname = usePathname();
-
-  const handleInputChangeListener = (text: string) => {
-    setOrderNumber(text);
-    setSuccessMessage(
-      `${t("Our customer care representative will contact you soon.")} ${t(
-        "Your order number is "
-      )} ${text}`
-    );
-  };
+  const [orderNumber, setOrderNumber] = useState("");
+  const [issueDetails, setIssueDetails] = useState("");
+  const [inputHeight, setInputHeight] = useState(Sizes.searchBarHeight);
+  const [error, setError] = useState("");
 
   const placeholderColor = useThemeColor(
     { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
-    "textSecondary"
+    "textSecondary",
   );
 
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
+
+  const handleSubmit = () => {
+    if (!orderNumber || !issueDetails) {
+      setError(t("Please fill in all fields"));
+      return;
+    }
+    setError("");
+    router.push({
+      pathname: "/thank-you",
+      params: {
+        message: t("Your support request has been submitted"),
+        type: "union_support",
+        orderNumber,
+        issueDetails,
+      },
+    });
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -53,7 +56,7 @@ const UnionSupport = () => {
             { borderColor: textColor, color: textColor },
           ]}
           value={orderNumber}
-          onChangeText={handleInputChangeListener}
+          onChangeText={setOrderNumber}
           placeholderTextColor={placeholderColor}
         />
         <ThemedText style={styles.inputText}>
@@ -70,21 +73,16 @@ const UnionSupport = () => {
           multiline
           onContentSizeChange={(e) =>
             setInputHeight(
-              e.nativeEvent.contentSize.height + Sizes.paddingMedium
+              e.nativeEvent.contentSize.height + Sizes.paddingMedium,
             )
           }
           placeholderTextColor={placeholderColor}
         />
+        {error ? (
+          <ThemedText style={styles.errorText}>{error}</ThemedText>
+        ) : null}
       </ScrollView>
-      <Pressable
-        style={styles.sendButton}
-        onPress={() =>
-          router.push({
-            pathname: "/thank-you",
-            params: { message: successMessage },
-          })
-        }
-      >
+      <Pressable style={styles.sendButton} onPress={handleSubmit}>
         <Text style={styles.sendButtonText}>{t("Send")}</Text>
         <Ionicons name="send" size={Sizes.icon["small"]} color="white" />
       </Pressable>
@@ -131,5 +129,9 @@ const styles = StyleSheet.create({
   sendButtonText: {
     fontSize: Sizes.textLarge,
     color: "white",
+  },
+  errorText: {
+    color: Colors.light.error,
+    marginTop: Sizes.marginSmall,
   },
 });

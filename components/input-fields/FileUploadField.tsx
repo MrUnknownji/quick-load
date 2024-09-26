@@ -1,11 +1,5 @@
 import React, { memo } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ViewStyle,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native";
 import {
   FontAwesome,
   Ionicons,
@@ -37,6 +31,7 @@ interface FileUploadFieldProps {
   accessibleLabel?: string;
   disabled?: boolean;
   style?: ViewStyle;
+  allowedExtensions?: string[] | null;
 }
 
 const FileUploadField = ({
@@ -49,6 +44,7 @@ const FileUploadField = ({
   accessibleLabel,
   disabled = false,
   style,
+  allowedExtensions = null,
 }: FileUploadFieldProps) => {
   const IconComponent = {
     Ionicons,
@@ -64,13 +60,28 @@ const FileUploadField = ({
     });
 
     if (result.canceled === false && onFileSelect) {
-      onFileSelect(result);
+      if (result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+
+        if (allowedExtensions) {
+          const fileExtension = file.name.split(".").pop()?.toLowerCase();
+          if (fileExtension && allowedExtensions.includes(fileExtension)) {
+            onFileSelect(result);
+          } else {
+            alert(
+              `Please select a file with one of the following extensions: ${allowedExtensions.join(", ")}`,
+            );
+          }
+        } else {
+          onFileSelect(result);
+        }
+      }
     }
   };
 
   const iconColor = useThemeColor(
-    { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    { light: Colors.light.primary, dark: Colors.light.secondary },
+    "primary",
   );
 
   return (

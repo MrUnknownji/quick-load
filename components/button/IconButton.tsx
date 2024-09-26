@@ -33,7 +33,7 @@ type IconButtonProps = {
   onPress?: () => void;
   style?: ViewStyle | ViewStyle[];
   iconStyle?: TextStyle | TextStyle[];
-  variant?: "primary" | "secondary" | "outlined" | "transparent";
+  variant?: "primary" | "secondary" | "outlined" | "transparent" | "danger";
   size?: "small" | "medium" | "large";
   disabled?: boolean;
   iconLibrary?: IconLibrary;
@@ -52,22 +52,28 @@ const IconButton = ({
 }: IconButtonProps) => {
   const backgroundColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.primary },
-    "primary"
+    "primary",
   );
   const secondaryColor = useThemeColor(
     { light: Colors.light.secondary, dark: Colors.dark.secondary },
-    "secondary"
+    "secondary",
   );
   const outlinedColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const transparentColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const iconColor =
-    variant === "outlined" ? secondaryColor : Colors.light.background;
+    variant === "outlined"
+      ? secondaryColor
+      : variant === "danger"
+        ? Colors.light.background
+        : Colors.light.background;
+
+  const dangerColor = Colors.light.error;
 
   const getButtonStyle = () => {
     switch (variant) {
@@ -89,6 +95,10 @@ const IconButton = ({
         return {
           backgroundColor: "transparent",
           borderColor: disabled ? Colors.light.disabled : transparentColor,
+        };
+      case "danger":
+        return {
+          backgroundColor: disabled ? Colors.light.disabled : dangerColor,
         };
       default:
         return {};
@@ -120,10 +130,10 @@ const IconButton = ({
       iconLibrary === "Ionicons"
         ? Ionicons
         : iconLibrary === "MaterialIcons"
-        ? MaterialIcons
-        : iconLibrary === "FontAwesome"
-        ? FontAwesome
-        : MaterialCommunityIcons;
+          ? MaterialIcons
+          : iconLibrary === "FontAwesome"
+            ? FontAwesome
+            : MaterialCommunityIcons;
 
     return (
       <View

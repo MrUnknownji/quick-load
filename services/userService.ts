@@ -6,7 +6,7 @@ import {
   logoutUser,
   refreshToken as refreshTokenApi,
 } from "../api/userApi";
-import { User, UserEdit } from "../types/User";
+import { User } from "../types/User";
 
 export const deleteUserAccount = async (token: string): Promise<void> => {
   await deleteUser(token);

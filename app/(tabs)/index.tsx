@@ -36,8 +36,6 @@ import {
 } from "@/hooks/useFetchProduct";
 import Loading from "@/components/Loading";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
 const MAX_ITEMS = 100;
 
 if (
@@ -88,7 +86,7 @@ const HomeScreen: React.FC = () => {
       name: categoryName,
       url: `https://placehold.co/150x150?text=${categoryName}`,
     }));
-  }, [products, productsLoading, productsError]);
+  }, [products, productOwners, productsLoading, productsError]);
 
   const resetAnimations = useCallback(() => {
     heroScaleAnim.setValue(0.9);
@@ -222,7 +220,7 @@ const HomeScreen: React.FC = () => {
         <LargeListItem
           heading={owner.productOwnerName}
           imageUrl={owner.productImage}
-          price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
+          price={`${owner.productPriceFrom} - ${owner.productPriceTo}`}
           onPress={() =>
             router.push({
               pathname: "/product-items",
@@ -299,10 +297,15 @@ const HomeScreen: React.FC = () => {
           {selectedCategory === "" ? (
             <LargeImageView
               animationValue={fastDeliveryScaleAnim}
-              imageUrl={`https://placehold.co/${
-                SCREEN_WIDTH - Sizes.marginHorizontal * 2
-              }x200?text=Fast-delivery`}
-              style={{ elevation: 3 }}
+              imageUrl="https://quick-load.onrender.com/assets/fast-deliver-truck.png"
+              style={{
+                elevation: 3,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                backgroundColor: "white",
+              }}
             />
           ) : (
             <View style={styles.itemsContainer}>{renderProductOwners()}</View>

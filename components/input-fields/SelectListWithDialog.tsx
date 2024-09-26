@@ -79,16 +79,16 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
 }) => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
-    initialSelectedOption || propSelectedOption
+    initialSelectedOption || propSelectedOption,
   );
 
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
 
   const IconComponent = iconName
@@ -106,7 +106,7 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
       setSelectedOption(option);
       onSelect?.(option);
     },
-    [onSelect]
+    [onSelect],
   );
 
   const togglePopup = useCallback(() => {
@@ -123,9 +123,7 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
           styles.selectBox,
           error ? styles.selectBoxError : null,
           {
-            borderColor: disabled
-              ? Colors.light.disabled
-              : Colors.light.primary,
+            borderColor: disabled ? Colors.light.disabled : iconColor,
           },
           selectBoxStyle,
         ]}
@@ -150,8 +148,6 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
           color={iconColor}
         />
       </TouchableOpacity>
-
-      {/* Popup Modal */}
       <Modal
         visible={isPopupVisible}
         transparent={true}

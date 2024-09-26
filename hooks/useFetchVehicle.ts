@@ -1,72 +1,166 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  addNewRoute,
-  getDrivers,
-  getMerchants,
+  getVehicles,
+  getVehicleById,
+  addNewVehicle,
+  updateExistingVehicle,
+  removeVehicle,
+  getVehicleTypes,
+  getVehiclesByUserId,
 } from "../services/vehicleService";
-import { Driver, Merchant, RouteData } from "../types/Vehicle";
+import { Vehicle, VehicleType } from "../types/Vehicle";
 
-export const useAddRoute = () => {
-  const [loading, setLoading] = useState<boolean>(false);
+export const useFetchVehicles = () => {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const addRoute = async (routeData: RouteData) => {
+  const fetchVehicles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getVehicles();
+      setVehicles(data);
+    } catch (err) {
+      setError("Failed to fetch vehicles");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchVehicles();
+  }, [fetchVehicles]);
+
+  return { vehicles, loading, error, fetchVehicles };
+};
+
+export const useFetchVehicleById = (vehicleId: string) => {
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      setLoading(true);
+      try {
+        const data = await getVehicleById(vehicleId);
+        setVehicle(data);
+      } catch (err) {
+        setError("Failed to fetch vehicle");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicle();
+  }, [vehicleId]);
+
+  return { vehicle, loading, error };
+};
+
+export const useAddVehicle = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addVehicle = async (vehicleData: FormData) => {
     setLoading(true);
     try {
-      const result = await addNewRoute(routeData);
+      const result = await addNewVehicle(vehicleData);
       setLoading(false);
       return result;
     } catch (err) {
-      setError("Failed to add route");
+      setError("Failed to add vehicle");
       setLoading(false);
     }
   };
 
-  return { addRoute, loading, error };
+  return { addVehicle, loading, error };
 };
 
-export const useFetchDrivers = () => {
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+export const useUpdateVehicle = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateVehicle = async (vehicleId: string, vehicleData: FormData) => {
+    setLoading(true);
+    try {
+      const result = await updateExistingVehicle(vehicleId, vehicleData);
+      setLoading(false);
+      return result;
+    } catch (err) {
+      setError("Failed to update vehicle");
+      setLoading(false);
+    }
+  };
+
+  return { updateVehicle, loading, error };
+};
+
+export const useDeleteVehicle = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteVehicle = async (vehicleId: string) => {
+    setLoading(true);
+    try {
+      const result = await removeVehicle(vehicleId);
+      setLoading(false);
+      return result;
+    } catch (err) {
+      setError("Failed to delete vehicle");
+      setLoading(false);
+    }
+  };
+
+  return { deleteVehicle, loading, error };
+};
+
+export const useFetchVehicleTypes = () => {
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getDrivers();
-        setDrivers(data);
-      } catch (err) {
-        setError("Failed to fetch drivers");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+  const fetchVehicleTypes = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getVehicleTypes();
+      setVehicleTypes(data);
+    } catch (err) {
+      setError("Failed to fetch vehicle types");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { drivers, loading, error };
-};
+  useEffect(() => {
+    fetchVehicleTypes();
+  }, [fetchVehicleTypes]);
 
-export const useFetchMerchants = () => {
-  const [merchants, setMerchants] = useState<Merchant[]>([]);
+  return { vehicleTypes, loading, error, fetchVehicleTypes };
+};
+export const useFetchVehiclesByUserId = (userId: string) => {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchVehicles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getVehiclesByUserId(userId);
+      setVehicles(data);
+    } catch (err) {
+      setError("Failed to fetch vehicles for user");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getMerchants();
-        setMerchants(data);
-      } catch (err) {
-        setError("Failed to fetch merchants");
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchVehicles();
+  }, [fetchVehicles]);
 
-    fetchData();
-  }, []);
-
-  return { merchants, loading, error };
+  return { vehicles, loading, error, fetchVehicles };
 };

@@ -18,6 +18,10 @@ import { USERS } from "@/assets/data/DATA";
 import { loginUser } from "@/api/userApi";
 import Alert from "@/components/popups/Alert";
 import * as Clipboard from "expo-clipboard";
+import { useUser } from "@/contexts/UserContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import Colors from "@/constants/Colors";
+import { ThemedView } from "@/components/ThemedView";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">("login");
@@ -34,12 +38,14 @@ const Authentication: React.FC = () => {
     message: "",
     type: "info",
   });
+  const { setCurrentUser } = useUser();
 
   useEffect(() => {
     const checkAuthState = async () => {
       const token = await AsyncStorage.getItem("accessToken");
       if (token) {
-        console.log("User is signed in");
+        const randomUser = USERS.find((user) => user.type === "admin") ?? null;
+        setCurrentUser(randomUser);
         router.replace("/");
       } else {
         console.log("User is signed out");
@@ -132,14 +138,14 @@ const Authentication: React.FC = () => {
 
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
-      await AsyncStorage.setItem(
-        "currentUser",
-        JSON.stringify(loginResponse.user),
-      );
-
+      setCurrentUser(loginResponse.user);
       console.log("Login Response:", loginResponse);
       showAlert("Login successful!", "success");
-      router.replace(`/profile/my-information/${loginResponse.user.id}`);
+      if (loginResponse.user.isVerified) {
+        router.replace("/");
+      } else {
+        router.replace(`/profile/my-information/${loginResponse.user.id}`); // Redirect to my-information page if not verified
+      }
     } catch (error) {
       if (error instanceof Error) {
         if (
@@ -188,10 +194,26 @@ const Authentication: React.FC = () => {
   const handleLogin = async (mobile: string, password: string) => {
     try {
       const credentials = [
-        { mobile: "9999999999", password: "123", type: "admin" },
-        { mobile: "9876543210", password: "123", type: "driver" },
-        { mobile: "9876543211", password: "123", type: "merchant" },
-        { mobile: "9876543212", password: "123", type: "customer" },
+        {
+          mobile: "9999999999",
+          password: "123",
+          type: "admin",
+        },
+        {
+          mobile: "9876543210",
+          password: "123",
+          type: "driver",
+        },
+        {
+          mobile: "9876543211",
+          password: "123",
+          type: "merchant",
+        },
+        {
+          mobile: "9876543212",
+          password: "123",
+          type: "customer",
+        },
       ];
 
       const matchedCredential = credentials.find(
@@ -203,10 +225,17 @@ const Authentication: React.FC = () => {
           (user) => user.type === matchedCredential.type,
         );
         if (randomUser) {
-          await AsyncStorage.setItem("accessToken", "dummy-token");
-          await AsyncStorage.setItem("currentUser", JSON.stringify(randomUser));
+          setCurrentUser({
+            ...randomUser,
+            isVerified: randomUser.isVerified,
+          });
           console.log("Login successful:", randomUser);
-          router.replace("/");
+
+          if (randomUser.isVerified) {
+            router.replace("/");
+          } else {
+            router.replace(`/profile/my-information/${randomUser.id}`);
+          }
         } else {
           showAlert("User not found", "error");
         }
@@ -225,7 +254,7 @@ const Authentication: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
       <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
         {authMode === "login" && (
@@ -249,7 +278,7 @@ const Authentication: React.FC = () => {
         visible={alert.visible}
         onClose={() => setAlert({ ...alert, visible: false })}
       />
-    </View>
+    </ThemedView>
   );
 };
 

@@ -3,7 +3,7 @@ export interface User {
   email: string;
   name: string;
   username: string;
-  type: "customer" | "admin" | "driver" | "merchant";
+  type: "merchant-driver" | "admin" | "driver" | "merchant" | "customer";
   language: string;
   isPremium: boolean;
   gender: "male" | "female" | "other";

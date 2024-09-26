@@ -5,6 +5,7 @@ import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import IconButton from "@/components/button/IconButton";
+import { ThemedText } from "@/components/ThemedText";
 
 interface OTPVerificationProps {
   mobileNumber: string;
@@ -27,6 +28,10 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
+    "primary",
+  );
+  const primaryColor = useThemeColor(
+    { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
   const secondaryTextColor = useThemeColor(
@@ -90,16 +95,19 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
 
   return (
     <View style={styles.otpContainer}>
-      <Text style={styles.otpTitle}>{t("OTP Verification")}</Text>
-      <Text style={styles.otpSubtitle}>
+      <ThemedText style={styles.otpTitle}>{t("OTP Verification")}</ThemedText>
+      <ThemedText style={styles.otpSubtitle}>
         {t("Enter the verification code we just sent to your number")}{" "}
         {mobileNumber.replace(/(\d{3})(\d{3})(\d{2})/, "+91 ******$3")}.
-      </Text>
+      </ThemedText>
       <View style={styles.otpInputContainer}>
         {otp.map((digit, index) => (
           <TextInput
             key={index}
-            style={[styles.otpInput, { color: textColor }]}
+            style={[
+              styles.otpInput,
+              { color: textColor, borderColor: textColor },
+            ]}
             value={digit}
             onChangeText={(value) => handleOtpChange(value, index)}
             onKeyPress={(e) => handleKeyPress(e, index)}
@@ -111,19 +119,19 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
         ))}
       </View>
       <View style={styles.resendContainer}>
-        <Text>{t("Didn't receive code?")} </Text>
+        <ThemedText>{t("Didn't receive code?")} </ThemedText>
         <Pressable
           onPress={handleResend}
           disabled={resendDisabled || isVerifying}
         >
-          <Text
+          <ThemedText
             style={[
               styles.resendButtonText,
               (resendDisabled || isVerifying) && { color: secondaryTextColor },
             ]}
           >
             {resendDisabled ? `${t("Resend in")} ${timer}s` : t("Resend")}
-          </Text>
+          </ThemedText>
         </Pressable>
       </View>
       <Button
@@ -135,7 +143,9 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
         disabled={!isOtpComplete || isVerifying}
       />
       <Pressable onPress={onBack}>
-        <Text style={styles.wrongNumberText}>{t("Wrong number?")}</Text>
+        <Text style={[styles.wrongNumberText, { color: primaryColor }]}>
+          {t("Wrong number?")}
+        </Text>
       </Pressable>
     </View>
   );
@@ -185,6 +195,5 @@ const styles = StyleSheet.create({
   wrongNumberText: {
     fontSize: 14,
     fontWeight: "500",
-    color: Colors.light.primary,
   },
 });

@@ -21,32 +21,40 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
-import { useAddRoute } from "@/hooks/useFetchVehicle";
+import { useAddRoute } from "@/hooks/useFetchRoute";
+import { useUser } from "@/contexts/UserContext";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
+  const { currentUser } = useUser();
   const [startingPoint, setStartingPoint] = useState("");
   const [endingPoint, setEndingPoint] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const { addRoute, loading, error } = useAddRoute();
 
-  const backgroundColor = useThemeColor(
-    { light: Colors.light.background, dark: Colors.dark.background },
-    "background",
-  );
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
 
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text",
+  );
+
   const handleSend = async () => {
-    if (startingPoint && endingPoint && selectedVehicle) {
+    if (startingPoint && endingPoint) {
+      if (userType.toLowerCase() === "driver" && !selectedVehicle) {
+        Alert.alert("Error", "Please select a vehicle");
+        return;
+      }
+
       const routeData = {
-        userType,
         from: startingPoint,
         to: endingPoint,
-        vehicle: selectedVehicle,
-        selfVehicleId: userType === "driver" ? "random-id-123" : undefined,
+        vehicle: selectedVehicle || undefined,
+        selfVehicleId:
+          userType.toLowerCase() === "driver" ? "random-id-123" : undefined,
       };
 
       try {
@@ -67,7 +75,7 @@ const RouteFinder = () => {
         Alert.alert("Error", "Failed to add route. Please try again.");
       }
     } else {
-      Alert.alert("Error", "Please fill in all fields");
+      Alert.alert("Error", "Please fill in all required fields");
     }
   };
 
@@ -93,13 +101,7 @@ const RouteFinder = () => {
             style={styles.logo}
           />
           <Text style={[styles.title, { color: primaryColor }]}>
-            {t("Hey")}{" "}
-            {t(
-              userType
-                .at(0)
-                ?.toUpperCase()
-                .concat(t(userType.slice(1))) ?? "",
-            )}
+            {t("Hey")} {currentUser?.name || t("there")}
           </Text>
           <ThemedText style={styles.subtitle}>
             {t("Submit your route request")}
@@ -108,10 +110,11 @@ const RouteFinder = () => {
 
           <View style={styles.inputContainer}>
             <TextInput
-              style={styles.autocompleteInput}
+              style={[styles.autocompleteInput, { color: textColor }]}
               placeholder={t("Starting point")}
               value={startingPoint}
               onChangeText={setStartingPoint}
+              placeholderTextColor={textColor}
             />
             <Ionicons
               name="search"
@@ -125,10 +128,11 @@ const RouteFinder = () => {
 
           <View style={styles.inputContainer}>
             <TextInput
-              style={styles.autocompleteInput}
+              style={[styles.autocompleteInput, { color: textColor }]}
               placeholder={t("Ending point")}
               value={endingPoint}
               onChangeText={setEndingPoint}
+              placeholderTextColor={textColor}
             />
             <Ionicons
               name="search"
@@ -139,8 +143,8 @@ const RouteFinder = () => {
           </View>
 
           <SelectListWithDialog
-            options={["Truck", "Dumper", "Container", "Open body"]}
-            label="Select Vehicle"
+            options={["Trailer", "Dumper", "Container", "Open body"]}
+            label={`Select Vehicle${userType.toLowerCase() === "driver" ? " *" : ""}`}
             containerStyle={{ paddingHorizontal: 0 }}
             onSelect={(value) => setSelectedVehicle(value)}
           />
@@ -154,7 +158,6 @@ const RouteFinder = () => {
             onPress={handleSend}
             disabled={loading}
           />
-
           {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
         </ScrollView>
       </ThemedView>
