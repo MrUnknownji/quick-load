@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
     fontSize: Sizes.textExtraLarge,
     fontWeight: "bold",
     textAlign: "center",
+    paddingTop: 8,
   },
   welcomeSubText: {
     fontSize: Sizes.textMedium,

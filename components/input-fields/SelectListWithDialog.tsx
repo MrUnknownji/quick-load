@@ -36,6 +36,8 @@ interface Option {
 interface SelectListProps<T extends Option | string> {
   options: T[];
   label?: string;
+  subLabel?: string;
+  isMandatory?: boolean;
   selectedOption?: string;
   onSelect?: (option: string) => void;
   placeholder?: string;
@@ -63,6 +65,8 @@ interface SelectListProps<T extends Option | string> {
 function SelectListWithDialog<T extends Option | string>({
   options,
   label,
+  subLabel,
+  isMandatory = false,
   selectedOption: propSelectedOption,
   onSelect,
   placeholder,
@@ -133,7 +137,17 @@ function SelectListWithDialog<T extends Option | string>({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <ThemedText style={[styles.label, labelStyle]}>{label}</ThemedText>
+        <View style={styles.labelContainer}>
+          <ThemedText style={[styles.label, labelStyle]}>
+            {label}
+            {subLabel && (
+              <ThemedText style={styles.subLabel}> ({subLabel})</ThemedText>
+            )}
+            {isMandatory && (
+              <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
+            )}
+          </ThemedText>
+        </View>
       )}
       <TouchableOpacity
         style={[
@@ -212,9 +226,22 @@ const styles = StyleSheet.create({
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,
   },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Sizes.marginSmall,
+  },
   label: {
     fontSize: Sizes.textSmall,
-    marginBottom: Sizes.marginSmall,
+  },
+  subLabel: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.textSecondary,
+  },
+  mandatoryIndicator: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.error,
+    marginLeft: 2,
   },
   selectBox: {
     flexDirection: "row",

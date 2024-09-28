@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
     textAlign: "center",
+    paddingVertical: 6,
   },
   sectionHeaderText: {
     fontSize: Sizes.textMedium,

@@ -9,6 +9,7 @@ import {
   TextStyle,
 } from "react-native";
 import { ThemedText } from "../ThemedText";
+import Sizes from "@/constants/Sizes";
 
 interface Option {
   label: string;
@@ -21,6 +22,9 @@ interface RadioButtonGroupProps {
   initialSelection?: string;
   selectedTextColor?: string;
   unselectedTextColor?: string;
+  label?: string;
+  subLabel?: string;
+  isMandatory?: boolean;
 }
 
 const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
@@ -29,18 +33,21 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
   initialSelection,
   selectedTextColor,
   unselectedTextColor,
+  label,
+  subLabel,
+  isMandatory = false,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
 
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
 
   useEffect(() => {
@@ -56,6 +63,19 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
 
   return (
     <View style={styles.container}>
+      {label && (
+        <View style={styles.labelContainer}>
+          <ThemedText style={styles.label}>
+            {label}
+            {subLabel && (
+              <ThemedText style={styles.subLabel}> ({subLabel})</ThemedText>
+            )}
+            {isMandatory && (
+              <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
+            )}
+          </ThemedText>
+        </View>
+      )}
       {options.map((option) => (
         <TouchableOpacity
           key={option.value}
@@ -68,8 +88,8 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               {
                 borderColor:
                   selectedOption === option.value
-                    ? selectedTextColor ?? primaryColor
-                    : unselectedTextColor ?? textColor,
+                    ? (selectedTextColor ?? primaryColor)
+                    : (unselectedTextColor ?? textColor),
               },
             ]}
           >
@@ -88,8 +108,8 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
               {
                 color:
                   selectedOption === option.value
-                    ? selectedTextColor ?? primaryColor
-                    : unselectedTextColor ?? textColor,
+                    ? (selectedTextColor ?? primaryColor)
+                    : (unselectedTextColor ?? textColor),
               },
             ]}
           >
@@ -103,6 +123,10 @@ const RadioButtonGroup: React.FC<RadioButtonGroupProps> = ({
 
 interface Styles {
   container: ViewStyle;
+  labelContainer: ViewStyle;
+  label: TextStyle;
+  subLabel: TextStyle;
+  mandatoryIndicator: TextStyle;
   option: ViewStyle;
   radio: ViewStyle;
   selectedRadio: ViewStyle;
@@ -112,6 +136,23 @@ interface Styles {
 const styles = StyleSheet.create<Styles>({
   container: {
     padding: 10,
+  },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Sizes.marginSmall,
+  },
+  label: {
+    fontSize: Sizes.textSmall,
+  },
+  subLabel: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.textSecondary,
+  },
+  mandatoryIndicator: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.error,
+    marginLeft: 2,
   },
   option: {
     flexDirection: "row",

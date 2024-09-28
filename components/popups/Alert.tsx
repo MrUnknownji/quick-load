@@ -41,13 +41,6 @@ const Alert: React.FC<AlertProps> = ({
       >
         <SafeAreaView style={styles.safeArea}>
           <View style={[styles.modalContent, { backgroundColor }]}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={onClose}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <Ionicons name="close" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
             <View style={styles.alertContainer}>
               <View style={styles.iconContainer}>
                 <Ionicons name={getIconName(type)} size={28} color="#FFFFFF" />
@@ -134,12 +127,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     flex: 1,
-  },
-  closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    zIndex: 1,
   },
   buttonContainer: {
     flexDirection: "row",

@@ -1,36 +1,25 @@
-import { apiClient } from "./apiClient";
+import { apiClient, authApiClient } from "./apiClient";
 
-export const deleteUser = async (token: string) => {
-  const response = await apiClient.delete("/user", {
-    headers: { Authorization: token },
-  });
+export const deleteUser = async (userId: string) => {
+  const response = await authApiClient.delete(`/user/${userId}`);
   return response.data;
 };
 
-export const getUserInfo = async (token: string) => {
-  const response = await apiClient.get("/user", {
-    headers: { Authorization: token },
-  });
+export const getUserInfo = async (userId: string) => {
+  const response = await authApiClient.get(`/user/${userId}`);
   return response.data.user;
 };
 
-export const editUserProfile = async (token: string, userData: FormData) => {
-  const response = await apiClient.put("/user", userData, {
-    headers: { Authorization: token, "Content-Type": "multipart/form-data" },
+export const editUserProfile = async (userId: string, userData: FormData) => {
+  const response = await authApiClient.put(`/user/${userId}`, userData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
-  return response.data;
+  return response.data.user;
 };
 
 export const loginUser = async (accessToken: string) => {
   const response = await apiClient.post("/user/firebase-login", {
     access_token: accessToken,
-  });
-  return response.data;
-};
-
-export const logoutUser = async (token: string) => {
-  const response = await apiClient.post("/user/logout", null, {
-    headers: { Authorization: token },
   });
   return response.data;
 };

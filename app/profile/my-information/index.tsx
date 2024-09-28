@@ -7,9 +7,10 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import Alert from "@/components/popups/Alert";
-import { useLocalSearchParams, router } from "expo-router";
+import { router } from "expo-router";
 import { Image } from "expo-image";
 import * as DocumentPicker from "expo-document-picker";
 import IconButton from "@/components/button/IconButton";
@@ -19,10 +20,11 @@ import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
-import { useUser } from "@/contexts/UserContext";
 import { User } from "@/types/User";
+import { useUser } from "@/hooks/useUser";
+import { useUser as useContextUser } from "@/contexts/UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { editUserProfile, getUserInfo } from "@/api/userApi";
+import Colors from "@/constants/Colors";
 
 type FormField = {
   type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
@@ -32,11 +34,15 @@ type FormField = {
 const { width: screenWidth } = Dimensions.get("window");
 
 const UserInformationPage: React.FC = () => {
-  const { userId } = useLocalSearchParams<{ userId: string }>();
-  const { currentUser, setCurrentUser } = useUser();
+  const { user, loading, error, getUser, updateProfile } = useUser();
+  const { setCurrentUser } = useContextUser();
+  const [userId, setUserId] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<
+    "success" | "error" | "warning" | "info"
+  >("info");
   const [formState, setFormState] = useState<Partial<User>>({
     firstName: "",
     lastName: "",
@@ -44,7 +50,7 @@ const UserInformationPage: React.FC = () => {
     phone: "",
     address: "",
     city: "",
-    type: "merchant-driver",
+    type: "customer",
     panCard: "",
     aadharCard: "",
     username: "",
@@ -60,24 +66,36 @@ const UserInformationPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserId = async () => {
       try {
-        const token = await AsyncStorage.getItem("accessToken");
-        if (token) {
-          const userData = await getUserInfo(token);
-          setCurrentUser(userData);
-          setIsNewUser(!userData.isVerified);
-          setFormState(userData);
+        const storedUserId = await AsyncStorage.getItem("userId");
+        setUserId(storedUserId);
+        if (storedUserId) {
+          getUser(storedUserId);
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
-        setAlertMessage("Failed to fetch user data. Please try again.");
+        console.error("Error fetching userId from AsyncStorage:", error);
+        setAlertMessage("Failed to fetch user information. Please try again.");
         setAlertVisible(true);
       }
     };
 
-    fetchUserData();
-  }, [setCurrentUser]);
+    fetchUserId();
+  }, [getUser]);
+
+  useEffect(() => {
+    if (user) {
+      setFormState(user);
+      setIsNewUser(!user.isVerified);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (error) {
+      setAlertMessage(error);
+      setAlertVisible(true);
+    }
+  }, [error]);
 
   const handleInputChange = (field: keyof User) => (value: string) => {
     if (field === "phone") {
@@ -111,15 +129,19 @@ const UserInformationPage: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("First Name"),
+        subLabel: t("As per official documents"),
+        isMandatory: true,
         iconName: "person",
         value: formState.firstName,
-        onChangeText: handleInputChange("lastName"),
+        onChangeText: handleInputChange("firstName"),
       },
     },
     {
       type: "TextInputField",
       props: {
         label: t("Last Name"),
+        subLabel: t("As per official documents"),
+        isMandatory: true,
         iconName: "person-add",
         value: formState.lastName,
         onChangeText: handleInputChange("lastName"),
@@ -129,6 +151,8 @@ const UserInformationPage: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("Email"),
+        subLabel: t("For communication purposes"),
+        isMandatory: true,
         iconName: "mail",
         value: formState.email,
         onChangeText: handleInputChange("email"),
@@ -138,6 +162,8 @@ const UserInformationPage: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("Phone"),
+        subLabel: t("With country code"),
+        isMandatory: true,
         iconName: "call",
         value: formState.phone || "+91",
         onChangeText: handleInputChange("phone"),
@@ -149,6 +175,8 @@ const UserInformationPage: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("Address"),
+        subLabel: t("Current residential address"),
+        isMandatory: true,
         iconName: "location",
         value: formState.address,
         onChangeText: handleInputChange("address"),
@@ -158,6 +186,8 @@ const UserInformationPage: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("City"),
+        subLabel: t("Current city of residence"),
+        isMandatory: true,
         iconName: "business",
         value: formState.city,
         onChangeText: handleInputChange("city"),
@@ -167,6 +197,8 @@ const UserInformationPage: React.FC = () => {
       type: "FileUploadField",
       props: {
         label: t("Pan Card"),
+        subLabel: t("Only .jpg, .png, .pdf of max 10MB allowed"),
+        isMandatory: true,
         onFileSelect: handleFileSelect("panCard"),
         selectedFile: formState.panCard,
         allowedExtensions: ["jpg", "png", "pdf"],
@@ -176,6 +208,8 @@ const UserInformationPage: React.FC = () => {
       type: "FileUploadField",
       props: {
         label: t("Aadhaar Card"),
+        subLabel: t("Only .jpg, .png, .pdf of max 10MB allowed"),
+        isMandatory: true,
         onFileSelect: handleFileSelect("aadharCard"),
         selectedFile: formState.aadharCard,
         allowedExtensions: ["jpg", "png", "pdf"],
@@ -185,6 +219,8 @@ const UserInformationPage: React.FC = () => {
       type: "SelectListWithDialog",
       props: {
         label: t("User Type"),
+        subLabel: t("Select your primary role"),
+        isMandatory: true,
         iconName: "people",
         options: userTypeOptions,
         selectedOption: formState.type || "customer",
@@ -231,48 +267,80 @@ const UserInformationPage: React.FC = () => {
       setAlertMessage(
         `Please fill in the following required fields:\n\n${missingFieldNames}`,
       );
+      setAlertType("warning");
+      setAlertVisible(true);
+      return;
+    }
+
+    if (!userId) {
+      setAlertMessage("User ID not found. Please try logging in again.");
+      setAlertType("error");
       setAlertVisible(true);
       return;
     }
 
     try {
-      const token = await AsyncStorage.getItem("accessToken");
-      if (!token) {
-        throw new Error("No access token found");
-      }
-
       const formData = new FormData();
+      let hasChanges = false;
+
       Object.entries(formState).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          formData.append(key, String(value));
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== user?.[key as keyof User]
+        ) {
+          hasChanges = true;
+          formData.append(key, value as string | Blob);
         }
       });
 
-      const updatedUser = await editUserProfile(token, formData);
-      setCurrentUser(updatedUser);
+      if (hasChanges) {
+        await updateProfile(userId, formData);
+        const user = await getUser(userId);
+        setCurrentUser(user);
 
-      if (isNewUser) {
-        router.replace({
-          pathname: "/thank-you",
-          params: {
-            message: "Your information has been saved successfully.",
-            type: "new_user",
-          },
-        });
+        setAlertMessage("Your information has been saved successfully.");
+        setAlertType("success");
+        setAlertVisible(true);
+
+        if (isNewUser) {
+          setTimeout(() => {
+            router.replace({
+              pathname: "/thank-you",
+              params: {
+                message: "Your information has been saved successfully.",
+                type: "new_user",
+              },
+            });
+          }, 2000);
+        }
       } else {
-        router.replace("/");
+        setAlertMessage("No changes detected.");
+        setAlertType("info");
+        setAlertVisible(true);
       }
     } catch (error) {
       console.error("Error saving user data:", error);
       setAlertMessage("Failed to save user data. Please try again.");
+      setAlertType("error");
       setAlertVisible(true);
-      router.replace("/");
     }
   };
 
   const handleCloseAlert = () => {
     setAlertVisible(false);
+    if (alertType === "success" && !isNewUser) {
+      router.replace("/");
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color={Colors.light.primary} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -291,7 +359,7 @@ const UserInformationPage: React.FC = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.type}-${index}`}
           contentContainerStyle={{
-            paddingVertical: 30,
+            paddingVertical: 50,
           }}
         />
         <IconButton
@@ -312,7 +380,7 @@ const UserInformationPage: React.FC = () => {
       </ThemedView>
       <Alert
         message={alertMessage}
-        type="error"
+        type={alertType}
         visible={alertVisible}
         onClose={handleCloseAlert}
       />
@@ -332,7 +400,7 @@ const styles = StyleSheet.create({
   userImageContainer: {
     position: "absolute",
     zIndex: 2,
-    top: -50,
+    top: -60,
     width: screenWidth - Sizes.paddingMedium * 2,
     height: 100,
     alignItems: "center",
@@ -342,5 +410,9 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: Sizes.borderRadiusFull,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

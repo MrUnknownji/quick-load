@@ -4,7 +4,6 @@ import {
   getCurrentUser,
   updateUserProfile,
   loginUserAccount,
-  logoutUserAccount,
   refreshUserToken,
 } from "../services/userService";
 import { User, UserEdit } from "../types/User";
@@ -14,11 +13,11 @@ export const useUser = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deleteAccount = useCallback(async (token: string) => {
+  const deleteAccount = useCallback(async (userId: string) => {
     setLoading(true);
     setError(null);
     try {
-      await deleteUserAccount(token);
+      await deleteUserAccount(userId);
       setUser(null);
     } catch (err) {
       setError("Failed to delete account");
@@ -27,25 +26,27 @@ export const useUser = () => {
     }
   }, []);
 
-  const getUser = useCallback(async (token: string) => {
+  const getUser = useCallback(async (userId: string): Promise<User | null> => {
     setLoading(true);
     setError(null);
     try {
-      const userData = await getCurrentUser(token);
+      const userData = await getCurrentUser(userId);
       setUser(userData);
+      return userData;
     } catch (err) {
       setError("Failed to fetch user info");
+      return null;
     } finally {
       setLoading(false);
     }
   }, []);
 
   const updateProfile = useCallback(
-    async (token: string, userData: FormData) => {
+    async (userId: string, userData: FormData) => {
       setLoading(true);
       setError(null);
       try {
-        const updatedUser = await updateUserProfile(token, userData);
+        const updatedUser = await updateUserProfile(userId, userData);
         setUser(updatedUser);
       } catch (err) {
         setError("Failed to update profile");
@@ -65,19 +66,6 @@ export const useUser = () => {
       return loggedInUser;
     } catch (err) {
       setError("Failed to login");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const logout = useCallback(async (token: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await logoutUserAccount(token);
-      setUser(null);
-    } catch (err) {
-      setError("Failed to logout");
     } finally {
       setLoading(false);
     }
@@ -103,7 +91,6 @@ export const useUser = () => {
     getUser,
     updateProfile,
     login,
-    logout,
     refreshToken,
   };
 };

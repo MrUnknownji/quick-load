@@ -10,20 +10,18 @@ import LogoutDialog from "@/components/popups/LogoutDialog";
 import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "@/contexts/UserContext";
-import { useUser as useUserAPI } from "@/hooks/useUser";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const { currentUser, setCurrentUser } = useUser();
-  const { logout } = useUserAPI();
 
-  const handleLogout = () => {
-    const token = AsyncStorage.getItem("accessToken").then((token: any) => {
-      logout(token ?? "");
-    });
-    AsyncStorage.removeItem("accessToken");
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("accessToken");
+    await AsyncStorage.removeItem("refreshToken");
+    await AsyncStorage.removeItem("userId");
+    setCurrentUser(null);
     setIsDialogVisible(false);
     router.replace("/authentication");
   };
@@ -61,12 +59,7 @@ const Profile = () => {
           <SmallListItem
             title={t("My Information")}
             iconName="person"
-            onPress={() =>
-              router.push({
-                pathname: "/profile/my-information/[userId]",
-                params: { userId: currentUser?.id || "user23432" },
-              })
-            }
+            onPress={() => router.push("/profile/my-information")}
           />
           {/*<SmallListItem
             title={t("Subscription")}

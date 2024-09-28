@@ -194,7 +194,9 @@ const AddVehicles: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: t("Driver's Name (max 25 characters)"),
+        label: t("Driver's Name"),
+        subLabel: t("max 25 characters"),
+        isMandatory: true,
         iconName: "person",
         value: formState.driverName,
         onChangeText: handleInputChange("driverName"),
@@ -205,6 +207,8 @@ const AddVehicles: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("Phone"),
+        subLabel: t("with country code"),
+        isMandatory: true,
         iconName: "call",
         value: formState.phoneNumber || "+91",
         onChangeText: handleInputChange("phoneNumber"),
@@ -216,6 +220,8 @@ const AddVehicles: React.FC = () => {
       type: "TextInputField",
       props: {
         label: t("Vehicle Number"),
+        subLabel: t("e.g., AB 12 C 3456"),
+        isMandatory: true,
         iconName: "text",
         value: formState.vehicleNumber,
         onChangeText: handleInputChange("vehicleNumber"),
@@ -227,6 +233,7 @@ const AddVehicles: React.FC = () => {
       type: "SelectListWithDialog",
       props: {
         label: t("Vehicle Type"),
+        isMandatory: true,
         iconName: "truck",
         iconType: "FontAwesome",
         options: vehicleTypes.map((vt) => vt.type),
@@ -237,7 +244,9 @@ const AddVehicles: React.FC = () => {
     {
       type: "FileUploadField",
       props: {
-        label: t("Driving License (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
+        label: t("Driving License"),
+        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        isMandatory: true,
         onFileSelect: handleFileSelect("drivingLicence"),
         selectedFile: formState.drivingLicence,
       },
@@ -245,7 +254,9 @@ const AddVehicles: React.FC = () => {
     {
       type: "FileUploadField",
       props: {
-        label: t("RC (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
+        label: t("RC"),
+        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        isMandatory: true,
         onFileSelect: handleFileSelect("rc"),
         selectedFile: formState.rc,
       },
@@ -253,7 +264,9 @@ const AddVehicles: React.FC = () => {
     {
       type: "FileUploadField",
       props: {
-        label: t("Pan Card (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
+        label: t("Pan Card"),
+        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        isMandatory: true,
         onFileSelect: handleFileSelect("panCard"),
         selectedFile: formState.panCard,
       },
@@ -261,7 +274,9 @@ const AddVehicles: React.FC = () => {
     {
       type: "FileUploadField",
       props: {
-        label: t("Aadhaar Card (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
+        label: t("Aadhaar Card"),
+        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        isMandatory: true,
         onFileSelect: handleFileSelect("aadharCard"),
         selectedFile: formState.aadharCard,
       },

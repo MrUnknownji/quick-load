@@ -8,7 +8,7 @@ import {
   BackHandler,
   ActivityIndicator,
 } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,
@@ -25,6 +25,8 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useUser } from "@/contexts/UserContext";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
@@ -164,6 +166,15 @@ export default function TabLayout() {
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
   const { activePath, setActivePath } = usePathChangeListener();
   const { loading } = useLanguage();
+  const { currentUser } = useUser();
+
+  const bottomSheetBackgroundColor = useThemeColor(
+    {
+      light: Colors.light.background,
+      dark: Colors.dark.background,
+    },
+    "background",
+  );
 
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
@@ -223,13 +234,30 @@ export default function TabLayout() {
   }));
 
   const handleToggleBottomSheet = useCallback(() => {
-    if (!isBottomSheetActive) {
-      setIsBottomSheetActive(true);
-      scrollTo(MAX_TRANSLATE_Y);
-    } else {
-      closeBottomSheet();
+    if (!currentUser) return;
+
+    if (
+      currentUser.type === "merchant-driver" ||
+      currentUser.type === "admin"
+    ) {
+      if (!isBottomSheetActive) {
+        setIsBottomSheetActive(true);
+        scrollTo(MAX_TRANSLATE_Y);
+      } else {
+        closeBottomSheet();
+      }
+    } else if (currentUser.type === "merchant") {
+      router.push({
+        pathname: "/find-route",
+        params: { userType: "merchant" },
+      });
+    } else if (currentUser.type === "driver") {
+      router.push({
+        pathname: "/find-route",
+        params: { userType: "driver" },
+      });
     }
-  }, [isBottomSheetActive, scrollTo, closeBottomSheet]);
+  }, [isBottomSheetActive, scrollTo, closeBottomSheet, currentUser]);
 
   const preventTabPress = useCallback(
     (e: { preventDefault: () => void }, tabName: string) => {
@@ -289,14 +317,23 @@ export default function TabLayout() {
           listeners={{ tabPress: (e) => preventTabPress(e, "profile") }}
         />
       </Tabs>
-      <GestureDetector gesture={gesture}>
-        <Animated.View style={[styles.bottomSheetScreen, rBottomSheetStyle]}>
-          <View style={styles.line} />
-          <View style={styles.bottomSheetContent}>
-            <FindRouteBottomSheet />
-          </View>
-        </Animated.View>
-      </GestureDetector>
+      {(currentUser?.type === "merchant-driver" ||
+        currentUser?.type === "admin") && (
+        <GestureDetector gesture={gesture}>
+          <Animated.View
+            style={[
+              styles.bottomSheetScreen,
+              rBottomSheetStyle,
+              { backgroundColor: bottomSheetBackgroundColor },
+            ]}
+          >
+            <View style={styles.line} />
+            <View style={styles.bottomSheetContent}>
+              <FindRouteBottomSheet />
+            </View>
+          </Animated.View>
+        </GestureDetector>
+      )}
     </>
   );
 }
@@ -355,7 +392,6 @@ const styles = StyleSheet.create({
   bottomSheetScreen: {
     height: SCREEN_HEIGHT,
     width: "100%",
-    backgroundColor: Colors.light.primary,
     position: "absolute",
     top: SCREEN_HEIGHT,
   },
@@ -366,7 +402,7 @@ const styles = StyleSheet.create({
   line: {
     width: Sizes.bottomSheetLineWidth,
     height: Sizes.bottomSheetLineHeight,
-    backgroundColor: Colors.light.backgroundSecondary,
+    backgroundColor: Colors.light.primary,
     alignSelf: "center",
     marginVertical: Sizes.marginVertical,
     borderRadius: Sizes.bottomSheetLineHeight / 2,

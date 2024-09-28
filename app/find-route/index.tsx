@@ -185,7 +185,7 @@ const RouteFinder = () => {
           />
           <Text style={[styles.title, { color: primaryColor }]}>
             {t(
-              `Hey ${userType.toLowerCase() === "driver" ? "Driver" : "Merchant"}`,
+              `${t("Hey")} ${userType.toLowerCase() === "driver" ? t("Driver") : t("Merchant")}`,
             )}
           </Text>
           <ThemedText style={styles.subtitle}>
@@ -283,6 +283,7 @@ const styles = StyleSheet.create({
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
     marginBottom: Sizes.marginSmall,
+    paddingTop: 8,
   },
   inputContainer: {
     width: "100%",

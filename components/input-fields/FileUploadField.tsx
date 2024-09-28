@@ -25,6 +25,8 @@ interface FileUploadFieldProps {
     | "FontAwesome"
     | "MaterialCommunityIcons";
   label?: string;
+  subLabel?: string;
+  isMandatory?: boolean;
   placeholder?: string;
   onFileSelect?: (file: DocumentPicker.DocumentPickerResult) => void;
   selectedFile?: DocumentPicker.DocumentPickerAsset | string;
@@ -38,6 +40,8 @@ const FileUploadField = ({
   iconName = "attach",
   iconType = "Ionicons",
   label,
+  subLabel,
+  isMandatory = false,
   placeholder = t("Select a file"),
   onFileSelect,
   selectedFile,
@@ -95,7 +99,19 @@ const FileUploadField = ({
 
   return (
     <View style={[styles.container, style]}>
-      {label && <ThemedText style={styles.label}>{label}</ThemedText>}
+      {label && (
+        <View style={styles.labelContainer}>
+          <ThemedText style={styles.label}>
+            {label}
+            {subLabel && (
+              <ThemedText style={styles.subLabel}> ({subLabel})</ThemedText>
+            )}
+            {isMandatory && (
+              <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
+            )}
+          </ThemedText>
+        </View>
+      )}
       <TouchableOpacity
         style={[
           styles.uploadBox,
@@ -133,9 +149,22 @@ const styles = StyleSheet.create({
     paddingVertical: Sizes.paddingSmall,
     paddingHorizontal: Sizes.paddingMedium,
   },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Sizes.marginSmall,
+  },
   label: {
     fontSize: Sizes.textSmall,
-    marginBottom: Sizes.marginSmall,
+  },
+  subLabel: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.textSecondary,
+  },
+  mandatoryIndicator: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.error,
+    marginLeft: 2,
   },
   uploadBox: {
     flexDirection: "row",

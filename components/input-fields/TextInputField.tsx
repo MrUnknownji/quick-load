@@ -24,6 +24,8 @@ interface TextInputFieldProps {
     | "FontAwesome"
     | "MaterialCommunityIcons";
   label?: string;
+  subLabel?: string;
+  isMandatory?: boolean;
   placeholder?: string;
   onChangeText?: (text: string) => void;
   value?: string;
@@ -41,6 +43,8 @@ const TextInputField = ({
   iconName,
   iconType = "Ionicons",
   label,
+  subLabel,
+  isMandatory = false,
   placeholder,
   onChangeText,
   value,
@@ -55,15 +59,15 @@ const TextInputField = ({
 }: TextInputFieldProps) => {
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
-    "text"
+    "text",
   );
   const placeholderColor = useThemeColor(
     { light: Colors.light.textSecondary, dark: Colors.dark.textSecondary },
-    "textSecondary"
+    "textSecondary",
   );
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   return (
     <View style={[styles.container, style]}>
@@ -77,7 +81,19 @@ const TextInputField = ({
         />
       )}
       <View style={styles.textInputContainer}>
-        {label && <ThemedText style={styles.label}>{label}</ThemedText>}
+        {label && (
+          <View style={styles.labelContainer}>
+            <ThemedText style={styles.label}>
+              {label}
+              {subLabel && (
+                <ThemedText style={styles.subLabel}> ({subLabel})</ThemedText>
+              )}
+              {isMandatory && (
+                <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
+              )}
+            </ThemedText>
+          </View>
+        )}
         <TextInput
           placeholder={placeholder}
           style={[
@@ -122,8 +138,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   label: {
     fontSize: Sizes.textSmall,
+  },
+  subLabel: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.textSecondary,
+  },
+  mandatoryIndicator: {
+    fontSize: Sizes.textSmall,
+    color: Colors.light.error,
+    marginLeft: 2,
   },
   textInput: {
     fontSize: Sizes.textMedium,
@@ -136,5 +165,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: Sizes.textSmall,
     marginTop: Sizes.marginSmall,
+    color: Colors.light.error,
   },
 });

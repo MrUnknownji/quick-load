@@ -9,13 +9,9 @@ import Colors from "@/constants/Colors";
 
 interface SignupFormProps {
   onSubmit: (mobileNumber: string) => Promise<void>;
-  onToggle: (mode: "login" | "signup" | "otp") => void;
 }
 
-export const SignupForm: React.FC<SignupFormProps> = ({
-  onSubmit,
-  onToggle,
-}) => {
+export const SignInForm: React.FC<SignupFormProps> = ({ onSubmit }) => {
   const [isAgree, setIsAgree] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -74,14 +70,6 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         onPress={handleSubmit}
         disabled={mobileNumber.length !== 10 || !isAgree || isLoading}
       />
-      {/* <View style={styles.switchAuthContainer}>
-        <ThemedText>{t("Already have an account?")} </ThemedText>
-        <Pressable onPress={() => onToggle("login")} disabled={isLoading}>
-          <Text style={[styles.switchAuthButton, { color: primaryTextColor }]}>
-            {t("Log in")}
-          </Text>
-        </Pressable>
-      </View> */}
     </>
   );
 };
@@ -95,13 +83,5 @@ const styles = StyleSheet.create({
   button: {
     width: "100%",
     marginBottom: 20,
-  },
-  switchAuthContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  switchAuthButton: {
-    fontWeight: "bold",
   },
 });

@@ -10,20 +10,18 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "@/firebase/firebase";
-import { SignupForm } from "./components/SignUpForm";
+import { SignInForm } from "./components/SignInForm";
 import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import { USERS } from "@/assets/data/DATA";
 import { loginUser } from "@/api/userApi";
 import Alert from "@/components/popups/Alert";
 import * as Clipboard from "expo-clipboard";
-import { useUser } from "@/contexts/UserContext";
+import { useUser as useContextUser } from "@/contexts/UserContext";
 import { ThemedView } from "@/components/ThemedView";
+import { useUser } from "@/hooks/useUser";
 
 const Authentication: React.FC = () => {
-  const [authMode, setAuthMode] = useState<"login" | "signup" | "otp">(
-    "signup",
-  );
+  const [authMode, setAuthMode] = useState<"signin" | "otp">("signin");
   const [mobileNumber, setMobileNumber] = useState("");
   const [fadeAnim] = useState(new Animated.Value(1));
   const [confirm, setConfirm] =
@@ -37,54 +35,70 @@ const Authentication: React.FC = () => {
     message: "",
     type: "info",
   });
-  const { setCurrentUser } = useUser();
+  const { setCurrentUser } = useContextUser();
+  const { getUser } = useUser();
+  const [logoutTimer, setLogoutTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const setupLogoutTimer = () => {
+    if (logoutTimer) {
+      clearTimeout(logoutTimer);
+    }
+    const newTimer = setTimeout(
+      () => {
+        handleLogout();
+      },
+      60 * 60 * 1000,
+    );
+    setLogoutTimer(newTimer);
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("accessToken");
+    await AsyncStorage.removeItem("refreshToken");
+    await AsyncStorage.removeItem("userId");
+    setCurrentUser(null);
+    if (logoutTimer) {
+      clearTimeout(logoutTimer);
+      setLogoutTimer(null);
+    }
+    router.replace("/authentication");
+  };
 
   useEffect(() => {
     const checkAuthState = async () => {
       const token = await AsyncStorage.getItem("accessToken");
       const userId = await AsyncStorage.getItem("userId");
-      if (token) {
-        const randomUser = USERS.find(
-          (user) => user.type === "merchant-driver",
-        );
-        if (randomUser) {
-          setCurrentUser({
-            _id: userId,
-            id: randomUser.id,
-            email: randomUser.email || "",
-            firstName: randomUser.firstName || "",
-            lastName: randomUser.lastName || "",
-            username: randomUser.username || "",
-            type: randomUser.type || "merchant-driver",
-            language: randomUser.language || "",
-            isPremium: randomUser.isPremium || false,
-            gender: randomUser.gender || "other",
-            countryCode: randomUser.countryCode || "",
-            phone: randomUser.phone || "",
-            timezone: randomUser.timezone || 0,
-            birthDate: randomUser.birthDate || "",
-            panCard: randomUser.panCard || "",
-            aadharCard: randomUser.aadharCard || "",
-            city: randomUser.city || "",
-            address: randomUser.address || "",
-            isActivated: randomUser.isActivated || false,
-            isVerified: randomUser.isVerified || false,
-            deviceId: randomUser.deviceId || "",
-            platform: randomUser.platform || "android",
-            deletedAt: randomUser.deletedAt || null,
-          });
-          router.replace("/");
-        } else {
-          console.error("No user found");
+      if (token && userId) {
+        try {
+          const userData = await getUser(userId);
+          if (userData) {
+            setCurrentUser(userData);
+            router.replace("/");
+            setupLogoutTimer();
+          } else {
+            throw new Error("User data is null");
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          showAlert(
+            "Failed to fetch user data. Please try signing in again.",
+            "error",
+          );
         }
       } else {
         console.log("User is signed out");
       }
     };
     checkAuthState();
-  }, []);
 
-  const toggleAuthMode = (mode: "login" | "signup" | "otp") => {
+    return () => {
+      if (logoutTimer) {
+        clearTimeout(logoutTimer);
+      }
+    };
+  }, [getUser, setCurrentUser]);
+
+  const toggleAuthMode = (mode: "signin" | "otp") => {
     Animated.sequence([
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -111,7 +125,7 @@ const Authentication: React.FC = () => {
     setAlert({ visible: true, message, type });
   };
 
-  const handleSignup = async (mobile: string) => {
+  const handleSignIn = async (mobile: string) => {
     try {
       const formattedPhone = `+91${mobile}`;
       const confirmation = await auth().signInWithPhoneNumber(formattedPhone);
@@ -119,8 +133,8 @@ const Authentication: React.FC = () => {
       setMobileNumber(mobile);
       toggleAuthMode("otp");
     } catch (error) {
-      console.error("Signup error:", error);
-      showAlert("Signup failed: Please try again.", "error");
+      console.error("Sign in error:", error);
+      showAlert("Sign in failed: Please try again.", "error");
     }
   };
 
@@ -170,11 +184,12 @@ const Authentication: React.FC = () => {
       await AsyncStorage.setItem("userId", loginResponse.user._id);
       setCurrentUser(loginResponse.user);
       console.log("Login Response:", loginResponse);
-      showAlert("Login successful!", "success");
+      showAlert("Sign in successful!", "success");
+      setupLogoutTimer();
       if (loginResponse.user.isVerified) {
         router.replace("/");
       } else {
-        router.replace(`/profile/my-information/${loginResponse.user.id}`); // Redirect to my-information page if not verified
+        router.replace(`/profile/my-information`);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -188,11 +203,11 @@ const Authentication: React.FC = () => {
           error.message.includes("Firebase token") ||
           error.message.includes("login response")
         ) {
-          console.error("Login error:", error);
-          showAlert("Login failed. Please try again later.", "error");
+          console.error("Sign in error:", error);
+          showAlert("Sign in failed. Please try again later.", "error");
         } else {
           console.error(
-            "Unexpected error during verification or login:",
+            "Unexpected error during verification or sign in:",
             error,
           );
           showAlert("An unexpected error occurred. Please try again.", "error");
@@ -221,65 +236,8 @@ const Authentication: React.FC = () => {
     }
   };
 
-  // const handleLogin = async (mobile: string, password: string) => {
-  //   try {
-  //     const credentials = [
-  //       {
-  //         mobile: "9999999999",
-  //         password: "123",
-  //         type: "admin",
-  //       },
-  //       {
-  //         mobile: "9876543210",
-  //         password: "123",
-  //         type: "driver",
-  //       },
-  //       {
-  //         mobile: "9876543211",
-  //         password: "123",
-  //         type: "merchant",
-  //       },
-  //       {
-  //         mobile: "9876543212",
-  //         password: "123",
-  //         type: "customer",
-  //       },
-  //     ];
-
-  //     const matchedCredential = credentials.find(
-  //       (cred) => cred.mobile === mobile && cred.password === password,
-  //     );
-
-  //     if (matchedCredential) {
-  //       const randomUser = USERS.find(
-  //         (user) => user.type === matchedCredential.type,
-  //       );
-  //       if (randomUser) {
-  //         setCurrentUser({
-  //           ...randomUser,
-  //           isVerified: randomUser.isVerified,
-  //         });
-  //         console.log("Login successful:", randomUser);
-
-  //         if (randomUser.isVerified) {
-  //           router.replace("/");
-  //         } else {
-  //           router.replace(`/profile/my-information/${randomUser.id}`);
-  //         }
-  //       } else {
-  //         showAlert("User not found", "error");
-  //       }
-  //     } else {
-  //       showAlert("Invalid credentials", "error");
-  //     }
-  //   } catch (error) {
-  //     console.log("Login error:", error);
-  //     showAlert("Login failed: " + (error as Error).message, "error");
-  //   }
-  // };
-
-  const handleBackToSignup = () => {
-    toggleAuthMode("signup");
+  const handleBackToSignIn = () => {
+    toggleAuthMode("signin");
     setConfirm(null);
   };
 
@@ -287,18 +245,13 @@ const Authentication: React.FC = () => {
     <ThemedView style={styles.container}>
       <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
       <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
-        {/*authMode === "login" && (
-          <LoginForm onSubmit={handleLogin} onToggle={toggleAuthMode} />
-        )*/}
-        {authMode === "signup" && (
-          <SignupForm onSubmit={handleSignup} onToggle={toggleAuthMode} />
-        )}
+        {authMode === "signin" && <SignInForm onSubmit={handleSignIn} />}
         {authMode === "otp" && (
           <OTPVerification
             mobileNumber={mobileNumber}
             onVerify={handleOtpVerify}
             onResend={handleOtpResend}
-            onBack={handleBackToSignup}
+            onBack={handleBackToSignIn}
           />
         )}
       </Animated.View>
