@@ -38,7 +38,8 @@ const UserInformationPage: React.FC = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [formState, setFormState] = useState<Partial<User>>({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     address: "",
@@ -79,7 +80,14 @@ const UserInformationPage: React.FC = () => {
   }, [setCurrentUser]);
 
   const handleInputChange = (field: keyof User) => (value: string) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
+    if (field === "phone") {
+      const phoneNumber = value.startsWith("+91")
+        ? value.slice(0, 13)
+        : "+91" + value.slice(3, 13);
+      setFormState((prev) => ({ ...prev, [field]: phoneNumber }));
+    } else {
+      setFormState((prev) => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleFileSelect =
@@ -91,14 +99,30 @@ const UserInformationPage: React.FC = () => {
       }
     };
 
+  const userTypeOptions = [
+    { label: "None", value: "customer" },
+    { label: "Driver", value: "driver" },
+    { label: "Merchant", value: "merchant" },
+    { label: "Merchant-Driver", value: "merchant-driver" },
+  ];
+
   const formFields: FormField[] = [
     {
       type: "TextInputField",
       props: {
-        label: t("Name"),
+        label: t("First Name"),
         iconName: "person",
-        value: formState.name,
-        onChangeText: handleInputChange("name"),
+        value: formState.firstName,
+        onChangeText: handleInputChange("lastName"),
+      },
+    },
+    {
+      type: "TextInputField",
+      props: {
+        label: t("Last Name"),
+        iconName: "person-add",
+        value: formState.lastName,
+        onChangeText: handleInputChange("lastName"),
       },
     },
     {
@@ -115,8 +139,10 @@ const UserInformationPage: React.FC = () => {
       props: {
         label: t("Phone"),
         iconName: "call",
-        value: formState.phone,
+        value: formState.phone || "+91",
         onChangeText: handleInputChange("phone"),
+        keyboardType: "phone-pad",
+        maxLength: 13,
       },
     },
     {
@@ -160,9 +186,15 @@ const UserInformationPage: React.FC = () => {
       props: {
         label: t("User Type"),
         iconName: "people",
-        options: ["customer", "driver", "merchant", "merchant-driver"],
-        selectedOption: formState.type,
-        onSelect: handleInputChange("type"),
+        options: userTypeOptions,
+        selectedOption: formState.type || "customer",
+        onSelect: (value: string) => {
+          handleInputChange("type")(value);
+        },
+        displayValue: (value: string) => {
+          const option = userTypeOptions.find((opt) => opt.value === value);
+          return option ? option.label : "None";
+        },
       },
     },
   ];
@@ -180,7 +212,12 @@ const UserInformationPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    const requiredFields: (keyof User)[] = ["name", "phone", "address", "city"];
+    const requiredFields: (keyof User)[] = [
+      "firstName",
+      "phone",
+      "address",
+      "city",
+    ];
 
     const missingFields = requiredFields.filter(
       (field) => !formState[field] || formState[field] === "",

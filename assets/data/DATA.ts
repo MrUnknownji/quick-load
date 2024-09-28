@@ -1,17 +1,13 @@
-import Sizes from "@/constants/Sizes";
-import { VehicleTypeProps } from "@/types/types";
-import { Dimensions } from "react-native";
 import { User } from "@/types/User";
 import { Order } from "@/types/Order";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 // Dummy Users
 export const USERS: User[] = [
   {
     id: "user1",
     email: "customer@example.com",
-    name: "John Doe",
+    firstName: "John",
+    lastName: "Doe",
     username: "johndoe",
     type: "customer",
     language: "en",
@@ -34,7 +30,8 @@ export const USERS: User[] = [
   {
     id: "user2",
     email: "merchant@example.com",
-    name: "Jane Smith",
+    firstName: "Jane",
+    lastName: "Smith",
     username: "janesmith",
     type: "merchant",
     language: "en",
@@ -57,9 +54,9 @@ export const USERS: User[] = [
   {
     id: "user3",
     email: "driver@example.com",
-    name: "Mike Johnson",
+    firstName: "Mike",
     username: "mikejohnson",
-    type: "driver",
+    type: "merchant-driver",
     language: "en",
     isPremium: false,
     gender: "male",
@@ -80,7 +77,8 @@ export const USERS: User[] = [
   {
     id: "user4",
     email: "admin@example.com",
-    name: "Admin User",
+    firstName: "Admin",
+    lastName: "User",
     username: "adminuser",
     type: "admin",
     language: "en",
@@ -258,52 +256,4 @@ const FEATURES: string[] = [
   "Secure delivery",
 ];
 
-const VEHICLES_LIST: VehicleTypeProps[] = [
-  {
-    id: "vehicle234",
-    phone: "+91 9876543210",
-    vehicleType: "Truck",
-    vehicleNumber: "RJ 12 K 0005",
-    vehicleCapacity: "20-25tn",
-    brand: "Tata",
-    model: "X",
-    year: 2020,
-    image: "https://placehold.co/200x200?text=Truck",
-    drivingLicense: undefined,
-    vehicleRC: undefined,
-    panCardFile: undefined,
-    aadhaarCardFile: undefined,
-  },
-  {
-    id: "vehicle78923",
-    phone: "+91 9876543210",
-    vehicleType: "Dumper",
-    vehicleNumber: "PB 32 E 2002",
-    vehicleCapacity: "20-25tn",
-    brand: "Mahindra",
-    model: "X",
-    year: 2018,
-    image: "https://placehold.co/200x200?text=Dumper",
-    drivingLicense: undefined,
-    vehicleRC: undefined,
-    panCardFile: undefined,
-    aadhaarCardFile: undefined,
-  },
-  {
-    id: "vehicle378",
-    phone: "+91 9876543210",
-    vehicleType: "Trailer",
-    vehicleNumber: "HR 58 M 1001",
-    vehicleCapacity: "20-25tn",
-    brand: "Mahindra",
-    model: "X",
-    year: 2023,
-    image: "https://placehold.co/200x200?text=Trailer",
-    drivingLicense: undefined,
-    vehicleRC: undefined,
-    panCardFile: undefined,
-    aadhaarCardFile: undefined,
-  },
-];
-
-export { CAROUSEL_IMAGES, FEATURES, VEHICLES_LIST };
+export { CAROUSEL_IMAGES, FEATURES };

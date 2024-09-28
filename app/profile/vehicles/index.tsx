@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, TouchableNativeFeedback, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { Image } from "expo-image";
@@ -10,16 +10,20 @@ import { t } from "i18next";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
 import { Vehicle } from "@/types/Vehicle";
-import { useDeleteVehicle, useFetchVehicles } from "@/hooks/useFetchVehicle";
+import {
+  useDeleteVehicle,
+  useFetchVehiclesByUserId,
+} from "@/hooks/useFetchVehicle";
 import Alert from "@/components/popups/Alert";
+import { useUser } from "@/contexts/UserContext";
+import { ThemedView } from "@/components/ThemedView";
+import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 
 const VehicleItem = ({
   vehicle,
-  onDelete,
   onLongPress,
 }: {
   vehicle: Vehicle;
-  onDelete: () => void;
   onLongPress: () => void;
 }) => {
   const listItemBackgroundColor = useThemeColor(
@@ -42,7 +46,7 @@ const VehicleItem = ({
         onPress={() =>
           router.push({
             pathname: "/profile/vehicles/add-vehicles",
-            params: { vehicleId: vehicle.vehicleId, isEdit: "true" },
+            params: { vehicleId: vehicle._id, isEdit: "true" },
           })
         }
         onLongPress={onLongPress}
@@ -76,7 +80,11 @@ const VehicleItem = ({
 };
 
 const Vehicles = () => {
-  const { vehicles, loading, error, fetchVehicles } = useFetchVehicles();
+  const { currentUser } = useUser();
+  const { vehicles, loading, error, fetchVehicles } = useFetchVehiclesByUserId(
+    currentUser?._id ?? "",
+  );
+
   const {
     deleteVehicle,
     loading: deleteLoading,
@@ -85,10 +93,16 @@ const Vehicles = () => {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-
+  const listItemBackgroundColor = useThemeColor(
+    {
+      light: Colors.light.backgroundSecondary,
+      dark: Colors.dark.backgroundSecondary,
+    },
+    "background",
+  );
   const handleDeleteVehicle = async (vehicleId: string) => {
     try {
-      await deleteVehicle(vehicleId);
+      const result = await deleteVehicle(vehicleId);
       fetchVehicles();
       setAlertVisible(false);
     } catch (error) {
@@ -101,9 +115,33 @@ const Vehicles = () => {
     setAlertVisible(true);
   };
 
+  const renderSkeletonItem = () => (
+    <View
+      style={[styles.listItem, { backgroundColor: listItemBackgroundColor }]}
+    >
+      <FlexibleSkeleton
+        width={85}
+        height={85}
+        borderRadius={Sizes.borderRadiusFull}
+      />
+      <View style={styles.listItemDetails}>
+        <FlexibleSkeleton width={100} height={20} style={{ marginBottom: 5 }} />
+        <FlexibleSkeleton width={150} height={20} style={{ marginBottom: 5 }} />
+        <FlexibleSkeleton width={120} height={20} />
+      </View>
+    </View>
+  );
+
   const renderContent = () => {
     if (loading) {
-      return <ThemedText>Loading...</ThemedText>;
+      return (
+        <FlatList
+          data={[1, 2, 3, 4, 5]} // Render 5 skeleton items
+          renderItem={renderSkeletonItem}
+          keyExtractor={(item) => item.toString()}
+          contentContainerStyle={styles.listContainer}
+        />
+      );
     }
 
     if (error) {
@@ -116,7 +154,6 @@ const Vehicles = () => {
         renderItem={({ item }) => (
           <VehicleItem
             vehicle={item}
-            onDelete={() => handleDeleteVehicle(item.vehicleId)}
             onLongPress={() => handleLongPress(item)}
           />
         )}
@@ -134,7 +171,12 @@ const Vehicles = () => {
         size="medium"
         variant="primary"
         style={styles.addButton}
-        onPress={() => router.push("/profile/vehicles/add-vehicles")}
+        onPress={() =>
+          router.push({
+            pathname: "/profile/vehicles/add-vehicles",
+            params: { isEdit: "false" },
+          })
+        }
       />
       <Alert
         message={`Are you sure you want to delete ${selectedVehicle?.vehicleNumber}?`}

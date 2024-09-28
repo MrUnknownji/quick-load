@@ -1,20 +1,9 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
-  Dimensions,
   StyleSheet,
   View,
   TouchableOpacity,
   ScrollView,
-  Animated,
-  LayoutAnimation,
-  UIManager,
-  Platform,
   RefreshControl,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -35,29 +24,11 @@ import {
   useFetchProducts,
 } from "@/hooks/useFetchProduct";
 import Loading from "@/components/Loading";
-
-const MAX_ITEMS = 100;
-
-if (
-  Platform.OS === "android" &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
+import CategorySkeleton from "@/components/Loading/CategorySkeleton";
 
 const HomeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [categoryChangeToFetch, setCategoryChangeToFetch] =
-    useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
-  const heroScaleAnim = useRef(new Animated.Value(0.9)).current;
-  const categoriesTranslateY = useRef(new Animated.Value(50)).current;
-  const fastDeliveryScaleAnim = useRef(new Animated.Value(0.9)).current;
-  const listItemsAnim = useRef(
-    Array(MAX_ITEMS)
-      .fill(0)
-      .map(() => new Animated.Value(0)),
-  ).current;
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
@@ -73,9 +44,8 @@ const HomeScreen: React.FC = () => {
   const {
     productOwners,
     loading: ownersLoading,
-    error: ownersError,
     fetchOwners,
-  } = useFetchProductOwnersByType(categoryChangeToFetch);
+  } = useFetchProductOwnersByType(selectedCategory);
 
   const uniqueCategories = useMemo(() => {
     if (productsLoading || productsError) return [];
@@ -84,110 +54,29 @@ const HomeScreen: React.FC = () => {
     products.forEach((product) => categorySet.add(product.productType));
     return Array.from(categorySet).map((categoryName) => ({
       name: categoryName,
-      url: `https://placehold.co/150x150?text=${categoryName}`,
+      url: `https://quick-load.onrender.com/assets/${
+        categoryName === "Bricks" ? "bricks.webp" : "grit.png"
+      }`,
     }));
-  }, [products, productOwners, productsLoading, productsError]);
-
-  const resetAnimations = useCallback(() => {
-    heroScaleAnim.setValue(0.9);
-    categoriesTranslateY.setValue(50);
-    fastDeliveryScaleAnim.setValue(0.9);
-    listItemsAnim.forEach((anim) => anim.setValue(0));
-  }, [
-    heroScaleAnim,
-    categoriesTranslateY,
-    fastDeliveryScaleAnim,
-    listItemsAnim,
-  ]);
-
-  const playAnimations = useCallback(
-    (includeListItems = true) => {
-      const animations = [
-        Animated.spring(heroScaleAnim, {
-          toValue: 1,
-          tension: 10,
-          friction: 2,
-          useNativeDriver: true,
-        }),
-        Animated.spring(categoriesTranslateY, {
-          toValue: 0,
-          tension: 10,
-          friction: 2,
-          useNativeDriver: true,
-        }),
-        Animated.spring(fastDeliveryScaleAnim, {
-          toValue: 1,
-          tension: 10,
-          friction: 2,
-          useNativeDriver: true,
-        }),
-      ];
-
-      if (includeListItems) {
-        listItemsAnim.forEach((anim, index) => {
-          animations.push(
-            Animated.spring(anim, {
-              toValue: 1,
-              tension: 50,
-              friction: 7,
-              delay: index * 100,
-              useNativeDriver: true,
-            }),
-          );
-        });
-      }
-
-      Animated.parallel(animations).start();
-    },
-    [heroScaleAnim, categoriesTranslateY, fastDeliveryScaleAnim, listItemsAnim],
-  );
+  }, [products, productsLoading, productsError]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setSelectedCategory("");
-    setCategoryChangeToFetch("");
     await Promise.all([fetchProducts(), fetchOwners("")]);
-    resetAnimations();
-    playAnimations();
     setRefreshing(false);
-  }, [fetchProducts, fetchOwners, resetAnimations, playAnimations]);
-
-  useEffect(() => {
-    console.log(productOwners);
-  }, [productOwners]);
-
-  useEffect(() => {
-    resetAnimations();
-    playAnimations();
-  }, [resetAnimations, playAnimations]);
+  }, [fetchProducts, fetchOwners]);
 
   const handleCategoryPress = useCallback(
     (category: any) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       if (selectedCategory !== category.name) {
         setSelectedCategory(category.name);
-        setCategoryChangeToFetch(category.name);
         fetchOwners(category.name);
-        listItemsAnim.forEach((anim) => anim.setValue(0));
-        playAnimations(false);
-        setTimeout(() => {
-          Animated.stagger(
-            100,
-            listItemsAnim.map((anim) =>
-              Animated.spring(anim, {
-                toValue: 1,
-                tension: 50,
-                friction: 7,
-                useNativeDriver: true,
-              }),
-            ),
-          ).start();
-        }, 300);
       } else {
         setSelectedCategory("");
       }
     },
-    [selectedCategory, listItemsAnim, playAnimations, fetchOwners],
+    [selectedCategory, fetchOwners],
   );
 
   const getMeasurementType = useCallback((category: string): string => {
@@ -204,46 +93,34 @@ const HomeScreen: React.FC = () => {
   const renderProductOwners = useCallback(() => {
     if (ownersLoading) {
       return (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={styles.loadingContainer}>
           <Loading />
         </View>
       );
     }
 
-    return productOwners.map((owner, index) => (
-      <Animated.View
+    return productOwners.map((owner) => (
+      <LargeListItem
         key={owner.productOwnerId}
-        style={{ transform: [{ scale: listItemsAnim[index] }] }}
-      >
-        <LargeListItem
-          heading={owner.productOwnerName}
-          imageUrl={owner.productImage}
-          price={`${owner.productPriceFrom} - ${owner.productPriceTo}`}
-          onPress={() =>
-            router.push({
-              pathname: "/product-items",
-              params: {
-                productOwnerId: owner.productOwnerId,
-                productType: selectedCategory,
-              },
-            })
-          }
-          measurementType={getMeasurementType(selectedCategory)}
-          buttonTitle={t("More Information")}
-          location={owner.productLocation}
-          rating={owner.productRating}
-        />
-      </Animated.View>
+        heading={owner.productOwnerName}
+        imageUrl={`https://quick-load.onrender.com/assets/${owner.productImage}`}
+        price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
+        onPress={() =>
+          router.push({
+            pathname: "/product-items",
+            params: {
+              productOwnerId: owner._id,
+              productType: selectedCategory,
+            },
+          })
+        }
+        measurementType={getMeasurementType(selectedCategory)}
+        buttonTitle={t("More Information")}
+        location={owner.productLocation}
+        rating={owner.productRating}
+      />
     ));
-  }, [
-    productOwners,
-    ownersLoading,
-    listItemsAnim,
-    selectedCategory,
-    getMeasurementType,
-  ]);
+  }, [productOwners, ownersLoading, selectedCategory, getMeasurementType]);
 
   return (
     <ThemedView style={styles.container}>
@@ -256,56 +133,47 @@ const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         {selectedCategory === "" && (
-          <Animated.View
-            style={[
-              styles.heroContainer,
-              { transform: [{ scale: heroScaleAnim }] },
-            ]}
-          >
+          <View style={styles.heroContainer}>
             <ImageCarousel />
-          </Animated.View>
+          </View>
         )}
-        <Animated.ScrollView
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categories}
-          style={{ transform: [{ translateY: categoriesTranslateY }] }}
         >
-          {productsLoading ? (
-            <Loading />
-          ) : (
-            uniqueCategories.map((category, index) => (
-              <View key={index} style={styles.category}>
-                <TouchableOpacity onPress={() => handleCategoryPress(category)}>
-                  <View
-                    style={[
-                      styles.categoryImageContainer,
-                      selectedCategory === category.name && { borderColor },
-                    ]}
+          {productsLoading
+            ? Array(4)
+                .fill(0)
+                .map((_, index) => <CategorySkeleton key={index} />)
+            : uniqueCategories.map((category, index) => (
+                <View key={index} style={styles.category}>
+                  <TouchableOpacity
+                    onPress={() => handleCategoryPress(category)}
                   >
-                    <Image source={category.url} style={styles.categoryImage} />
-                  </View>
-                </TouchableOpacity>
-                <ThemedText style={styles.categoryLabel}>
-                  {t(category.name)}
-                </ThemedText>
-              </View>
-            ))
-          )}
-        </Animated.ScrollView>
+                    <View
+                      style={[
+                        styles.categoryImageContainer,
+                        selectedCategory === category.name && { borderColor },
+                      ]}
+                    >
+                      <Image
+                        source={category.url}
+                        style={styles.categoryImage}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                  <ThemedText style={styles.categoryLabel}>
+                    {t(category.name)}
+                  </ThemedText>
+                </View>
+              ))}
+        </ScrollView>
         <SafeAreaView edges={["bottom"]}>
           {selectedCategory === "" ? (
             <LargeImageView
-              animationValue={fastDeliveryScaleAnim}
               imageUrl="https://quick-load.onrender.com/assets/fast-deliver-truck.png"
-              style={{
-                elevation: 3,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                backgroundColor: "white",
-              }}
+              style={styles.largeImageView}
             />
           ) : (
             <View style={styles.itemsContainer}>{renderProductOwners()}</View>
@@ -358,6 +226,19 @@ const styles = StyleSheet.create({
   itemsContainer: {
     marginTop: Sizes.marginLarge,
     marginHorizontal: Sizes.marginHorizontal,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  largeImageView: {
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    backgroundColor: "white",
   },
 });
 

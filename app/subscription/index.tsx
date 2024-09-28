@@ -75,57 +75,46 @@ const SUBSCRIPTION_TYPES: SubscriptionType[] = [
 ];
 
 const Subscription: React.FC = () => {
-  const renderItem: ListRenderItem<SubscriptionType> = useCallback(
+  const renderItem = useCallback<ListRenderItem<SubscriptionType>>(
     ({ item }) => <SubscriptionItem item={item} />,
-    [],
-  );
-
-  const keyExtractor = useCallback(
-    (item: SubscriptionType) => item.heading,
     [],
   );
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedView style={styles.content}>
-        <IconButton
-          iconName="chevron-back"
-          size="small"
-          variant="primary"
-          style={styles.backButton}
-          iconStyle={{ color: Colors.light.background }}
-          onPress={() => router.back()}
-        />
-        <Image
-          source={require("@/assets/images/icon.png")}
-          style={styles.image}
-        />
-        <FlatList
-          horizontal
-          data={SUBSCRIPTION_TYPES}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={screenWidth - 55}
-          decelerationRate="fast"
-          contentContainerStyle={styles.flatListContent}
-        />
-      </ThemedView>
+      <IconButton
+        iconName="chevron-back"
+        size="small"
+        variant="primary"
+        style={styles.backButton}
+        iconStyle={{ color: Colors.light.background }}
+        onPress={() => router.back()}
+      />
+      <Image
+        source={require("@/assets/images/icon.png")}
+        style={styles.image}
+      />
+      <FlatList
+        horizontal
+        data={SUBSCRIPTION_TYPES}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.heading}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={screenWidth - 55}
+        decelerationRate="fast"
+        contentContainerStyle={styles.flatListContent}
+      />
     </ThemedView>
   );
 };
 
 const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
   ({ item }) => {
-    const textColor = item.active ? "white" : "black";
+    const textColor = item.active ? "white" : Colors.light.text;
+    const backgroundColor = item.active ? Colors.light.primary : "white";
 
     return (
-      <View
-        style={[
-          styles.itemDetailsContainer,
-          { backgroundColor: item.active ? Colors.light.primary : "white" },
-        ]}
-      >
+      <View style={[styles.itemDetailsContainer, { backgroundColor }]}>
         <Text style={[styles.itemHeading, { color: textColor }]}>
           {t(item.heading)}
         </Text>
@@ -145,7 +134,11 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
                     : "close-circle"
                 }
                 size={Sizes.icon.small}
-                color={textColor}
+                color={
+                  item.features.includes(feature)
+                    ? Colors.light.success
+                    : Colors.light.error
+                }
               />
               <Text style={[styles.itemFeatureText, { color: textColor }]}>
                 {t(feature)}
@@ -154,11 +147,11 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
           ))}
         </View>
         <Button
-          title={item.active ? "Already Subscribed" : "Subscribe"}
+          title={item.active ? t("Current Plan") : t("Subscribe")}
           variant={item.active ? "outlined" : "primary"}
           size="medium"
           style={[styles.subscribeButton, { borderColor: textColor }]}
-          textStyle={{ color: "white" }}
+          textStyle={{ color: item.active ? textColor : "white" }}
         />
       </View>
     );
@@ -168,19 +161,17 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  content: {
     paddingTop: Sizes.StatusBarHeight,
-    alignItems: "center",
-    justifyContent: "center",
   },
   backButton: {
     position: "absolute",
     left: Sizes.marginHorizontal,
-    top: Sizes.searchBarHeight,
+    top: Sizes.StatusBarHeight ?? 0 + Sizes.marginMedium,
     borderRadius: Sizes.borderRadiusFull,
+    zIndex: 1,
   },
   image: {
+    alignSelf: "center",
     marginTop: 100,
     width: 150,
     height: 150,
@@ -191,45 +182,47 @@ const styles = StyleSheet.create({
   itemDetailsContainer: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    paddingHorizontal: Sizes.paddingMedium,
-    paddingVertical: Sizes.paddingMedium,
+    padding: Sizes.paddingMedium,
     marginVertical: Sizes.marginMedium,
     marginHorizontal: Sizes.marginSmall,
     borderRadius: Sizes.borderRadiusLarge,
+    height: 360,
     width: screenWidth - 75,
     elevation: 3,
-    gap: Sizes.marginExtraSmall,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   itemHeading: {
-    marginLeft: Sizes.marginExtraSmall,
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
+    marginBottom: Sizes.marginSmall,
   },
   itemPrice: {
-    marginLeft: Sizes.marginExtraSmall,
     fontSize: Sizes.textMedium,
     fontWeight: "bold",
+    marginBottom: Sizes.marginSmall,
   },
   itemDuration: {
     fontSize: Sizes.textSmall,
     fontWeight: "normal",
   },
   itemFeaturesContainer: {
-    flexDirection: "column",
+    width: "100%",
+    marginBottom: Sizes.marginMedium,
   },
   itemFeature: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Sizes.marginSmall,
-    width: "100%",
+    marginBottom: Sizes.marginExtraSmall,
   },
   itemFeatureText: {
     fontSize: Sizes.textSmall,
-    fontWeight: "normal",
+    marginLeft: Sizes.marginSmall,
   },
   subscribeButton: {
     width: "100%",
-    marginTop: Sizes.marginSmall,
   },
 });
 

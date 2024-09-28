@@ -28,8 +28,13 @@ type IconType =
   | "FontAwesome"
   | "MaterialCommunityIcons";
 
-interface SelectListProps {
-  options: string[];
+interface Option {
+  label: string;
+  value: string;
+}
+
+interface SelectListProps<T extends Option | string> {
+  options: T[];
   label?: string;
   selectedOption?: string;
   onSelect?: (option: string) => void;
@@ -55,7 +60,7 @@ interface SelectListProps {
   initialSelectedOption?: string;
 }
 
-const SelectListWithDialog: React.FC<SelectListProps> = ({
+function SelectListWithDialog<T extends Option | string>({
   options,
   label,
   selectedOption: propSelectedOption,
@@ -76,7 +81,7 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
   errorTextStyle,
   defaultText = "Select an option",
   initialSelectedOption,
-}) => {
+}: SelectListProps<T>) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
     initialSelectedOption || propSelectedOption,
@@ -101,10 +106,11 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
     : null;
 
   const handleSelect = useCallback(
-    (option: string) => {
+    (option: T) => {
       setIsPopupVisible(false);
-      setSelectedOption(option);
-      onSelect?.(option);
+      const value = typeof option === "string" ? option : option.value;
+      setSelectedOption(value);
+      onSelect?.(value);
     },
     [onSelect],
   );
@@ -112,6 +118,17 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
   const togglePopup = useCallback(() => {
     setIsPopupVisible((prev) => !prev);
   }, []);
+
+  const getSelectedLabel = useCallback(() => {
+    if (!selectedOption) return defaultText;
+    const selectedItem = options.find(
+      (option) =>
+        (typeof option === "string" ? option : option.value) === selectedOption,
+    );
+    return typeof selectedItem === "string"
+      ? selectedItem
+      : selectedItem?.label || defaultText;
+  }, [selectedOption, options, defaultText]);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -140,7 +157,7 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
           />
         )}
         <ThemedText style={[styles.selectedText, selectedTextStyle]}>
-          {t(selectedOption || placeholder || defaultText)}
+          {t(getSelectedLabel())}
         </ThemedText>
         <Ionicons
           name={isPopupVisible ? "chevron-up" : "chevron-down"}
@@ -162,14 +179,16 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
           <ThemedView style={[styles.popup, popupStyle]}>
             <FlatList
               data={options}
-              keyExtractor={(item) => item}
+              keyExtractor={(item, index) =>
+                typeof item === "string" ? item : item.value + index.toString()
+              }
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={[styles.option, optionStyle]}
                   onPress={() => handleSelect(item)}
                 >
                   <ThemedText style={[styles.optionText, optionTextStyle]}>
-                    {t(item)}
+                    {t(typeof item === "string" ? item : item.label)}
                   </ThemedText>
                 </TouchableOpacity>
               )}
@@ -183,9 +202,9 @@ const SelectListWithDialog: React.FC<SelectListProps> = ({
       )}
     </View>
   );
-};
+}
 
-export default memo(SelectListWithDialog);
+export default memo(SelectListWithDialog) as typeof SelectListWithDialog;
 
 const styles = StyleSheet.create({
   container: {

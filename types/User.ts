@@ -1,7 +1,9 @@
 export interface User {
+  _id?: string | null;
   id?: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName?: string;
   username: string;
   type: "merchant-driver" | "admin" | "driver" | "merchant" | "customer";
   language: string;

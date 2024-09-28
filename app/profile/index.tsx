@@ -10,14 +10,19 @@ import LogoutDialog from "@/components/popups/LogoutDialog";
 import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "@/contexts/UserContext";
+import { useUser as useUserAPI } from "@/hooks/useUser";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const { currentUser, setCurrentUser } = useUser();
+  const { logout } = useUserAPI();
 
   const handleLogout = () => {
+    const token = AsyncStorage.getItem("accessToken").then((token: any) => {
+      logout(token ?? "");
+    });
     AsyncStorage.removeItem("accessToken");
     setIsDialogVisible(false);
     router.replace("/authentication");
@@ -42,7 +47,7 @@ const Profile = () => {
     <View style={styles.container}>
       <View style={styles.profileHeader}>
         <Text style={styles.profileHeading}>
-          {currentUser?.name || t("Username")}
+          {currentUser?.firstName || t("Username")}
         </Text>
       </View>
       <ThemedView style={styles.profileDetails}>
@@ -63,12 +68,12 @@ const Profile = () => {
               })
             }
           />
-          <SmallListItem
+          {/*<SmallListItem
             title={t("Subscription")}
             iconName="card"
             onPress={() => router.push("/subscription")}
           />
-          {/* currentUser?.type === "admin" && (
+           currentUser?.type === "admin" && (
             <SmallListItem
               title={t("Admin Dashboard")}
               iconName="person"

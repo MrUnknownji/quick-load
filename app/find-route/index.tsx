@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Image,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
   ScrollView,
   Platform,
@@ -23,6 +22,11 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import { useAddRoute } from "@/hooks/useFetchRoute";
 import { useUser } from "@/contexts/UserContext";
+import {
+  useFetchVehiclesByUserId,
+  useFetchVehicleTypes,
+} from "@/hooks/useFetchVehicle";
+import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
@@ -30,7 +34,19 @@ const RouteFinder = () => {
   const [startingPoint, setStartingPoint] = useState("");
   const [endingPoint, setEndingPoint] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [formError, setFormError] = useState("");
   const { addRoute, loading, error } = useAddRoute();
+
+  const {
+    vehicles,
+    loading: vehiclesLoading,
+    error: vehiclesError,
+  } = useFetchVehiclesByUserId(currentUser?._id ?? "");
+  const {
+    vehicleTypes,
+    loading: vehicleTypesLoading,
+    error: vehicleTypesError,
+  } = useFetchVehicleTypes();
 
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
@@ -42,19 +58,30 @@ const RouteFinder = () => {
     "text",
   );
 
-  const handleSend = async () => {
-    if (startingPoint && endingPoint) {
-      if (userType.toLowerCase() === "driver" && !selectedVehicle) {
-        Alert.alert("Error", "Please select a vehicle");
-        return;
-      }
+  useEffect(() => {
+    if (userType.toLowerCase() === "driver" && vehicles.length === 1) {
+      setSelectedVehicle(vehicles[0].vehicleId);
+    }
+  }, [userType, vehicles]);
 
+  const isFormValid = () => {
+    if (!startingPoint || !endingPoint) {
+      return false;
+    }
+    if (userType.toLowerCase() === "driver" && !selectedVehicle) {
+      return false;
+    }
+    return true;
+  };
+
+  const handleSend = async () => {
+    if (isFormValid()) {
       const routeData = {
         from: startingPoint,
         to: endingPoint,
         vehicle: selectedVehicle || undefined,
         selfVehicleId:
-          userType.toLowerCase() === "driver" ? "random-id-123" : undefined,
+          userType.toLowerCase() === "driver" ? selectedVehicle : undefined,
       };
 
       try {
@@ -72,10 +99,66 @@ const RouteFinder = () => {
         });
       } catch (err) {
         console.error("Error adding route:", err);
-        Alert.alert("Error", "Failed to add route. Please try again.");
+        setFormError("Failed to add route. Please try again.");
       }
     } else {
-      Alert.alert("Error", "Please fill in all required fields");
+      setFormError("Please fill in all required fields");
+    }
+  };
+
+  const renderVehicleSelection = () => {
+    if (userType.toLowerCase() === "driver") {
+      if (vehiclesLoading) {
+        return (
+          <FlexibleSkeleton
+            width="100%"
+            height={50}
+            style={{ marginBottom: Sizes.marginSmall }}
+          />
+        );
+      } else if (vehicles.length === 0) {
+        return (
+          <IconButton
+            iconName="add"
+            variant="transparent"
+            title={t("Add vehicle to continue")}
+            style={{ width: "100%", padding: 5 }}
+          />
+        );
+      } else {
+        return (
+          <SelectListWithDialog
+            options={vehicles.map((v) => ({
+              label: `${v.vehicleNumber} (${v.vehicleType})`,
+              value: v.vehicleId,
+            }))}
+            label={t("Select Vehicle")}
+            containerStyle={{ paddingHorizontal: 0 }}
+            onSelect={(value) => setSelectedVehicle(value)}
+            selectedOption={selectedVehicle}
+          />
+        );
+      }
+    } else {
+      if (vehicleTypesLoading) {
+        return (
+          <FlexibleSkeleton
+            width="100%"
+            height={50}
+            style={{ marginBottom: Sizes.marginSmall }}
+          />
+        );
+      } else {
+        return (
+          <SelectListWithDialog
+            options={vehicleTypes.map((vt) => vt.type)}
+            label={t("Select Vehicle Type")}
+            containerStyle={{ paddingHorizontal: 0 }}
+            onSelect={(value) => setSelectedVehicle(value)}
+            selectedOption={selectedVehicle}
+          />
+        );
+      }
     }
   };
 
@@ -101,7 +184,9 @@ const RouteFinder = () => {
             style={styles.logo}
           />
           <Text style={[styles.title, { color: primaryColor }]}>
-            {t("Hey")} {currentUser?.name || t("there")}
+            {t(
+              `Hey ${userType.toLowerCase() === "driver" ? "Driver" : "Merchant"}`,
+            )}
           </Text>
           <ThemedText style={styles.subtitle}>
             {t("Submit your route request")}
@@ -142,12 +227,7 @@ const RouteFinder = () => {
             />
           </View>
 
-          <SelectListWithDialog
-            options={["Trailer", "Dumper", "Container", "Open body"]}
-            label={`Select Vehicle${userType.toLowerCase() === "driver" ? " *" : ""}`}
-            containerStyle={{ paddingHorizontal: 0 }}
-            onSelect={(value) => setSelectedVehicle(value)}
-          />
+          {renderVehicleSelection()}
 
           <Button
             title={loading ? t("Adding...") : t("Find")}
@@ -156,9 +236,13 @@ const RouteFinder = () => {
             style={styles.findButton}
             textStyle={{ fontSize: Sizes.textMedium }}
             onPress={handleSend}
-            disabled={loading}
+            disabled={loading || !isFormValid()}
           />
-          {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
+          {(error || formError) && (
+            <ThemedText style={styles.errorText}>
+              {error || formError}
+            </ThemedText>
+          )}
         </ScrollView>
       </ThemedView>
     </KeyboardAvoidingView>

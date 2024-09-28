@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image } from "expo-image";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,9 +10,10 @@ import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import OnboardingImageSkeleton from "@/components/Loading/OnboardingImageSkeleton";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -20,11 +21,25 @@ const Onboarding = () => {
   const [selectedPage, setSelectedPage] = useState(0);
   const { appLanguage, setAppLanguage, loading } = useLanguage();
   const { t } = useTranslation();
+  const [imagesLoaded, setImagesLoaded] = useState({
+    image1: false,
+    image2: false,
+  });
 
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
+
+  useEffect(() => {
+    Image.prefetch("https://quick-load.onrender.com/assets/cheep-transport.png")
+      .then(() => setImagesLoaded((prev) => ({ ...prev, image1: true })))
+      .catch((error) => console.error("Error preloading image 1:", error));
+
+    Image.prefetch("https://quick-load.onrender.com/assets/cheep-material.png")
+      .then(() => setImagesLoaded((prev) => ({ ...prev, image2: true })))
+      .catch((error) => console.error("Error preloading image 2:", error));
+  }, []);
 
   const handleNext = async () => {
     if (selectedPage === 2) {
@@ -36,15 +51,9 @@ const Onboarding = () => {
   };
 
   return (
-    <ThemedView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {selectedPage === 0 && (
-        <>
+        <View style={styles.contentContainer}>
           <Image
             source={require("@/assets/images/icon.png")}
             style={styles.icon}
@@ -73,22 +82,30 @@ const Onboarding = () => {
               onSelect={(selectedLanguage) => setAppLanguage(selectedLanguage)}
             />
           </View>
-        </>
+        </View>
       )}
       {selectedPage === 1 && (
-        <View style={{ flex: 1, width: "100%", height: "100%" }}>
-          <Image
-            source={`https://quick-load.onrender.com/assets/cheep-transport.png`}
-            style={styles.fullScreenImage}
-          />
+        <View style={styles.imageContainer}>
+          {!imagesLoaded.image1 ? (
+            <OnboardingImageSkeleton />
+          ) : (
+            <Image
+              source={`https://quick-load.onrender.com/assets/cheep-transport.png`}
+              style={styles.fullScreenImage}
+            />
+          )}
         </View>
       )}
       {selectedPage === 2 && (
-        <View style={{ flex: 1, width: "100%", height: "100%" }}>
-          <Image
-            source={`https://quick-load.onrender.com/assets/cheep-material.png`}
-            style={styles.fullScreenImage}
-          />
+        <View style={styles.imageContainer}>
+          {!imagesLoaded.image2 ? (
+            <OnboardingImageSkeleton />
+          ) : (
+            <Image
+              source={`https://quick-load.onrender.com/assets/cheep-material.png`}
+              style={styles.fullScreenImage}
+            />
+          )}
         </View>
       )}
       <Button
@@ -98,13 +115,30 @@ const Onboarding = () => {
         style={styles.button}
         onPress={handleNext}
       />
-    </ThemedView>
+    </SafeAreaView>
   );
 };
 
 export default Onboarding;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: Sizes.marginHorizontal,
+  },
+  imageContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  fullScreenImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
   icon: {
     width: 200,
     height: 200,
@@ -141,9 +175,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: screenWidth - Sizes.marginHorizontal * 2,
     bottom: 10,
-  },
-  fullScreenImage: {
-    width: "100%",
-    height: "100%",
+    alignSelf: "center",
   },
 });

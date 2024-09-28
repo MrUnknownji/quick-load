@@ -2,7 +2,6 @@ import { authApiClient } from "./apiClient";
 
 export const fetchProducts = async () => {
   const response = await authApiClient.get("/product/list");
-  console.log("API Response:", response.data);
   return response.data.products;
 };
 

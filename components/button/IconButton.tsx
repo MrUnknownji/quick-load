@@ -66,6 +66,10 @@ const IconButton = ({
     { light: Colors.light.background, dark: Colors.dark.background },
     "background",
   );
+  const textColor = useThemeColor(
+    { light: Colors.light.text, dark: Colors.dark.text },
+    "text",
+  );
   const iconColor =
     variant === "outlined"
       ? secondaryColor
@@ -147,11 +151,18 @@ const IconButton = ({
         <IconComponent
           name={iconName as never}
           size={Sizes.icon[size]}
-          color={iconColor}
+          color={variant === "transparent" ? textColor : iconColor}
           style={iconStyle}
         />
         {title && (
-          <Text style={[styles.title, { color: iconColor }]}>{title}</Text>
+          <Text
+            style={[
+              styles.title,
+              { color: variant === "transparent" ? textColor : iconColor },
+            ]}
+          >
+            {title}
+          </Text>
         )}
       </View>
     );

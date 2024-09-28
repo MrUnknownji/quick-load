@@ -27,7 +27,7 @@ interface FileUploadFieldProps {
   label?: string;
   placeholder?: string;
   onFileSelect?: (file: DocumentPicker.DocumentPickerResult) => void;
-  selectedFile?: string;
+  selectedFile?: DocumentPicker.DocumentPickerAsset | string;
   accessibleLabel?: string;
   disabled?: boolean;
   style?: ViewStyle;
@@ -84,6 +84,15 @@ const FileUploadField = ({
     "primary",
   );
 
+  const getDisplayText = () => {
+    if (typeof selectedFile === "string") {
+      return selectedFile || placeholder;
+    } else if (selectedFile && "name" in selectedFile) {
+      return selectedFile.name;
+    }
+    return placeholder;
+  };
+
   return (
     <View style={[styles.container, style]}>
       {label && <ThemedText style={styles.label}>{label}</ThemedText>}
@@ -95,7 +104,7 @@ const FileUploadField = ({
               ? Colors.light.disabled
               : Colors.light.primary,
           },
-          selectedFile ? null : styles.uploadBoxError,
+          !selectedFile ? styles.uploadBoxError : null,
         ]}
         onPress={handleFileUpload}
         accessibilityLabel={accessibleLabel || placeholder}
@@ -110,7 +119,7 @@ const FileUploadField = ({
           />
         )}
         <ThemedText style={styles.placeholderText}>
-          {selectedFile || placeholder}
+          {getDisplayText()}
         </ThemedText>
       </TouchableOpacity>
     </View>

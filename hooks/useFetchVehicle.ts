@@ -8,7 +8,7 @@ import {
   getVehicleTypes,
   getVehiclesByUserId,
 } from "../services/vehicleService";
-import { Vehicle, VehicleType } from "../types/Vehicle";
+import { Vehicle, VehicleFormState, VehicleType } from "../types/Vehicle";
 
 export const useFetchVehicles = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -48,6 +48,7 @@ export const useFetchVehicleById = (vehicleId: string) => {
         setVehicle(data);
       } catch (err) {
         setError("Failed to fetch vehicle");
+        console.log("Error is ", err);
       } finally {
         setLoading(false);
       }
@@ -82,14 +83,46 @@ export const useUpdateVehicle = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateVehicle = async (vehicleId: string, vehicleData: FormData) => {
+  const updateVehicle = async (
+    vehicleId: string,
+    vehicleData: VehicleFormState,
+  ) => {
     setLoading(true);
     try {
-      const result = await updateExistingVehicle(vehicleId, vehicleData);
+      const formData = new FormData();
+
+      if (vehicleData.driverName)
+        formData.append("driverName", vehicleData.driverName);
+      if (vehicleData.phoneNumber)
+        formData.append("phoneNumber", vehicleData.phoneNumber);
+      if (vehicleData.vehicleNumber)
+        formData.append("vehicleNumber", vehicleData.vehicleNumber);
+      if (vehicleData.vehicleType)
+        formData.append("vehicleType", vehicleData.vehicleType);
+
+      const fileFields = [
+        "drivingLicence",
+        "rc",
+        "panCard",
+        "aadharCard",
+      ] as const;
+      fileFields.forEach((field) => {
+        const file = vehicleData[field];
+        if (file && typeof file === "object" && "uri" in file) {
+          formData.append(field, {
+            uri: file.uri,
+            type: file.mimeType || "application/octet-stream",
+            name: file.name || `${field}.jpg`,
+          } as any);
+        }
+      });
+
+      const result = await updateExistingVehicle(vehicleId, formData);
       setLoading(false);
       return result;
     } catch (err) {
-      setError("Failed to update vehicle");
+      console.log("Error in update: ", err);
+      setError("Failed to update vehicle: " + err);
       setLoading(false);
     }
   };
@@ -140,6 +173,7 @@ export const useFetchVehicleTypes = () => {
 
   return { vehicleTypes, loading, error, fetchVehicleTypes };
 };
+
 export const useFetchVehiclesByUserId = (userId: string) => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

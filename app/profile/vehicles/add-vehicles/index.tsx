@@ -6,6 +6,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
@@ -23,6 +24,8 @@ import {
   useUpdateVehicle,
   useFetchVehicleTypes,
 } from "@/hooks/useFetchVehicle";
+import Alert from "@/components/popups/Alert";
+import Colors from "@/constants/Colors";
 
 type FormField = {
   type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
@@ -34,19 +37,29 @@ const AddVehicles: React.FC = () => {
     vehicleId: string;
     isEdit: string;
   }>();
-  const [formState, setFormState] = useState<VehicleFormState>({});
+  const [formState, setFormState] = useState<VehicleFormState>({
+    driverName: "John Doe",
+    phoneNumber: "+911234567890",
+    vehicleNumber: "AB 12 C 3456",
+    vehicleType: "Truck",
+  });
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     vehicle,
     loading: vehicleLoading,
     error: vehicleError,
-  } = useFetchVehicleById(vehicleId || "");
+  } = useFetchVehicleById(isEdit === "true" ? vehicleId || "" : "");
+
   const {
     vehicleTypes,
     loading: typesLoading,
     error: typesError,
   } = useFetchVehicleTypes();
   const { addVehicle, loading: addLoading, error: addError } = useAddVehicle();
+
   const {
     updateVehicle,
     loading: updateLoading,
@@ -54,44 +67,126 @@ const AddVehicles: React.FC = () => {
   } = useUpdateVehicle();
 
   useEffect(() => {
-    if (vehicleId && isEdit === "true" && vehicle) {
-      setFormState(vehicle);
+    if (isEdit === "true" && vehicle) {
+      setFormState((prev) => ({
+        ...prev,
+        ...vehicle,
+        drivingLicence: vehicle.drivingLicence || prev.drivingLicence,
+        rc: vehicle.rc || prev.rc,
+        panCard: vehicle.panCard || prev.panCard,
+        aadharCard: vehicle.aadharCard || prev.aadharCard,
+      }));
     }
-  }, [vehicleId, isEdit, vehicle]);
+    setIsLoading(vehicleLoading || typesLoading);
+  }, [isEdit, vehicle, vehicleLoading, typesLoading]);
 
   const handleInputChange =
     (field: keyof VehicleFormState) => (value: string) => {
-      setFormState((prev) => ({ ...prev, [field]: value }));
+      if (field === "phoneNumber") {
+        const phoneNumber = value.startsWith("+91")
+          ? value.slice(0, 13)
+          : "+91" + value.slice(3, 13);
+        setFormState((prev) => ({ ...prev, [field]: phoneNumber }));
+      } else if (field === "vehicleNumber") {
+        const formattedValue = formatVehicleNumber(value);
+        setFormState((prev) => ({ ...prev, [field]: formattedValue }));
+      } else if (field === "driverName") {
+        setFormState((prev) => ({ ...prev, [field]: value.slice(0, 25) }));
+      } else {
+        setFormState((prev) => ({ ...prev, [field]: value }));
+      }
     };
 
-  const handleSaveVehicle = async () => {
-    try {
-      const formData = new FormData();
-      Object.entries(formState).forEach(([key, value]) => {
-        if (value instanceof File) {
-          formData.append(key, value);
-        } else if (typeof value === "string") {
-          formData.append(key, value);
-        }
-      });
+  const formatVehicleNumber = (value: string): string => {
+    const cleaned = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 
+    let formatted = "";
+    if (cleaned.length > 0) formatted += cleaned.slice(0, 2);
+    if (cleaned.length > 2) formatted += " " + cleaned.slice(2, 4);
+    if (cleaned.length > 4) formatted += " " + cleaned.slice(4, 5);
+    if (cleaned.length > 5) formatted += " " + cleaned.slice(5, 9);
+
+    return formatted;
+  };
+
+  const handleSaveVehicle = async () => {
+    const requiredFields: (keyof VehicleFormState)[] = [
+      "driverName",
+      "phoneNumber",
+      "vehicleNumber",
+      "vehicleType",
+      "drivingLicence",
+      "rc",
+      "panCard",
+      "aadharCard",
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !formState[field] || formState[field] === "",
+    );
+
+    if (missingFields.length > 0) {
+      const missingFieldNames = missingFields
+        .map((field) =>
+          field
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())
+            .trim(),
+        )
+        .join(", ");
+
+      setAlertMessage(
+        `Please fill in the following required fields:\n\n${missingFieldNames}`,
+      );
+      setAlertVisible(true);
+      return;
+    }
+
+    try {
       if (isEdit === "true" && vehicleId) {
-        await updateVehicle(vehicleId, formData);
+        await updateVehicle(vehicleId, formState);
       } else {
+        const formData = new FormData();
+        Object.entries(formState).forEach(([key, value]) => {
+          if (value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === "string") {
+            formData.append(key, value);
+          } else if (value && typeof value === "object" && "uri" in value) {
+            formData.append(key, {
+              uri: value.uri,
+              type: value.mimeType || "application/octet-stream",
+              name: value.name || `${key}.jpg`,
+            } as any);
+          }
+        });
         await addVehicle(formData);
       }
       router.back();
     } catch (error) {
       console.error("Error saving vehicle:", error);
+      setAlertMessage("Failed to save vehicle data. Please try again.");
+      setAlertVisible(true);
     }
   };
 
+  const handleCloseAlert = () => {
+    setAlertVisible(false);
+  };
+
   const handleFileSelect =
-    (field: keyof VehicleFormState) =>
-    (file: DocumentPicker.DocumentPickerResult) => {
+    (field: "panCard" | "aadharCard" | "drivingLicence" | "rc") =>
+    async (file: DocumentPicker.DocumentPickerResult) => {
       if (file.assets && file.assets.length > 0) {
         const selectedFile = file.assets[0];
-        setFormState((prev) => ({ ...prev, [field]: selectedFile }));
+        setFormState((prev) => ({
+          ...prev,
+          [field]: {
+            uri: selectedFile.uri,
+            mimeType: selectedFile.mimeType,
+            name: selectedFile.name,
+          },
+        }));
       }
     };
 
@@ -99,10 +194,11 @@ const AddVehicles: React.FC = () => {
     {
       type: "TextInputField",
       props: {
-        label: t("Driver's Name"),
+        label: t("Driver's Name (max 25 characters)"),
         iconName: "person",
         value: formState.driverName,
         onChangeText: handleInputChange("driverName"),
+        maxLength: 25,
       },
     },
     {
@@ -110,8 +206,10 @@ const AddVehicles: React.FC = () => {
       props: {
         label: t("Phone"),
         iconName: "call",
-        value: formState.phoneNumber,
+        value: formState.phoneNumber || "+91",
         onChangeText: handleInputChange("phoneNumber"),
+        keyboardType: "phone-pad",
+        maxLength: 13,
       },
     },
     {
@@ -121,6 +219,8 @@ const AddVehicles: React.FC = () => {
         iconName: "text",
         value: formState.vehicleNumber,
         onChangeText: handleInputChange("vehicleNumber"),
+        autoCapitalize: "characters",
+        maxLength: 13,
       },
     },
     {
@@ -129,51 +229,41 @@ const AddVehicles: React.FC = () => {
         label: t("Vehicle Type"),
         iconName: "truck",
         iconType: "FontAwesome",
-        options: vehicleTypes,
-        selectedOption: formState.vehicleType,
+        options: vehicleTypes.map((vt) => vt.type),
+        selectedOption: formState.vehicleType || "",
         onSelect: handleInputChange("vehicleType"),
       },
     },
     {
       type: "FileUploadField",
       props: {
-        label: t("Driving License"),
+        label: t("Driving License (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
         onFileSelect: handleFileSelect("drivingLicence"),
-        selectedFile:
-          formState.drivingLicence instanceof File
-            ? formState.drivingLicence.name
-            : formState.drivingLicence,
+        selectedFile: formState.drivingLicence,
       },
     },
     {
       type: "FileUploadField",
       props: {
-        label: t("RC"),
+        label: t("RC (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
         onFileSelect: handleFileSelect("rc"),
-        selectedFile:
-          formState.rc instanceof File ? formState.rc.name : formState.rc,
+        selectedFile: formState.rc,
       },
     },
     {
       type: "FileUploadField",
       props: {
-        label: t("Pan Card"),
+        label: t("Pan Card (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
         onFileSelect: handleFileSelect("panCard"),
-        selectedFile:
-          formState.panCard instanceof File
-            ? formState.panCard.name
-            : formState.panCard,
+        selectedFile: formState.panCard,
       },
     },
     {
       type: "FileUploadField",
       props: {
-        label: t("Aadhaar Card"),
+        label: t("Aadhaar Card (only .jpeg,.jpg,.png,.pdf of max 10MB)"),
         onFileSelect: handleFileSelect("aadharCard"),
-        selectedFile:
-          formState.aadharCard instanceof File
-            ? formState.aadharCard.name
-            : formState.aadharCard,
+        selectedFile: formState.aadharCard,
       },
     },
   ];
@@ -189,6 +279,14 @@ const AddVehicles: React.FC = () => {
             : View;
     return <Component {...item.props} />;
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.light.primary} />
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -206,9 +304,9 @@ const AddVehicles: React.FC = () => {
           }}
         />
         <IconButton
-          iconName={isEdit ? "save" : "add"}
+          iconName={isEdit === "true" ? "save" : "add"}
           size="small"
-          title={isEdit ? t("Update Vehicle") : t("Add Vehicle")}
+          title={isEdit === "true" ? t("Update Vehicle") : t("Add Vehicle")}
           variant="primary"
           style={{
             position: "absolute",
@@ -221,6 +319,12 @@ const AddVehicles: React.FC = () => {
           onPress={handleSaveVehicle}
         />
       </ThemedView>
+      <Alert
+        message={alertMessage}
+        type="error"
+        visible={alertVisible}
+        onClose={handleCloseAlert}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -233,5 +337,10 @@ const styles = StyleSheet.create({
   },
   profileDetails: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

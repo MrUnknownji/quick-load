@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
-import IconButton from "@/components/button/IconButton";
 import { ThemedText } from "@/components/ThemedText";
 
 interface OTPVerificationProps {

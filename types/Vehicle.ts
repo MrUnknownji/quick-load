@@ -1,4 +1,5 @@
 export interface Vehicle {
+  _id?: string | null;
   vehicleId: string;
   userId: string;
   driverName: string;
@@ -54,8 +55,8 @@ export interface VehicleFormState {
   phoneNumber?: string;
   vehicleNumber?: string;
   vehicleType?: string;
-  drivingLicence?: string | File;
-  rc?: string | File;
-  panCard?: string | File;
-  aadharCard?: string | File;
+  drivingLicence?: string | { uri: string; mimeType?: string; name?: string };
+  rc?: string | { uri: string; mimeType?: string; name?: string };
+  panCard?: string | { uri: string; mimeType?: string; name?: string };
+  aadharCard?: string | { uri: string; mimeType?: string; name?: string };
 }

@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   getProducts,
-  getProductOwnersByType,
+  getProductById,
   getProductsByOwnerAndType,
+  getProductOwnersByType,
   addNewProduct,
   addNewProductOwner,
   updateExistingProduct,
@@ -19,7 +20,6 @@ export const useFetchProducts = () => {
     setError(null);
     try {
       const data = await getProducts();
-      console.log("Fetched products:", data);
       setProducts(data);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -34,6 +34,32 @@ export const useFetchProducts = () => {
   }, [fetchProducts]);
 
   return { products, loading, error, fetchProducts };
+};
+
+export const useFetchProductById = (productId: string) => {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProduct = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getProductById(productId);
+      setProduct(data);
+    } catch (err) {
+      console.error("Error fetching product:", err);
+      setError("Failed to fetch product");
+    } finally {
+      setLoading(false);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    fetchProduct();
+  }, [fetchProduct]);
+
+  return { product, loading, error, fetchProduct };
 };
 
 export const useFetchProductOwnersByType = (productType: string) => {

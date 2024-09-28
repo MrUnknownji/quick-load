@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,37 +16,22 @@ import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import LargeImageView from "@/components/image-views/LargeImageView";
 import Button from "@/components/button/Button";
-import { ListItemProps } from "@/types/types";
 import { t } from "i18next";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
 import { ScrollView } from "react-native-gesture-handler";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { getProductById } from "@/services/productService";
+import { useFetchProductById } from "@/hooks/useFetchProduct";
 import { Product } from "@/types/Product";
 
 const { width: screenWidth } = Dimensions.get("screen");
 
 const ProductDetailPage = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isPricingVisible, setIsPricingVisible] = useState(false);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const data = await getProductById(productId);
-        setProduct(data);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [productId]);
+  const { product, loading, error } = useFetchProductById(productId);
 
   const togglePricingVisibility = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -60,11 +45,11 @@ const ProductDetailPage = () => {
       </CenteredContainer>
     );
 
-  if (!product)
+  if (error || !product)
     return (
       <CenteredContainer>
         <ThemedText style={styles.errorText}>
-          {t("Product not found")}
+          {error || t("Product not found")}
         </ThemedText>
       </CenteredContainer>
     );
@@ -72,32 +57,23 @@ const ProductDetailPage = () => {
   return (
     <ThemedView style={{ flex: 1 }}>
       <ProductHeader heading={product.productType} />
-      <FlatList
-        style={{ flex: 1 }}
-        data={[
-          () => (
-            <View style={styles.productContainer}>
-              <LargeImageView
-                imageUrl={product.productImage}
-                style={{ marginHorizontal: 0 }}
-              />
-              {!isPricingVisible && (
-                <>
-                  <ThemedText style={styles.productDescription}>
-                    {t(product.productDetails ?? "")}
-                  </ThemedText>
-                  <ProductFeaturesCard price={Number(product.productPrize)} />
-                </>
-              )}
-            </View>
-          ),
-        ]}
-        renderItem={({ item }) => item()}
-        ListFooterComponent={
-          isPricingVisible ? <PricingCard item={product} /> : null
-        }
-        keyExtractor={(item, index) => index.toString()}
-      />
+      <ScrollView style={{ flex: 1 }}>
+        <View style={styles.productContainer}>
+          <LargeImageView
+            imageUrl={`https://quick-load.onrender.com/assets/${product.productImage}`}
+            style={{ marginHorizontal: 0 }}
+          />
+          {!isPricingVisible && (
+            <>
+              <ThemedText style={styles.productDescription}>
+                {t(product.productDetails ?? "")}
+              </ThemedText>
+              <ProductFeaturesCard price={Number(product.productPrice)} />
+            </>
+          )}
+        </View>
+        {isPricingVisible && <PricingCard item={product} />}
+      </ScrollView>
       <Button
         title={isPricingVisible ? t("Book Order") : t("Buy Now")}
         variant="primary"
@@ -174,10 +150,16 @@ const ProductFeaturesCard = ({ price }: { price?: number }) => {
           <ThemedText style={styles.perPieceText}>/{t("Piece")}</ThemedText>
         </ThemedText>
       </View>
-      <FlatList
-        data={FEATURES}
-        renderItem={(item) => renderFeatureItem(item, primaryTextColor)}
-      />
+      {FEATURES.map((feature, index) => (
+        <View key={index} style={styles.featureItem}>
+          <Ionicons
+            name="checkmark-circle"
+            size={Sizes.icon.small}
+            color={primaryTextColor}
+          />
+          <ThemedText style={styles.featureText}>{t(feature)}</ThemedText>
+        </View>
+      ))}
     </ThemedView>
   );
 };
@@ -203,7 +185,7 @@ const renderFeatureItem = (
 const PricingCard = ({ item }: { item: Product }) => {
   const [quantity, setQuantity] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("paymentNow");
-  const itemPrice = Number(item.productPrize ?? 0);
+  const itemPrice = Number(item.productPrice ?? 0);
   const loadingCharges = (quantity * itemPrice * 0.05).toFixed(2);
   const brokerCharges = (quantity * itemPrice * 0.1).toFixed(2);
   const platformFees = (quantity * itemPrice * 0.2).toFixed(2);
@@ -233,7 +215,7 @@ const PricingCard = ({ item }: { item: Product }) => {
         <ThemedText style={styles2.pricingCardHeading}>
           {t("Pricing")}
         </ThemedText>
-        <PricingCardItem label={t("Piece")}>
+        <PricingCardItem label={t("Pieces(1000)")}>
           <TextInput
             style={styles2.piecesInput}
             placeholder={t("Qty")}
@@ -402,7 +384,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Sizes.marginExtraSmall,
   },
   productFeaturesCard: {
-    marginBottom: Sizes.marginVertical,
+    marginBottom: 100,
     padding: Sizes.paddingMedium,
     borderRadius: Sizes.borderRadiusLarge,
     elevation: 3,

@@ -1,15 +1,8 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   Animated,
   Platform,
   StyleSheet,
-  Text,
   UIManager,
   View,
   ListRenderItem,
@@ -63,12 +56,10 @@ const ProductItems: React.FC = () => {
 
   useEffect(() => {
     if (productOwners && productOwnerId) {
-      const owner = productOwners.find(
-        (o) => o.productOwnerId === productOwnerId,
-      );
+      const owner = productOwners.find((o) => o._id === productOwnerId);
       setSelectedOwner(owner || null);
     }
-  }, [productOwners, productOwnerId]);
+  }, [productOwners, productOwnerId, products]);
 
   const resetAnimations = useCallback(() => {
     categoriesTranslateY.setValue(50);
@@ -102,16 +93,14 @@ const ProductItems: React.FC = () => {
   const getMeasurementType = useCallback((category: string): string => {
     switch (category) {
       case "Bricks":
-        return t("Piece");
+        return t("Piece(1000)");
       case "Cement":
         return t("Packet");
       default:
         return t("Qui.");
     }
   }, []);
-  const getCategoryItems = useCallback((category?: string): Product[] => {
-    return products;
-  }, []);
+
   const renderItem: ListRenderItem<Product> = useCallback(
     ({ item, index }) => (
       <Animated.View
@@ -128,26 +117,24 @@ const ProductItems: React.FC = () => {
         }}
       >
         <LargeListItem
-          heading={item.productOwner}
-          imageUrl={item.productImage}
-          price={item.productPrize.toString()}
+          heading={item.productSize}
+          imageUrl={`https://quick-load.onrender.com/assets/${item.productImage}`}
+          price={item.productPrice.toString()}
+          location={item.productLocation}
+          rating={item.productRating}
           onPress={() =>
             router.push({
               pathname: "/product-detail/[productId]",
               params: { productId: item._id ?? "" },
             })
           }
-          mesurementType={productType ? getMeasurementType(productType) : ""}
+          measurementType={productType ? getMeasurementType(productType) : ""}
           buttonTitle={t("More Information")}
         />
       </Animated.View>
     ),
     [fastDeliveryScaleAnim, getMeasurementType],
   );
-
-  const categoryItems = useMemo(() => {
-    return productOwnerId ? getCategoryItems() : [];
-  }, [getCategoryItems]);
 
   if (productsLoading)
     return (
@@ -164,7 +151,7 @@ const ProductItems: React.FC = () => {
   if (!productOwnerId) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>{t("Owner not found")}</Text>
+        <ThemedText style={styles.errorText}>{t("Owner not found")}</ThemedText>
       </SafeAreaView>
     );
   }
@@ -173,9 +160,9 @@ const ProductItems: React.FC = () => {
     <ThemedView style={styles.container}>
       <ProductOwnerHeader heading={selectedOwner?.productOwnerName ?? ""} />
       <FlatList
-        data={categoryItems}
+        data={products}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContent}
       />
     </ThemedView>

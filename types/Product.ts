@@ -19,8 +19,8 @@ export interface ProductOwner {
   _id: string;
   productOwnerId: string;
   productOwnerName: string;
-  productPriceFrom: number;
-  productPriceTo: number;
+  productPrizeFrom: number;
+  productPrizeTo: number;
   productLocation: string;
   productRating: number;
   productType: string;

@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Input } from "./Input";
 import { Checkbox } from "./Checkbox";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
-import { ThemedText } from "@/components/ThemedText";
 
 interface SignupFormProps {
   onSubmit: (mobileNumber: string) => Promise<void>;
@@ -75,14 +74,14 @@ export const SignupForm: React.FC<SignupFormProps> = ({
         onPress={handleSubmit}
         disabled={mobileNumber.length !== 10 || !isAgree || isLoading}
       />
-      <View style={styles.switchAuthContainer}>
+      {/* <View style={styles.switchAuthContainer}>
         <ThemedText>{t("Already have an account?")} </ThemedText>
         <Pressable onPress={() => onToggle("login")} disabled={isLoading}>
           <Text style={[styles.switchAuthButton, { color: primaryTextColor }]}>
             {t("Log in")}
           </Text>
         </Pressable>
-      </View>
+      </View> */}
     </>
   );
 };
