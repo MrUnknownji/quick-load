@@ -6,19 +6,15 @@ import {
   FlatList,
   TouchableOpacity,
   Animated,
-  Easing,
   Platform,
   Modal,
   TouchableWithoutFeedback,
-  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface Notification {
   id: string;
@@ -136,10 +132,10 @@ const NotificationDialog = ({
   return (
     <Modal
       animationType="fade"
-      transparent={true}
+      transparent
       visible={visible}
       onRequestClose={onClose}
-      statusBarTranslucent={true}
+      statusBarTranslucent
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.centeredView}>
@@ -371,7 +367,11 @@ const styles = StyleSheet.create({
     top: 15,
     right: 15,
   },
-  overlay: {},
+  overlay: {
+    position: "absolute",
+    width: 0,
+    height: 0,
+  },
 });
 
 export default Notifications;

@@ -94,22 +94,25 @@ export const useFetchProductsByOwnerAndType = (
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchProducts = useCallback(async (owner: string, type: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getProductsByOwnerAndType(owner, type);
+      setProducts(data);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError("Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getProductsByOwnerAndType(productOwner, productType);
-        setProducts(data);
-      } catch (err) {
-        setError("Failed to fetch products");
-      } finally {
-        setLoading(false);
-      }
-    };
+    fetchProducts(productOwner, productType);
+  }, [productOwner, productType, fetchProducts]);
 
-    fetchData();
-  }, [productOwner, productType]);
-
-  return { products, loading, error };
+  return { products, loading, error, fetchProducts };
 };
 
 export const useAddProduct = () => {

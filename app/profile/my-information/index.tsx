@@ -379,7 +379,7 @@ const UserInformationPage: React.FC = () => {
         />
       </ThemedView>
       <Alert
-        message={alertMessage}
+        message={t(alertMessage)}
         type={alertType}
         visible={alertVisible}
         onClose={handleCloseAlert}

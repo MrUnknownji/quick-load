@@ -19,6 +19,7 @@ import * as Clipboard from "expo-clipboard";
 import { useUser as useContextUser } from "@/contexts/UserContext";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/hooks/useUser";
+import { t } from "i18next";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"signin" | "otp">("signin");
@@ -183,7 +184,6 @@ const Authentication: React.FC = () => {
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
       await AsyncStorage.setItem("userId", loginResponse.user._id);
       setCurrentUser(loginResponse.user);
-      console.log("Login Response:", loginResponse);
       showAlert("Sign in successful!", "success");
       setupLogoutTimer();
       if (loginResponse.user.isVerified) {
@@ -256,7 +256,7 @@ const Authentication: React.FC = () => {
         )}
       </Animated.View>
       <Alert
-        message={alert.message}
+        message={t(alert.message)}
         type={alert.type}
         visible={alert.visible}
         onClose={() => setAlert({ ...alert, visible: false })}

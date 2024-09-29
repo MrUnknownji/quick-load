@@ -61,18 +61,24 @@ const Profile = () => {
             iconName="person"
             onPress={() => router.push("/profile/my-information")}
           />
-          {/*<SmallListItem
-            title={t("Subscription")}
-            iconName="card"
-            onPress={() => router.push("/subscription")}
-          />
-           currentUser?.type === "admin" && (
+          {(currentUser?.type === "merchant" ||
+            currentUser?.type === "admin" ||
+            currentUser?.type === "merchant-driver") && (
             <SmallListItem
-              title={t("Admin Dashboard")}
-              iconName="person"
-              onPress={() => router.push("/admin")}
+              title={t("My Shop")}
+              iconName="business"
+              onPress={() => router.push("/profile/my-shop")}
             />
-          ) */}
+          )}
+          {(currentUser?.type === "merchant" ||
+            currentUser?.type === "admin" ||
+            currentUser?.type === "merchant-driver") && (
+            <SmallListItem
+              title={t("My Products")}
+              iconName="cart"
+              onPress={() => router.push("/profile/my-products")}
+            />
+          )}
           {(currentUser?.type === "driver" ||
             currentUser?.type === "admin" ||
             currentUser?.type === "merchant-driver") && (

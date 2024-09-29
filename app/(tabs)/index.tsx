@@ -1,10 +1,21 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
 import {
   StyleSheet,
   View,
   TouchableOpacity,
   ScrollView,
   RefreshControl,
+  ActivityIndicator,
+  Animated,
+  LayoutAnimation,
+  UIManager,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -23,12 +34,20 @@ import {
   useFetchProductOwnersByType,
   useFetchProducts,
 } from "@/hooks/useFetchProduct";
-import Loading from "@/components/Loading";
 import CategorySkeleton from "@/components/Loading/CategorySkeleton";
+
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const HomeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
+  const [showOwners, setShowOwners] = useState(false);
+  const listItemsAnim = useRef(new Animated.Value(0)).current;
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
@@ -47,6 +66,16 @@ const HomeScreen: React.FC = () => {
     fetchOwners,
   } = useFetchProductOwnersByType(selectedCategory);
 
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchOwners(selectedCategory);
+      // Add a small delay before showing the owners list
+      setTimeout(() => setShowOwners(true), 50);
+    } else {
+      setShowOwners(false);
+    }
+  }, [selectedCategory, fetchOwners]);
+
   const uniqueCategories = useMemo(() => {
     if (productsLoading || productsError) return [];
 
@@ -63,20 +92,38 @@ const HomeScreen: React.FC = () => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setSelectedCategory("");
+    setShowOwners(false);
     await Promise.all([fetchProducts(), fetchOwners("")]);
     setRefreshing(false);
   }, [fetchProducts, fetchOwners]);
 
   const handleCategoryPress = useCallback(
     (category: any) => {
-      if (selectedCategory !== category.name) {
+      if (selectedCategory === "") {
+        // Selecting a category when none was selected
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedCategory(category.name);
-        fetchOwners(category.name);
-      } else {
+        listItemsAnim.setValue(0);
+        Animated.spring(listItemsAnim, {
+          toValue: 1,
+          tension: 50,
+          friction: 7,
+          useNativeDriver: true,
+        }).start();
+      } else if (selectedCategory === category.name) {
+        // Deselecting the current category
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedCategory("");
+        setShowOwners(false);
+      } else {
+        // Switching between categories
+        setShowOwners(false);
+        setTimeout(() => {
+          setSelectedCategory(category.name);
+        }, 50);
       }
     },
-    [selectedCategory, fetchOwners],
+    [selectedCategory, listItemsAnim],
   );
 
   const getMeasurementType = useCallback((category: string): string => {
@@ -94,33 +141,47 @@ const HomeScreen: React.FC = () => {
     if (ownersLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <Loading />
+          <ActivityIndicator size="large" color={Colors.light.primary} />
         </View>
       );
     }
 
-    return productOwners.map((owner) => (
-      <LargeListItem
-        key={owner.productOwnerId}
-        heading={owner.productOwnerName}
-        imageUrl={`https://quick-load.onrender.com/assets/${owner.productImage}`}
-        price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
-        onPress={() =>
-          router.push({
-            pathname: "/product-items",
-            params: {
-              productOwnerId: owner._id,
-              productType: selectedCategory,
-            },
-          })
-        }
-        measurementType={getMeasurementType(selectedCategory)}
-        buttonTitle={t("More Information")}
-        location={owner.productLocation}
-        rating={owner.productRating}
-      />
-    ));
-  }, [productOwners, ownersLoading, selectedCategory, getMeasurementType]);
+    if (!selectedCategory || productOwners.length === 0 || !showOwners) {
+      return null;
+    }
+
+    return (
+      <View>
+        {productOwners.map((owner) => (
+          <LargeListItem
+            key={owner.productOwnerId}
+            heading={owner.productOwnerName}
+            imageUrl={`https://quick-load.onrender.com/assets/${owner.productImage}`}
+            price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
+            onPress={() =>
+              router.push({
+                pathname: "/product-items",
+                params: {
+                  productOwnerId: owner._id,
+                  productType: selectedCategory,
+                },
+              })
+            }
+            measurementType={getMeasurementType(selectedCategory)}
+            buttonTitle={t("More Information")}
+            location={owner.productLocation}
+            rating={owner.productRating}
+          />
+        ))}
+      </View>
+    );
+  }, [
+    productOwners,
+    ownersLoading,
+    selectedCategory,
+    getMeasurementType,
+    showOwners,
+  ]);
 
   return (
     <ThemedView style={styles.container}>

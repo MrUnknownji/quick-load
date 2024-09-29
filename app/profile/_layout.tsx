@@ -23,9 +23,11 @@ const ProfileLayout = () => {
               ? "Settings"
               : pathname.includes("privacy-and-policy")
                 ? "Privacy and Policy"
-                : pathname.includes("admin")
-                  ? "Admin Dashboard"
-                  : "Profile";
+                : pathname.includes("my-products")
+                  ? "My Products"
+                  : pathname.includes("my-shop")
+                    ? "My Shop"
+                    : "Profile";
 
   return (
     <View style={styles.container}>

@@ -136,7 +136,7 @@ const AddVehicles: React.FC = () => {
         .join(", ");
 
       setAlertMessage(
-        `Please fill in the following required fields:\n\n${missingFieldNames}`,
+        `${t("Please fill in the following required fields:")}\n\n${missingFieldNames}`,
       );
       setAlertVisible(true);
       return;

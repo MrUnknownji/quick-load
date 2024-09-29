@@ -1,11 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Modal,
-  Platform,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View, Platform } from "react-native";
 import { FlatList, RefreshControl } from "react-native-gesture-handler";
 import { Image } from "expo-image";
 import Colors from "@/constants/Colors";
@@ -15,22 +9,19 @@ import { router } from "expo-router";
 import { t } from "i18next";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
-import { Vehicle } from "@/types/Vehicle";
-import {
-  useDeleteVehicle,
-  useFetchVehiclesByUserId,
-} from "@/hooks/useFetchVehicle";
+import { Product } from "@/types/Product";
+import { useFetchProducts, useUpdateProduct } from "@/hooks/useFetchProduct";
 import Alert from "@/components/popups/Alert";
 import { useUser } from "@/contexts/UserContext";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 
-const VehicleItem: React.FC<{
-  vehicle: Vehicle;
-  onEdit: (vehicle: Vehicle) => void;
-  onDelete: (vehicle: Vehicle) => void;
-}> = ({ vehicle, onEdit, onDelete }) => {
+const ProductItem: React.FC<{
+  product: Product;
+  onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
+}> = ({ product, onEdit, onDelete }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const listItemBackgroundColor = useThemeColor(
     {
@@ -52,18 +43,18 @@ const VehicleItem: React.FC<{
       style={[styles.listItem, { backgroundColor: listItemBackgroundColor }]}
     >
       <Image
-        source={{ uri: vehicle.vehicleImage }}
+        source={{ uri: product.productImage }}
         style={styles.listItemImage}
       />
       <View style={styles.listItemDetails}>
-        <ThemedText style={styles.listItemType}>
-          {t(vehicle.vehicleType)}
+        <ThemedText style={styles.listItemName}>
+          {product.productType}
         </ThemedText>
-        <ThemedText style={styles.listItemNumber}>
-          {vehicle.vehicleNumber}
+        <ThemedText style={styles.listItemPrice}>
+          ${product.productPrice}
         </ThemedText>
-        <ThemedText style={styles.listItemBrand}>
-          {vehicle.driverName}
+        <ThemedText style={styles.listItemCategory}>
+          {product.productLocation}
         </ThemedText>
       </View>
       <TouchableOpacity
@@ -77,31 +68,28 @@ const VehicleItem: React.FC<{
         onClose={() => setMenuVisible(false)}
         onEdit={() => {
           setMenuVisible(false);
-          onEdit(vehicle);
+          onEdit(product);
         }}
         onDelete={() => {
           setMenuVisible(false);
-          onDelete(vehicle);
+          onDelete(product);
         }}
       />
     </View>
   );
 };
 
-const Vehicles: React.FC = () => {
+const MyProducts: React.FC = () => {
   const { currentUser } = useUser();
-  const { vehicles, loading, error, fetchVehicles } = useFetchVehiclesByUserId(
-    currentUser?._id ?? "",
-  );
-
+  const { products, loading, error, fetchProducts } = useFetchProducts();
   const {
-    deleteVehicle,
-    loading: deleteLoading,
-    error: deleteError,
-  } = useDeleteVehicle();
+    updateProduct,
+    loading: updateLoading,
+    error: updateError,
+  } = useUpdateProduct();
 
   const [alertVisible, setAlertVisible] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const listItemBackgroundColor = useThemeColor(
@@ -112,35 +100,35 @@ const Vehicles: React.FC = () => {
     "background",
   );
 
-  const handleEditVehicle = (vehicle: Vehicle) => {
+  const handleEditProduct = (product: Product) => {
     router.push({
-      pathname: "/profile/vehicles/add-vehicles",
-      params: { vehicleId: vehicle._id, isEdit: "true" },
+      pathname: "/profile/my-products/add-product" as const,
+      params: { productId: product._id, isEdit: "true" },
     });
   };
 
-  const handleDeleteVehicle = (vehicle: Vehicle) => {
-    setSelectedVehicle(vehicle);
+  const handleDeleteProduct = (product: Product) => {
+    setSelectedProduct(product);
     setAlertVisible(true);
   };
 
-  const confirmDeleteVehicle = async () => {
-    if (selectedVehicle) {
+  const confirmDeleteProduct = async () => {
+    if (selectedProduct) {
       try {
-        await deleteVehicle(selectedVehicle._id as string);
-        fetchVehicles();
+        await updateProduct(selectedProduct._id, { status: "deleted" } as any);
+        fetchProducts();
         setAlertVisible(false);
       } catch (error) {
-        console.error("Error deleting vehicle:", error);
+        console.error("Error deleting product:", error);
       }
     }
   };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchVehicles();
+    await fetchProducts();
     setRefreshing(false);
-  }, [fetchVehicles]);
+  }, [fetchProducts]);
 
   const renderSkeletonItem = () => (
     <View
@@ -177,19 +165,23 @@ const Vehicles: React.FC = () => {
       return <ThemedText>Error: {error}</ThemedText>;
     }
 
-    if (vehicles.length === 0) {
+    const userProducts = products.filter(
+      (product) => product.productOwner === currentUser?._id,
+    );
+
+    if (userProducts.length === 0) {
       return (
         <View style={styles.emptyStateContainer}>
           <Ionicons
-            name="car-outline"
+            name="cube-outline"
             size={64}
             color={Colors.light.textSecondary}
           />
           <ThemedText style={styles.emptyStateText}>
-            {t("You haven't added any vehicles yet")}
+            {t("You haven't added any products yet")}
           </ThemedText>
           <ThemedText style={styles.emptyStateSubtext}>
-            {t("Tap the + button to add your first vehicle")}
+            {t("Tap the + button to add your first product")}
           </ThemedText>
         </View>
       );
@@ -198,15 +190,15 @@ const Vehicles: React.FC = () => {
     return (
       <ListContainer>
         <FlatList
-          data={vehicles}
+          data={userProducts}
           renderItem={({ item }) => (
-            <VehicleItem
-              vehicle={item}
-              onEdit={handleEditVehicle}
-              onDelete={handleDeleteVehicle}
+            <ProductItem
+              product={item}
+              onEdit={handleEditProduct}
+              onDelete={handleDeleteProduct}
             />
           )}
-          keyExtractor={(item) => item.vehicleId}
+          keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContainer}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -226,17 +218,17 @@ const Vehicles: React.FC = () => {
         style={styles.addButton}
         onPress={() =>
           router.push({
-            pathname: "/profile/vehicles/add-vehicles",
+            pathname: "/profile/my-products/add-product" as const,
             params: { isEdit: "false" },
           })
         }
       />
       <Alert
-        message={`${t("Are you sure you want to delete")} ${selectedVehicle?.vehicleNumber}?`}
+        message={`${t("Are you sure you want to delete")} ${selectedProduct?.productType}?`}
         type="warning"
         visible={alertVisible}
         onClose={() => setAlertVisible(false)}
-        onConfirm={confirmDeleteVehicle}
+        onConfirm={confirmDeleteProduct}
       />
     </View>
   );
@@ -246,7 +238,7 @@ const ListContainer: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => <View style={styles.listWrapper}>{children}</View>;
 
-export default Vehicles;
+export default MyProducts;
 
 const styles = StyleSheet.create({
   container: {
@@ -280,14 +272,14 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: Sizes.paddingMedium,
   },
-  listItemType: {
+  listItemName: {
     fontSize: Sizes.textMedium,
     fontWeight: "bold",
   },
-  listItemNumber: {
+  listItemPrice: {
     fontSize: Sizes.textMedium,
   },
-  listItemBrand: {
+  listItemCategory: {
     fontSize: Sizes.textNormal,
     color: Colors.light.textSecondary,
   },
@@ -298,38 +290,6 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: Sizes.paddingSmall,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  menuOptions: {
-    borderRadius: Sizes.borderRadiusLarge,
-    width: 250,
-    padding: Sizes.paddingMedium,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  menuOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: Sizes.paddingMedium,
-  },
-  menuOptionText: {
-    marginLeft: Sizes.paddingMedium,
-    fontSize: Sizes.textMedium,
-    fontWeight: "500",
-  },
-  menuSeparator: {
-    height: 1,
-    backgroundColor: Colors.light.textSecondary,
-    opacity: 0.2,
-    marginVertical: Sizes.paddingSmall,
   },
   listWrapper: {
     flex: 1,

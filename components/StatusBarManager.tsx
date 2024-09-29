@@ -37,6 +37,8 @@ const StatusBarManager = () => {
         case "remove-product-brand":
         case "manage-accounts":
         case "edit-page":
+        case "my-products":
+        case "my-shop":
           return "light";
         default:
           return "dark";

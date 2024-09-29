@@ -162,6 +162,7 @@ function AnimatedTabBarLabel({
 
 export default function TabLayout() {
   const [isBottomSheetActive, setIsBottomSheetActive] = useState(false);
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
   const translateY = useSharedValue(MIN_TRANSLATE_Y);
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
   const { activePath, setActivePath } = usePathChangeListener();
@@ -198,6 +199,7 @@ export default function TabLayout() {
   const closeBottomSheet = useCallback(() => {
     scrollTo(MIN_TRANSLATE_Y);
     setIsBottomSheetActive(false);
+    setIsOverlayVisible(false);
   }, [scrollTo]);
 
   const gesture = Gesture.Pan()
@@ -214,22 +216,13 @@ export default function TabLayout() {
       if (translateY.value > -SCREEN_HEIGHT / 1.5) {
         scrollTo(MIN_TRANSLATE_Y);
         runOnJS(setIsBottomSheetActive)(false);
+        runOnJS(setIsOverlayVisible)(false);
       } else {
         scrollTo(MAX_TRANSLATE_Y);
       }
     });
 
   const rBottomSheetStyle = useAnimatedStyle(() => ({
-    borderTopLeftRadius: interpolate(
-      translateY.value,
-      [MIN_TRANSLATE_Y, MAX_TRANSLATE_Y],
-      [0, Sizes.borderRadiusMedium],
-    ),
-    borderTopRightRadius: interpolate(
-      translateY.value,
-      [MIN_TRANSLATE_Y, MAX_TRANSLATE_Y],
-      [0, Sizes.borderRadiusMedium],
-    ),
     transform: [{ translateY: translateY.value }],
   }));
 
@@ -242,6 +235,7 @@ export default function TabLayout() {
     ) {
       if (!isBottomSheetActive) {
         setIsBottomSheetActive(true);
+        setIsOverlayVisible(true);
         scrollTo(MAX_TRANSLATE_Y);
       } else {
         closeBottomSheet();
@@ -319,20 +313,23 @@ export default function TabLayout() {
       </Tabs>
       {(currentUser?.type === "merchant-driver" ||
         currentUser?.type === "admin") && (
-        <GestureDetector gesture={gesture}>
-          <Animated.View
-            style={[
-              styles.bottomSheetScreen,
-              rBottomSheetStyle,
-              { backgroundColor: bottomSheetBackgroundColor },
-            ]}
-          >
-            <View style={styles.line} />
-            <View style={styles.bottomSheetContent}>
-              <FindRouteBottomSheet />
-            </View>
-          </Animated.View>
-        </GestureDetector>
+        <>
+          {isOverlayVisible && <View style={styles.overlay} />}
+          <GestureDetector gesture={gesture}>
+            <Animated.View
+              style={[
+                styles.bottomSheetScreen,
+                rBottomSheetStyle,
+                { backgroundColor: bottomSheetBackgroundColor },
+              ]}
+            >
+              <View style={styles.line} />
+              <View style={styles.bottomSheetContent}>
+                <FindRouteBottomSheet />
+              </View>
+            </Animated.View>
+          </GestureDetector>
+        </>
       )}
     </>
   );
@@ -394,6 +391,22 @@ const styles = StyleSheet.create({
     width: "100%",
     position: "absolute",
     top: SCREEN_HEIGHT,
+    borderTopLeftRadius: Sizes.borderRadiusMedium,
+    borderTopRightRadius: Sizes.borderRadiusMedium,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    zIndex: 10,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1,
   },
   bottomSheetContent: {
     flex: 1,

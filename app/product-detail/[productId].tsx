@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  FlatList,
   StyleSheet,
   View,
   TextInput,
   LayoutAnimation,
+  RefreshControl,
+  ScrollView,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { FEATURES } from "@/assets/data/DATA";
@@ -18,30 +19,37 @@ import LargeImageView from "@/components/image-views/LargeImageView";
 import Button from "@/components/button/Button";
 import { t } from "i18next";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
-import { ScrollView } from "react-native-gesture-handler";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFetchProductById } from "@/hooks/useFetchProduct";
 import { Product } from "@/types/Product";
 
-const { width: screenWidth } = Dimensions.get("screen");
+const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 
 const ProductDetailPage = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
   const [isPricingVisible, setIsPricingVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const { product, loading, error } = useFetchProductById(productId);
+  const { product, loading, error, fetchProduct } =
+    useFetchProductById(productId);
 
   const togglePricingVisibility = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsPricingVisible(!isPricingVisible);
   };
 
-  if (loading)
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchProduct();
+    setRefreshing(false);
+  }, [fetchProduct, productId]);
+
+  if (loading && !refreshing)
     return (
       <CenteredContainer>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={Colors.light.primary} />
       </CenteredContainer>
     );
 
@@ -57,7 +65,13 @@ const ProductDetailPage = () => {
   return (
     <ThemedView style={{ flex: 1 }}>
       <ProductHeader heading={product.productType} />
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ minHeight: screenHeight - 100 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.productContainer}>
           <LargeImageView
             imageUrl={`https://quick-load.onrender.com/assets/${product.productImage}`}
@@ -71,19 +85,14 @@ const ProductDetailPage = () => {
               <ProductFeaturesCard price={Number(product.productPrice)} />
             </>
           )}
+          {isPricingVisible && <PricingCard item={product} />}
         </View>
-        {isPricingVisible && <PricingCard item={product} />}
       </ScrollView>
       <Button
         title={isPricingVisible ? t("Book Order") : t("Buy Now")}
         variant="primary"
         size="medium"
-        style={{
-          position: "absolute",
-          bottom: 10,
-          marginHorizontal: Sizes.marginHorizontal,
-          width: screenWidth - Sizes.marginHorizontal * 2,
-        }}
+        style={styles.bottomButton}
         onPress={() => {
           if (isPricingVisible) {
             router.push({
@@ -163,24 +172,6 @@ const ProductFeaturesCard = ({ price }: { price?: number }) => {
     </ThemedView>
   );
 };
-
-const renderFeatureItem = (
-  {
-    item,
-  }: {
-    item: string;
-  },
-  primaryTextColor: string,
-) => (
-  <View style={styles.featureItem}>
-    <Ionicons
-      name="checkmark-circle"
-      size={Sizes.icon.small}
-      color={primaryTextColor}
-    />
-    <ThemedText style={styles.featureText}>{t(item)}</ThemedText>
-  </View>
-);
 
 const PricingCard = ({ item }: { item: Product }) => {
   const [quantity, setQuantity] = useState(0);
@@ -376,18 +367,18 @@ const styles = StyleSheet.create({
   },
   productContainer: {
     marginTop: Sizes.marginMedium,
-    marginHorizontal: Sizes.marginHorizontal,
     gap: Sizes.marginMedium,
   },
   productDescription: {
     textAlign: "justify",
-    marginHorizontal: Sizes.marginExtraSmall,
+    marginHorizontal: Sizes.marginHorizontal,
   },
   productFeaturesCard: {
     marginBottom: 100,
     padding: Sizes.paddingMedium,
     borderRadius: Sizes.borderRadiusLarge,
     elevation: 3,
+    marginHorizontal: Sizes.marginHorizontal,
   },
   featureCardHeading: {
     fontSize: Sizes.textLarge,
@@ -415,6 +406,12 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: Sizes.textLarge,
     fontWeight: "bold",
+  },
+  bottomButton: {
+    position: "absolute",
+    bottom: 10,
+    marginHorizontal: Sizes.marginHorizontal,
+    width: screenWidth - Sizes.marginHorizontal * 2,
   },
 });
 

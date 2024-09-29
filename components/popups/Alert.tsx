@@ -8,6 +8,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "i18next";
 
 interface AlertProps {
   message: string;
@@ -50,13 +51,13 @@ const Alert: React.FC<AlertProps> = ({
             {onConfirm && (
               <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={onClose}>
-                  <Text style={styles.buttonText}>Cancel</Text>
+                  <Text style={styles.buttonText}>{t("Cancel")}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.confirmButton]}
                   onPress={onConfirm}
                 >
-                  <Text style={styles.buttonText}>Confirm</Text>
+                  <Text style={styles.buttonText}>{t("Confirm")}</Text>
                 </TouchableOpacity>
               </View>
             )}

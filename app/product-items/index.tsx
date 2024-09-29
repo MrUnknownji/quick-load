@@ -8,6 +8,7 @@ import {
   ListRenderItem,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { t } from "i18next";
@@ -24,6 +25,7 @@ import {
   useFetchProductsByOwnerAndType,
 } from "@/hooks/useFetchProduct";
 import { Product, ProductOwner } from "@/types/Product";
+import Colors from "@/constants/Colors";
 
 if (
   Platform.OS === "android" &&
@@ -41,17 +43,20 @@ const ProductItems: React.FC = () => {
   const fastDeliveryScaleAnim = useRef(new Animated.Value(0.9)).current;
   const [selectedOwner, setSelectedOwner] = useState<ProductOwner | null>(null);
   const { activePath } = usePathChangeListener();
+  const [refreshing, setRefreshing] = useState(false);
 
   const {
     products,
     loading: productsLoading,
     error: productsError,
+    fetchProducts,
   } = useFetchProductsByOwnerAndType(productOwnerId, productType || "");
 
   const {
     productOwners,
     loading: ownersLoading,
     error: ownersError,
+    fetchOwners,
   } = useFetchProductOwnersByType(productType);
 
   useEffect(() => {
@@ -133,10 +138,19 @@ const ProductItems: React.FC = () => {
         />
       </Animated.View>
     ),
-    [fastDeliveryScaleAnim, getMeasurementType],
+    [fastDeliveryScaleAnim, getMeasurementType, productType],
   );
 
-  if (productsLoading)
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([
+      fetchProducts(productOwnerId, productType || ""),
+      fetchOwners(productType),
+    ]);
+    setRefreshing(false);
+  }, [fetchProducts, fetchOwners, productOwnerId, productType]);
+
+  if (productsLoading && !refreshing)
     return (
       <SafeAreaView
         style={[
@@ -144,7 +158,7 @@ const ProductItems: React.FC = () => {
           { alignItems: "center", justifyContent: "center" },
         ]}
       >
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color={Colors.light.primary} />
       </SafeAreaView>
     );
 
@@ -164,6 +178,9 @@ const ProductItems: React.FC = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </ThemedView>
   );
