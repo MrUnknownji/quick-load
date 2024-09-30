@@ -6,6 +6,7 @@ import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
+import { responsive } from "@/utils/responsive";
 
 const ProfileLayout = () => {
   const pathname = usePathname();
@@ -36,7 +37,10 @@ const ProfileLayout = () => {
           iconName="chevron-back"
           size="medium"
           variant="transparent"
-          style={{ position: "absolute", left: Sizes.marginHorizontal }}
+          style={{
+            position: "absolute",
+            left: responsive(Sizes.marginHorizontal),
+          }}
           iconStyle={{ color: Colors.light.background }}
           onPress={() => router.back()}
         />
@@ -52,28 +56,26 @@ const ProfileLayout = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Sizes.StatusBarHeight,
     backgroundColor: Colors.light.primary,
   },
   header: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.marginMedium,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    marginTop: responsive(Sizes.marginMedium),
+    paddingVertical: responsive(Sizes.paddingLarge),
   },
   headerText: {
     textAlign: "center",
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "bold",
     color: Colors.light.background,
   },
   content: {
     flex: 1,
-    marginTop: 100,
-    padding: Sizes.paddingMedium,
-    borderTopLeftRadius: Sizes.borderRadiusLarge,
-    borderTopRightRadius: Sizes.borderRadiusLarge,
+    marginTop: responsive(100),
+    padding: responsive(Sizes.paddingMedium),
+    borderTopLeftRadius: responsive(Sizes.borderRadiusLarge),
+    borderTopRightRadius: responsive(Sizes.borderRadiusLarge),
     elevation: 3,
   },
 });

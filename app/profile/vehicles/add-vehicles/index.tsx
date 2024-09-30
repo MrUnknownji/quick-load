@@ -26,6 +26,7 @@ import {
 } from "@/hooks/useFetchVehicle";
 import Alert from "@/components/popups/Alert";
 import Colors from "@/constants/Colors";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type FormField = {
   type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
@@ -314,8 +315,8 @@ const AddVehicles: React.FC = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.type}-${index}`}
           contentContainerStyle={{
-            paddingBottom: 200,
-            paddingTop: 20,
+            paddingBottom: responsive(200),
+            paddingTop: responsive(20),
           }}
         />
         <IconButton
@@ -325,11 +326,11 @@ const AddVehicles: React.FC = () => {
           variant="primary"
           style={{
             position: "absolute",
-            bottom: Sizes.marginLarge,
-            right: Sizes.marginHorizontal,
-            borderRadius: Sizes.borderRadiusFull,
-            paddingHorizontal: Sizes.paddingMedium,
-            paddingVertical: Sizes.paddingMedium,
+            bottom: responsive(Sizes.marginLarge),
+            right: responsive(Sizes.marginHorizontal),
+            borderRadius: responsive(Sizes.borderRadiusFull),
+            paddingHorizontal: responsive(Sizes.paddingMedium),
+            paddingVertical: responsive(Sizes.paddingMedium),
           }}
           onPress={handleSaveVehicle}
         />

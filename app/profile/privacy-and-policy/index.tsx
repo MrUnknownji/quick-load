@@ -2,6 +2,7 @@ import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const PrivacyPolicyScreen = () => {
   return (
@@ -135,35 +136,35 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   contentContainer: {
-    padding: 20,
+    padding: responsive(20),
   },
   title: {
-    fontSize: 24,
+    fontSize: responsive(24),
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: responsive(10),
     textAlign: "center",
   },
   date: {
-    fontSize: 14,
+    fontSize: responsive(14),
     color: "gray",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: responsive(20),
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: responsive(18),
     fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: responsive(20),
+    marginBottom: responsive(10),
   },
   paragraph: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 10,
+    fontSize: responsive(16),
+    lineHeight: responsive(24),
+    marginBottom: responsive(10),
   },
   bullet: {
-    fontSize: 16,
-    marginLeft: 20,
-    marginBottom: 5,
+    fontSize: responsive(16),
+    marginLeft: responsive(20),
+    marginBottom: responsive(5),
   },
   bold: {
     fontWeight: "bold",

@@ -10,6 +10,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
 import Alert from "@/components/popups/Alert";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const UnionSupport = () => {
   const [orderNumber, setOrderNumber] = useState("");
@@ -82,7 +83,8 @@ const UnionSupport = () => {
             multiline
             onContentSizeChange={(e) =>
               setInputHeight(
-                e.nativeEvent.contentSize.height + Sizes.paddingMedium,
+                e.nativeEvent.contentSize.height +
+                  responsive(Sizes.paddingMedium),
               )
             }
             placeholderTextColor={placeholderColor}
@@ -91,7 +93,11 @@ const UnionSupport = () => {
       </ScrollView>
       <Pressable style={styles.sendButton} onPress={handleSubmit}>
         <ThemedText style={styles.sendButtonText}>{t("Send")}</ThemedText>
-        <Ionicons name="send" size={Sizes.icon["small"]} color="white" />
+        <Ionicons
+          name="send"
+          size={responsive(Sizes.icon.small)}
+          color="white"
+        />
       </Pressable>
       <Alert
         message={t("Please fill in all fields")}
@@ -103,61 +109,61 @@ const UnionSupport = () => {
   );
 };
 
-export default UnionSupport;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   innerContainer: {
-    padding: Sizes.paddingMedium,
+    padding: responsive(Sizes.paddingMedium),
     alignItems: "center",
-    gap: Sizes.marginMedium,
+    gap: responsive(Sizes.marginMedium),
   },
   title: {
-    fontSize: Sizes.textExtraLarge,
+    fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
-    marginBottom: Sizes.marginLarge,
+    marginBottom: responsive(Sizes.marginLarge),
   },
   inputContainer: {
     width: "100%",
-    marginBottom: Sizes.marginMedium,
+    marginBottom: responsive(Sizes.marginMedium),
   },
   inputField: {
     width: "100%",
     borderWidth: 1,
-    borderRadius: Sizes.borderRadiusMedium,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
-    fontSize: Sizes.textMedium,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    paddingVertical: responsive(Sizes.paddingSmall),
+    paddingHorizontal: responsive(Sizes.paddingMedium),
+    fontSize: responsive(Sizes.textMedium),
   },
   inputText: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "bold",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: responsive(Sizes.marginSmall),
   },
   sendButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    bottom: Sizes.marginHorizontal,
-    right: Sizes.marginHorizontal,
-    borderRadius: Sizes.borderRadiusFull,
-    paddingVertical: Sizes.paddingMedium,
-    paddingHorizontal: Sizes.paddingHorizontal,
+    bottom: responsive(Sizes.marginHorizontal),
+    right: responsive(Sizes.marginHorizontal),
+    borderRadius: responsive(Sizes.borderRadiusFull),
+    paddingVertical: responsive(Sizes.paddingMedium),
+    paddingHorizontal: responsive(Sizes.paddingHorizontal),
     backgroundColor: Colors.light.primary,
     overflow: "hidden",
-    gap: Sizes.marginMedium,
+    gap: responsive(Sizes.marginMedium),
     elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: responsive(2) },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: responsive(3.84),
   },
   sendButtonText: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     color: "white",
     fontWeight: "bold",
   },
 });
+
+export default UnionSupport;

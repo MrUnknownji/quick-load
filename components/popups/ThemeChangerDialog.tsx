@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { t } from "i18next";
 import { useTheme } from "@/contexts/AppThemeProvider";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface ThemeChangerDialogProps {
   isVisible: boolean;
@@ -201,10 +202,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   dialog: {
-    borderRadius: Sizes.borderRadiusMedium,
-    padding: 20,
-    width: "80%",
-    maxWidth: 300,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    padding: vw(5),
+    width: vw(80),
+    maxWidth: vw(80),
     elevation: 10,
   },
   content: {
@@ -220,29 +221,29 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 0,
-    padding: 5,
+    padding: vw(1),
   },
   title: {
-    fontSize: 18,
+    fontSize: responsive(18),
     fontWeight: "bold",
     textAlign: "center",
   },
   languageButton: {
-    padding: 10,
-    borderRadius: Sizes.borderRadiusMedium,
+    padding: vh(1.5),
+    borderRadius: responsive(Sizes.borderRadiusMedium),
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
     borderColor: Colors.light.border,
   },
   languageButtonText: {
-    fontSize: 16,
+    fontSize: responsive(16),
   },
   divider: {
     height: 1,
     backgroundColor: Colors.light.border,
     width: "100%",
-    marginVertical: 10,
+    marginVertical: vh(1.5),
   },
 });
 

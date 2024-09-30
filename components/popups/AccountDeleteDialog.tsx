@@ -11,6 +11,7 @@ import { BlurView } from "expo-blur";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { router } from "expo-router";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface ConfirmDialogProps {
   isVisible: boolean;
@@ -92,39 +93,39 @@ const styles = StyleSheet.create({
   },
   dialog: {
     backgroundColor: "black",
-    borderRadius: Sizes.borderRadiusMedium,
-    padding: 20,
-    width: "80%",
-    maxWidth: 300,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    padding: vw(5),
+    width: vw(80),
+    maxWidth: vw(80),
     elevation: 10,
   },
   content: {
     alignItems: "center",
   },
   question: {
-    fontSize: 18,
+    fontSize: responsive(18),
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
-    marginBottom: Sizes.marginMedium,
+    marginBottom: vh(2),
   },
   button: {
-    padding: 4,
-    borderRadius: Sizes.borderRadiusMedium,
+    padding: vh(1),
+    borderRadius: responsive(Sizes.borderRadiusMedium),
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 5,
+    marginBottom: vh(1),
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: responsive(16),
     color: "white",
   },
   divider: {
     height: 1,
     backgroundColor: "white",
     width: "100%",
-    marginVertical: 5,
+    marginVertical: vh(1),
   },
 });
 

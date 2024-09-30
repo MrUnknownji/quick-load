@@ -60,7 +60,7 @@ export default function RootLayout() {
             <I18nextProvider i18n={i18n}>
               <StatusBarManager />
               <NavigationBarManager />
-              <GestureHandlerRootView style={{ flex: 1 }}>
+              <GestureHandlerRootView>
                 <Slot
                   screenOptions={{
                     headerShown: false,

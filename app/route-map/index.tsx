@@ -8,6 +8,7 @@ import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { Linking } from "react-native";
 import IconButton from "@/components/button/IconButton";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const RouteMap = () => {
   const { start, end } = useLocalSearchParams<{ start: string; end: string }>();
@@ -29,13 +30,13 @@ const RouteMap = () => {
 
   const openGoogleMaps = () => {
     const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
-      start
+      start,
     )}&destination=${encodeURIComponent(end)}&travelmode=driving`;
     Linking.openURL(url);
   };
 
   if (!userLocation) {
-    return <Text>Loading...</Text>;
+    return <Text style={styles.loadingText}>{t("Loading...")}</Text>;
   }
 
   return (
@@ -87,20 +88,25 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: Sizes.marginLarge,
+    bottom: responsive(Sizes.marginLarge),
     left: 0,
     right: 0,
     alignItems: "center",
   },
   button: {
-    width: "90%",
+    width: vw(90),
   },
   backButton: {
     position: "absolute",
-    left: Sizes.marginHorizontal,
-    top: Sizes.StatusBarHeight ?? 0 + 10,
-    borderRadius: Sizes.borderRadiusFull,
+    left: responsive(Sizes.marginHorizontal),
+    top: responsive(Sizes.StatusBarHeight ?? 0 + 10),
+    borderRadius: responsive(Sizes.borderRadiusFull),
     zIndex: 1,
+  },
+  loadingText: {
+    fontSize: responsive(Sizes.textMedium),
+    textAlign: "center",
+    marginTop: vh(50),
   },
 });
 

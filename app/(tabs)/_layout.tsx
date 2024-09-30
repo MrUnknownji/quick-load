@@ -27,10 +27,11 @@ import { t } from "i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useUser } from "@/contexts/UserContext";
+import { responsive, vw, vh } from "@/utils/responsive";
 
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+const SCREEN_HEIGHT = vh(100);
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
-const MIN_TRANSLATE_Y = Sizes.tabBarHeight;
+const MIN_TRANSLATE_Y = responsive(Sizes.tabBarHeight);
 
 type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
@@ -360,30 +361,30 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderTopWidth: 0,
     backgroundColor: Colors.light.primary,
-    borderTopLeftRadius: Sizes.borderRadiusMedium,
-    borderTopRightRadius: Sizes.borderRadiusMedium,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingExtraSmall,
-    height: Sizes.tabBarHeight,
+    borderTopLeftRadius: responsive(Sizes.borderRadiusMedium),
+    borderTopRightRadius: responsive(Sizes.borderRadiusMedium),
+    paddingVertical: responsive(Sizes.paddingSmall),
+    paddingHorizontal: responsive(Sizes.paddingExtraSmall),
+    height: responsive(Sizes.tabBarHeight),
     bottom: 0,
   },
   customButton: {
-    top: -Sizes.customButtonOffset,
+    top: responsive(-Sizes.customButtonOffset),
     justifyContent: "center",
     alignItems: "center",
   },
   customButtonInner: {
-    width: Sizes.customButtonSize,
-    height: Sizes.customButtonSize,
-    borderRadius: Sizes.customButtonSize / 2,
+    width: responsive(Sizes.customButtonSize),
+    height: responsive(Sizes.customButtonSize),
+    borderRadius: responsive(Sizes.customButtonSize / 2),
     backgroundColor: Colors.light.primary,
   },
   iconContainer: {
     alignItems: "center",
   },
   label: {
-    fontSize: Sizes.textSmall,
-    maxWidth: Sizes.tabLabelMaxWidth,
+    fontSize: responsive(Sizes.textSmall),
+    maxWidth: responsive(Sizes.tabLabelMaxWidth),
     textAlign: "center",
   },
   bottomSheetScreen: {
@@ -391,16 +392,16 @@ const styles = StyleSheet.create({
     width: "100%",
     position: "absolute",
     top: SCREEN_HEIGHT,
-    borderTopLeftRadius: Sizes.borderRadiusMedium,
-    borderTopRightRadius: Sizes.borderRadiusMedium,
+    borderTopLeftRadius: responsive(Sizes.borderRadiusMedium),
+    borderTopRightRadius: responsive(Sizes.borderRadiusMedium),
     elevation: 5,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: -2,
+      height: responsive(-2),
     },
     shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowRadius: responsive(3.84),
     zIndex: 10,
   },
   overlay: {
@@ -410,14 +411,14 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     flex: 1,
-    padding: Sizes.paddingMedium,
+    padding: responsive(Sizes.paddingMedium),
   },
   line: {
-    width: Sizes.bottomSheetLineWidth,
-    height: Sizes.bottomSheetLineHeight,
+    width: responsive(Sizes.bottomSheetLineWidth),
+    height: responsive(Sizes.bottomSheetLineHeight),
     backgroundColor: Colors.light.primary,
     alignSelf: "center",
-    marginVertical: Sizes.marginVertical,
-    borderRadius: Sizes.bottomSheetLineHeight / 2,
+    marginVertical: responsive(Sizes.marginVertical),
+    borderRadius: responsive(Sizes.bottomSheetLineHeight / 2),
   },
 });

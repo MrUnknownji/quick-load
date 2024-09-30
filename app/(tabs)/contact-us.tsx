@@ -7,6 +7,7 @@ import IconButton from "@/components/button/IconButton";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -22,44 +23,46 @@ const ContactUs = () => {
   };
 
   return (
-    <ThemedView style={{ flex: 1 }}>
-      <View style={styles.iconContainer}>
-        <Image
-          source={require("@/assets/images/icon.png")}
-          style={styles.icon}
-        />
-      </View>
-      <ThemedView style={styles.contactCard}>
-        <LargeImageView
-          imageUrl={`https://quick-load.onrender.com/assets/contact-us.jpeg`}
-          height={200}
-          style={{
-            padding: 0,
-            margin: 0,
-            marginHorizontal: 0,
-            marginVertical: 0,
-            borderRadius: Sizes.borderRadiusMedium,
-          }}
-        />
-        <ThemedText style={styles.contactCardText}>{phoneNumber}</ThemedText>
-        <IconButton
-          iconName="phone"
-          size="medium"
-          variant="primary"
-          iconLibrary="FontAwesome"
-          title={t("Call Us")}
-          onPress={handleCall}
-        />
-        <IconButton
-          iconName="whatsapp"
-          size="medium"
-          variant="primary"
-          iconLibrary="FontAwesome"
-          title={t("WhatsApp")}
-          onPress={handleWhatsApp}
-        />
+    <SafeAreaWrapper>
+      <ThemedView style={{ flex: 1 }}>
+        <View style={styles.iconContainer}>
+          <Image
+            source={require("@/assets/images/icon.png")}
+            style={styles.icon}
+          />
+        </View>
+        <ThemedView style={styles.contactCard}>
+          <LargeImageView
+            imageUrl={`https://quick-load.onrender.com/assets/contact-us.jpeg`}
+            height={200}
+            style={{
+              padding: 0,
+              margin: 0,
+              marginHorizontal: 0,
+              marginVertical: 0,
+              borderRadius: Sizes.borderRadiusMedium,
+            }}
+          />
+          <ThemedText style={styles.contactCardText}>{phoneNumber}</ThemedText>
+          <IconButton
+            iconName="phone"
+            size="medium"
+            variant="primary"
+            iconLibrary="FontAwesome"
+            title={t("Call Us")}
+            onPress={handleCall}
+          />
+          <IconButton
+            iconName="whatsapp"
+            size="medium"
+            variant="primary"
+            iconLibrary="FontAwesome"
+            title={t("WhatsApp")}
+            onPress={handleWhatsApp}
+          />
+        </ThemedView>
       </ThemedView>
-    </ThemedView>
+    </SafeAreaWrapper>
   );
 };
 

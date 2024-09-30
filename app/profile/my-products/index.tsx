@@ -16,6 +16,7 @@ import { useUser } from "@/contexts/UserContext";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const ProductItem: React.FC<{
   product: Product;
@@ -245,51 +246,51 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContainer: {
-    gap: Sizes.paddingMedium,
-    paddingVertical: Sizes.paddingVertical,
+    gap: responsive(Sizes.paddingMedium),
+    paddingVertical: responsive(Sizes.paddingVertical),
     overflow: "hidden",
   },
   listItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
-    borderRadius: Sizes.borderRadiusMedium,
-    marginHorizontal: Sizes.marginSmall,
-    marginBottom: Sizes.marginSmall,
+    paddingVertical: responsive(Sizes.paddingSmall),
+    paddingHorizontal: responsive(Sizes.paddingMedium),
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    marginHorizontal: responsive(Sizes.marginSmall),
+    marginBottom: responsive(Sizes.marginSmall),
     elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: responsive(2) },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: responsive(4),
   },
   listItemImage: {
-    width: 85,
-    height: 85,
-    borderRadius: Sizes.borderRadiusFull,
+    width: responsive(85),
+    height: responsive(85),
+    borderRadius: responsive(Sizes.borderRadiusFull),
   },
   listItemDetails: {
     flex: 1,
-    marginLeft: Sizes.paddingMedium,
+    marginLeft: responsive(Sizes.paddingMedium),
   },
   listItemName: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "bold",
   },
   listItemPrice: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
   },
   listItemCategory: {
-    fontSize: Sizes.textNormal,
+    fontSize: responsive(Sizes.textNormal),
     color: Colors.light.textSecondary,
   },
   addButton: {
     position: "absolute",
-    right: Sizes.marginHorizontal,
-    bottom: Sizes.marginMedium,
+    right: responsive(Sizes.marginHorizontal),
+    bottom: responsive(Sizes.marginMedium),
   },
   menuButton: {
-    padding: Sizes.paddingSmall,
+    padding: responsive(Sizes.paddingSmall),
   },
   listWrapper: {
     flex: 1,
@@ -299,18 +300,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: Sizes.paddingLarge,
+    paddingHorizontal: responsive(Sizes.paddingLarge),
   },
   emptyStateText: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: Sizes.marginMedium,
+    marginTop: responsive(Sizes.marginMedium),
   },
   emptyStateSubtext: {
-    fontSize: Sizes.textNormal,
+    fontSize: responsive(Sizes.textNormal),
     textAlign: "center",
     color: Colors.light.textSecondary,
-    marginTop: Sizes.marginSmall,
+    marginTop: responsive(Sizes.marginSmall),
   },
 });

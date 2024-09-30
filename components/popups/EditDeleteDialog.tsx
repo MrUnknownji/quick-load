@@ -6,6 +6,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface EditDeleteDialogProps {
   visible: boolean;
@@ -80,9 +81,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   menuOptions: {
-    borderRadius: Sizes.borderRadiusLarge,
-    width: 250,
-    padding: Sizes.paddingMedium,
+    borderRadius: responsive(Sizes.borderRadiusLarge),
+    width: vw(70),
+    padding: vw(4),
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -92,18 +93,18 @@ const styles = StyleSheet.create({
   menuOption: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: Sizes.paddingMedium,
+    paddingVertical: vh(2),
   },
   menuOptionText: {
-    marginLeft: Sizes.paddingMedium,
-    fontSize: Sizes.textMedium,
+    marginLeft: vw(4),
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "500",
   },
   menuSeparator: {
     height: 1,
     backgroundColor: Colors.light.textSecondary,
     opacity: 0.2,
-    marginVertical: Sizes.paddingSmall,
+    marginVertical: vh(1),
   },
 });
 

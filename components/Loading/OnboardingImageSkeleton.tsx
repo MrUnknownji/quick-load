@@ -7,7 +7,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const OnboardingImageSkeleton = () => {
   return (
     <View style={styles.container}>
-      <FlexibleSkeleton width={screenWidth} height={screenHeight - 60} />
+      <FlexibleSkeleton width={screenWidth} height={screenHeight} />
     </View>
   );
 };

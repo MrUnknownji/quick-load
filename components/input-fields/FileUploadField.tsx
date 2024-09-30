@@ -12,6 +12,7 @@ import Colors from "@/constants/Colors";
 import { t } from "i18next";
 import { ThemedText } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface FileUploadFieldProps {
   iconName?:
@@ -146,45 +147,45 @@ export default memo(FileUploadField);
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(4),
   },
   labelContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: vh(1),
   },
   label: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
   },
   subLabel: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.textSecondary,
   },
   mandatoryIndicator: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.error,
-    marginLeft: 2,
+    marginLeft: vw(0.5),
   },
   uploadBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(4),
     borderWidth: 0.5,
     borderColor: Colors.light.border,
-    borderRadius: Sizes.borderRadiusSmall,
+    borderRadius: responsive(Sizes.borderRadiusSmall),
   },
   uploadBoxError: {
     borderColor: Colors.light.error,
   },
   placeholderText: {
     flex: 1,
-    fontSize: Sizes.textMedium,
-    marginLeft: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textMedium),
+    marginLeft: vw(2),
   },
   icon: {
-    marginRight: Sizes.marginSmall,
+    marginRight: vw(2),
   },
 });

@@ -1,12 +1,5 @@
 import React, { useCallback } from "react";
-import {
-  Dimensions,
-  FlatList,
-  StyleSheet,
-  Text,
-  View,
-  ListRenderItem,
-} from "react-native";
+import { FlatList, StyleSheet, Text, View, ListRenderItem } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,8 +9,7 @@ import IconButton from "@/components/button/IconButton";
 import Button from "@/components/button/Button";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
-
-const { width: screenWidth } = Dimensions.get("window");
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type SubscriptionType = {
   heading: string;
@@ -100,7 +92,7 @@ const Subscription: React.FC = () => {
         renderItem={renderItem}
         keyExtractor={(item) => item.heading}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={screenWidth - 55}
+        snapToInterval={vw(85) + responsive(Sizes.marginSmall * 2)}
         decelerationRate="fast"
         contentContainerStyle={styles.flatListContent}
       />
@@ -161,65 +153,64 @@ const SubscriptionItem: React.FC<{ item: SubscriptionType }> = React.memo(
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Sizes.StatusBarHeight,
   },
   backButton: {
     position: "absolute",
-    left: Sizes.marginHorizontal,
-    top: Sizes.StatusBarHeight ?? 0 + Sizes.marginMedium,
-    borderRadius: Sizes.borderRadiusFull,
+    left: responsive(Sizes.marginHorizontal),
+    top: responsive(Sizes.StatusBarHeight ?? 0 + Sizes.marginMedium),
+    borderRadius: responsive(Sizes.borderRadiusFull),
     zIndex: 1,
   },
   image: {
     alignSelf: "center",
-    marginTop: 100,
-    width: 150,
-    height: 150,
+    marginTop: responsive(100),
+    width: responsive(150),
+    height: responsive(150),
   },
   flatListContent: {
-    paddingHorizontal: Sizes.marginMedium,
+    paddingHorizontal: responsive(Sizes.marginMedium),
   },
   itemDetailsContainer: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    padding: Sizes.paddingMedium,
-    marginVertical: Sizes.marginMedium,
-    marginHorizontal: Sizes.marginSmall,
-    borderRadius: Sizes.borderRadiusLarge,
-    height: 360,
-    width: screenWidth - 75,
+    padding: responsive(Sizes.paddingMedium),
+    marginVertical: responsive(Sizes.marginMedium),
+    marginHorizontal: responsive(Sizes.marginSmall),
+    borderRadius: responsive(Sizes.borderRadiusLarge),
+    height: responsive(360),
+    width: vw(85),
     elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: responsive(2) },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: responsive(4),
   },
   itemHeading: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: responsive(Sizes.marginSmall),
   },
   itemPrice: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "bold",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: responsive(Sizes.marginSmall),
   },
   itemDuration: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     fontWeight: "normal",
   },
   itemFeaturesContainer: {
     width: "100%",
-    marginBottom: Sizes.marginMedium,
+    marginBottom: responsive(Sizes.marginMedium),
   },
   itemFeature: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Sizes.marginExtraSmall,
+    marginBottom: responsive(Sizes.marginExtraSmall),
   },
   itemFeatureText: {
-    fontSize: Sizes.textSmall,
-    marginLeft: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textSmall),
+    marginLeft: responsive(Sizes.marginSmall),
   },
   subscribeButton: {
     width: "100%",

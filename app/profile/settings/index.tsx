@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { StyleSheet } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import SmallListItem from "@/components/list-items/SmallListItem";
 import LanguageDialog from "@/components/popups/LanguageDialog";
@@ -7,6 +8,7 @@ import AccountDeleteDialog from "@/components/popups/AccountDeleteDialog";
 import ThemeChangerDialog from "@/components/popups/ThemeChangerDialog";
 import { router } from "expo-router";
 import PermissionsDialog from "@/components/popups/PermissionsDialog";
+import { responsive } from "@/utils/responsive";
 
 const Settings = () => {
   const [isLanguageDialogVisible, setIsLanguageDialogVisible] = useState(false);
@@ -15,7 +17,7 @@ const Settings = () => {
   const [isPermissionsDialogVisible, setIsPermissionsDialogVisible] =
     useState(false);
   return (
-    <ThemedView>
+    <ThemedView style={styles.container}>
       <SmallListItem
         title={t("Language")}
         iconName="language"
@@ -61,5 +63,12 @@ const Settings = () => {
     </ThemedView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: responsive(4),
+  },
+});
 
 export default Settings;

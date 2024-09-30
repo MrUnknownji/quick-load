@@ -9,6 +9,7 @@ import React from "react";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type ButtonProps = {
   title: string;
@@ -31,15 +32,15 @@ const Button = ({
 }: ButtonProps) => {
   const backgroundColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.primary },
-    "primary"
+    "primary",
   );
   const secondaryColor = useThemeColor(
     { light: Colors.light.secondary, dark: Colors.dark.secondary },
-    "secondary"
+    "secondary",
   );
   const outlinedColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const textColor =
     variant === "outlined" ? secondaryColor : Colors.light.background;
@@ -73,18 +74,21 @@ const Button = ({
     switch (size) {
       case "small":
         return {
-          paddingVertical: Sizes.paddingSmall,
-          paddingHorizontal: Sizes.paddingSmall,
+          paddingVertical: vh(1),
+          paddingHorizontal: vw(1),
+          minWidth: vw(20),
         };
       case "large":
         return {
-          paddingVertical: Sizes.paddingLarge,
-          paddingHorizontal: Sizes.paddingLarge,
+          paddingVertical: vh(2),
+          paddingHorizontal: vw(6),
+          minWidth: vw(40),
         };
       default:
         return {
-          paddingVertical: Sizes.paddingMedium,
-          paddingHorizontal: Sizes.paddingMedium,
+          paddingVertical: vh(1.6),
+          paddingHorizontal: vw(5),
+          minWidth: vw(30),
         };
     }
   };
@@ -118,13 +122,20 @@ export default Button;
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: Sizes.borderRadiusFull,
+    borderRadius: 9999,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.marginSmall,
+    marginTop: vh(1),
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   buttonText: {
     fontWeight: "bold",
+    fontSize: responsive(Sizes.textMedium),
+    textAlign: "center",
   },
   disabled: {
     opacity: 0.6,

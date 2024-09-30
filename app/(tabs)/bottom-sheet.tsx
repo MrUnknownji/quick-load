@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { t } from "i18next";
 import { useUser } from "@/contexts/UserContext";
 import { ThemedText } from "@/components/ThemedText";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const FindRouteBottomSheet = () => {
   const { currentUser } = useUser();
@@ -65,41 +66,41 @@ export default FindRouteBottomSheet;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: responsive(10),
     alignItems: "center",
     justifyContent: "center",
   },
   titleText: {
-    fontSize: 24,
+    fontSize: responsive(24),
     fontWeight: "bold",
-    marginBottom: 30,
+    marginBottom: responsive(30),
     textAlign: "center",
-    paddingTop: 8,
+    paddingTop: responsive(8),
   },
   optionContainer: {
     alignItems: "center",
-    marginBottom: 30,
-    borderRadius: 15,
-    padding: 20,
+    marginBottom: responsive(30),
+    borderRadius: responsive(15),
+    padding: responsive(20),
   },
   image: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    marginBottom: 15,
+    width: responsive(180),
+    height: responsive(180),
+    borderRadius: responsive(90),
+    marginBottom: responsive(15),
   },
   textContainer: {
     alignItems: "center",
   },
   labelText: {
-    fontSize: 18,
+    fontSize: responsive(18),
     fontWeight: "bold",
     textAlign: "center",
   },
   subLabelText: {
-    fontSize: 14,
+    fontSize: responsive(14),
     color: "#666",
     textAlign: "center",
-    marginTop: 5,
+    marginTop: responsive(5),
   },
 });

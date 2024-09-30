@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
+import { responsive } from "@/utils/responsive";
 
 interface InputProps {
   placeholder: string;
@@ -49,7 +50,7 @@ export const Input: React.FC<InputProps> = ({
     >
       <Ionicons
         name={iconName}
-        size={24}
+        size={responsive(24)}
         color={editable ? iconColor : placeholderColor}
       />
       <TextInput
@@ -75,12 +76,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.light.border,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    borderRadius: responsive(8),
+    paddingHorizontal: responsive(10),
+    paddingVertical: responsive(8),
   },
   input: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: responsive(10),
+    fontSize: responsive(16),
   },
 });

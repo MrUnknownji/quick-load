@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -8,6 +8,8 @@ import { ListItemProps } from "@/types/types";
 import Colors from "@/constants/Colors";
 import Button from "../button/Button";
 import { t } from "i18next";
+import { responsive, vw, vh } from "@/utils/responsive";
+import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 
 const LargeListItem: React.FC<ListItemProps> = memo(
   ({
@@ -21,6 +23,7 @@ const LargeListItem: React.FC<ListItemProps> = memo(
     buttonTitle,
     style,
   }) => {
+    const [isImageLoading, setIsImageLoading] = useState(true);
     const backgroundColor = useThemeColor(
       {
         light: Colors.light.cardBackground,
@@ -47,10 +50,19 @@ const LargeListItem: React.FC<ListItemProps> = memo(
         style={[styles.container, { backgroundColor, shadowColor }, style]}
       >
         <View style={styles.imageContainer}>
+          {isImageLoading && (
+            <FlexibleSkeleton
+              width="100%"
+              height="100%"
+              borderRadius={Sizes.borderRadius}
+              style={styles.imageSkeleton}
+            />
+          )}
           <Image
             source={imageUrl || `https://placehold.co/150x150?text=${heading}`}
-            style={styles.image}
+            style={[styles.image, isImageLoading && styles.hiddenImage]}
             contentFit="cover"
+            onLoadEnd={() => setIsImageLoading(false)}
           />
         </View>
         <View style={styles.contentContainer}>
@@ -114,42 +126,52 @@ export default LargeListItem;
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginVertical: Sizes.marginSmall,
-    borderRadius: Sizes.borderRadius,
-    padding: Sizes.paddingMedium,
+    marginVertical: vh(1),
+    borderRadius: responsive(Sizes.borderRadius),
+    padding: vw(3),
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   imageContainer: {
-    width: Sizes.cardHeight,
+    width: vw(35),
     aspectRatio: 1,
-    borderRadius: Sizes.borderRadius,
+    borderRadius: responsive(Sizes.borderRadius),
     overflow: "hidden",
   },
   image: {
     width: "100%",
     height: "100%",
   },
+  imageSkeleton: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  hiddenImage: {
+    opacity: 0,
+  },
   contentContainer: {
     flex: 1,
-    marginLeft: Sizes.marginMedium,
+    marginLeft: vw(3),
     justifyContent: "space-between",
   },
   detailsContainer: {
-    gap: Sizes.marginExtraSmall,
+    gap: vh(0.5),
   },
   listHeading: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
   },
   priceText: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "bold",
   },
   perPieceText: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     fontWeight: "normal",
   },
   infoContainer: {
@@ -157,7 +179,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   infoText: {
-    fontSize: Sizes.textSmall,
-    marginLeft: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textSmall),
+    marginLeft: vw(1),
   },
 });

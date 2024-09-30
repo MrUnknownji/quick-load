@@ -18,6 +18,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface PermissionsDialogProps {
   isVisible: boolean;
@@ -46,15 +47,15 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
 
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
-    "background"
+    "background",
   );
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary"
+    "primary",
   );
 
   useEffect(() => {
@@ -104,14 +105,14 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
     } else {
       IntentLauncher.startActivityAsync(
         IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
-        { data: "package:" + "com.load.quickload" }
+        { data: "package:" + "com.load.quickload" },
       );
     }
   };
 
   const handlePermissionRequest = async (
     permission: PermissionState,
-    setPermission: React.Dispatch<React.SetStateAction<PermissionState>>
+    setPermission: React.Dispatch<React.SetStateAction<PermissionState>>,
   ) => {
     if (permission.status === "denied") {
       openAppSettings();
@@ -128,7 +129,7 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
     title: string,
     permission: PermissionState,
     setPermission: React.Dispatch<React.SetStateAction<PermissionState>>,
-    icon: string
+    icon: string,
   ) => (
     <TouchableOpacity
       style={[styles.permissionItem, { borderColor: primaryColor }]}
@@ -196,13 +197,13 @@ const PermissionsDialog: React.FC<PermissionsDialogProps> = ({
               t("GPS"),
               gpsPermission,
               setGpsPermission,
-              "location"
+              "location",
             )}
             {renderPermissionItem(
               t("Notifications"),
               notificationPermission,
               setNotificationPermission,
-              "notifications"
+              "notifications",
             )}
           </View>
         </Animated.View>
@@ -219,10 +220,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   dialog: {
-    borderRadius: Sizes.borderRadiusMedium,
-    padding: 20,
-    width: "80%",
-    maxWidth: 300,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    padding: vw(5),
+    width: vw(80),
+    maxWidth: vw(80),
     elevation: 10,
   },
   content: {
@@ -233,28 +234,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 20,
+    marginBottom: vh(2.5),
   },
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   closeButton: {
-    padding: 5,
+    padding: vw(1),
   },
   title: {
-    fontSize: 18,
+    fontSize: responsive(18),
     fontWeight: "bold",
-    marginLeft: 10,
+    marginLeft: vw(2.5),
   },
   permissionItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 15,
-    borderRadius: Sizes.borderRadiusMedium,
+    padding: vw(4),
+    borderRadius: responsive(Sizes.borderRadiusMedium),
     borderWidth: 1,
-    marginBottom: 10,
+    marginBottom: vh(1.5),
     width: "100%",
   },
   permissionContent: {
@@ -262,13 +263,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   permissionText: {
-    fontSize: 16,
-    marginLeft: 10,
+    fontSize: responsive(16),
+    marginLeft: vw(2.5),
   },
   statusIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: vw(6),
+    height: vw(6),
+    borderRadius: vw(3),
     justifyContent: "center",
     alignItems: "center",
   },

@@ -24,6 +24,8 @@ import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useFetchProductById } from "@/hooks/useFetchProduct";
 import { Product } from "@/types/Product";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 
@@ -63,51 +65,53 @@ const ProductDetailPage = () => {
     );
 
   return (
-    <ThemedView style={{ flex: 1 }}>
-      <ProductHeader heading={product.productType} />
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ minHeight: screenHeight - 100 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.productContainer}>
-          <LargeImageView
-            imageUrl={`https://quick-load.onrender.com/assets/${product.productImage}`}
-            style={{ marginHorizontal: 0 }}
-          />
-          {!isPricingVisible && (
-            <>
-              <ThemedText style={styles.productDescription}>
-                {t(product.productDetails ?? "")}
-              </ThemedText>
-              <ProductFeaturesCard price={Number(product.productPrice)} />
-            </>
-          )}
-          {isPricingVisible && <PricingCard item={product} />}
-        </View>
-      </ScrollView>
-      <Button
-        title={isPricingVisible ? t("Book Order") : t("Buy Now")}
-        variant="primary"
-        size="medium"
-        style={styles.bottomButton}
-        onPress={() => {
-          if (isPricingVisible) {
-            router.push({
-              pathname: "/thank-you",
-              params: {
-                message: t(
-                  "Thank you for the purchase. You will receive your product shortly.",
-                ),
-              },
-            });
+    <SafeAreaWrapper>
+      <ThemedView style={{ flex: 1 }}>
+        <ProductHeader heading={product.productType} />
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ minHeight: vh(100) - responsive(100) }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          togglePricingVisibility();
-        }}
-      />
-    </ThemedView>
+        >
+          <View style={styles.productContainer}>
+            <LargeImageView
+              imageUrl={`https://quick-load.onrender.com/assets/${product.productImage}`}
+              style={{ marginHorizontal: 0 }}
+            />
+            {!isPricingVisible && (
+              <>
+                <ThemedText style={styles.productDescription}>
+                  {t(product.productDetails ?? "")}
+                </ThemedText>
+                <ProductFeaturesCard price={Number(product.productPrice)} />
+              </>
+            )}
+            {isPricingVisible && <PricingCard item={product} />}
+          </View>
+        </ScrollView>
+        <Button
+          title={isPricingVisible ? t("Book Order") : t("Buy Now")}
+          variant="primary"
+          size="medium"
+          style={styles.bottomButton}
+          onPress={() => {
+            if (isPricingVisible) {
+              router.push({
+                pathname: "/thank-you",
+                params: {
+                  message: t(
+                    "Thank you for the purchase. You will receive your product shortly.",
+                  ),
+                },
+              });
+            }
+            togglePricingVisibility();
+          }}
+        />
+      </ThemedView>
+    </SafeAreaWrapper>
   );
 };
 
@@ -119,9 +123,9 @@ const ProductHeader = ({ heading }: { heading: string }) => (
       variant="primary"
       style={{
         position: "absolute",
-        left: 20,
-        borderRadius: Sizes.borderRadiusFull,
-        top: 5,
+        left: responsive(20),
+        borderRadius: responsive(Sizes.borderRadiusFull),
+        top: responsive(5),
       }}
       onPress={() => router.back()}
     />
@@ -290,65 +294,6 @@ const PricingCardItem = ({
   </View>
 );
 
-const styles2 = StyleSheet.create({
-  pricingCard: {
-    marginVertical: Sizes.marginVertical,
-    padding: Sizes.paddingMedium,
-    borderRadius: Sizes.borderRadiusLarge,
-    elevation: 3,
-    gap: Sizes.marginExtraSmall,
-    marginHorizontal: Sizes.marginHorizontal,
-  },
-  pricingCardHeading: {
-    fontSize: Sizes.textLarge,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  pricingCardListItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: Sizes.marginSmall,
-    width: "100%",
-  },
-  pricingCardListItemText: {
-    fontSize: Sizes.textMedium,
-    fontWeight: "bold",
-  },
-  piecesInput: {
-    paddingHorizontal: Sizes.paddingSmall,
-    fontWeight: "bold",
-    width: "auto",
-    minWidth: 50,
-    borderColor: Colors.light.border,
-    borderWidth: 0.5,
-    borderRadius: Sizes.borderRadiusLarge,
-  },
-  perPiecePriceText: {
-    fontSize: Sizes.textMedium,
-    fontWeight: "bold",
-  },
-  offerDetailText: {
-    fontSize: Sizes.textSmall,
-    fontWeight: "normal",
-  },
-  offerText: {
-    fontSize: Sizes.textMedium,
-    fontWeight: "bold",
-  },
-  totalPrice: {
-    fontSize: Sizes.textLarge,
-    fontWeight: "bold",
-  },
-  paymentMethodHeading: {
-    fontSize: Sizes.textLarge,
-    fontWeight: "bold",
-    marginVertical: Sizes.marginMedium,
-    textAlign: "center",
-    marginTop: Sizes.marginLarge,
-  },
-});
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -356,62 +301,120 @@ const styles = StyleSheet.create({
   productHeadingContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.StatusBarHeight,
-    paddingTop: Sizes.paddingSmall,
-    paddingBottom: Sizes.paddingMedium,
+    paddingBottom: responsive(Sizes.paddingMedium),
   },
   productHeading: {
-    fontSize: Sizes.textExtraLarge,
+    fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
-    paddingTop: Sizes.paddingSmall,
+    paddingTop: responsive(Sizes.paddingLarge),
   },
   productContainer: {
-    marginTop: Sizes.marginMedium,
-    gap: Sizes.marginMedium,
+    marginTop: responsive(Sizes.marginMedium),
+    gap: responsive(Sizes.marginMedium),
   },
   productDescription: {
     textAlign: "justify",
-    marginHorizontal: Sizes.marginHorizontal,
+    marginHorizontal: responsive(Sizes.marginHorizontal),
+    fontSize: responsive(Sizes.textNormal),
   },
   productFeaturesCard: {
-    marginBottom: 100,
-    padding: Sizes.paddingMedium,
-    borderRadius: Sizes.borderRadiusLarge,
+    marginBottom: responsive(100),
+    padding: responsive(Sizes.paddingMedium),
+    borderRadius: responsive(Sizes.borderRadiusLarge),
     elevation: 3,
-    marginHorizontal: Sizes.marginHorizontal,
+    marginHorizontal: responsive(Sizes.marginHorizontal),
   },
   featureCardHeading: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
     textAlign: "center",
   },
   featureCardPrice: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
   },
   perPieceText: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     fontWeight: "normal",
   },
   featureItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Sizes.marginExtraSmall,
-    paddingVertical: Sizes.paddingExtraSmall,
+    gap: responsive(Sizes.marginExtraSmall),
+    paddingVertical: responsive(Sizes.paddingExtraSmall),
   },
   featureText: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "normal",
   },
   errorText: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
   },
   bottomButton: {
     position: "absolute",
-    bottom: 10,
-    marginHorizontal: Sizes.marginHorizontal,
-    width: screenWidth - Sizes.marginHorizontal * 2,
+    bottom: responsive(10),
+    marginHorizontal: responsive(Sizes.marginHorizontal),
+    width: vw(100) - responsive(Sizes.marginHorizontal * 2),
+  },
+});
+
+const styles2 = StyleSheet.create({
+  pricingCard: {
+    marginVertical: responsive(Sizes.marginVertical),
+    padding: responsive(Sizes.paddingMedium),
+    borderRadius: responsive(Sizes.borderRadiusLarge),
+    elevation: 3,
+    gap: responsive(Sizes.marginExtraSmall),
+    marginHorizontal: responsive(Sizes.marginHorizontal),
+  },
+  pricingCardHeading: {
+    fontSize: responsive(Sizes.textLarge),
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  pricingCardListItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: responsive(Sizes.marginSmall),
+    width: "100%",
+  },
+  pricingCardListItemText: {
+    fontSize: responsive(Sizes.textMedium),
+    fontWeight: "bold",
+  },
+  piecesInput: {
+    paddingHorizontal: responsive(Sizes.paddingSmall),
+    fontWeight: "bold",
+    width: "auto",
+    minWidth: responsive(50),
+    borderColor: Colors.light.border,
+    borderWidth: 0.5,
+    borderRadius: responsive(Sizes.borderRadiusLarge),
+  },
+  perPiecePriceText: {
+    fontSize: responsive(Sizes.textMedium),
+    fontWeight: "bold",
+  },
+  offerDetailText: {
+    fontSize: responsive(Sizes.textSmall),
+    fontWeight: "normal",
+  },
+  offerText: {
+    fontSize: responsive(Sizes.textMedium),
+    fontWeight: "bold",
+  },
+  totalPrice: {
+    fontSize: responsive(Sizes.textLarge),
+    fontWeight: "bold",
+  },
+  paymentMethodHeading: {
+    fontSize: responsive(Sizes.textLarge),
+    fontWeight: "bold",
+    marginVertical: responsive(Sizes.marginMedium),
+    textAlign: "center",
+    marginTop: responsive(Sizes.marginLarge),
   },
 });
 

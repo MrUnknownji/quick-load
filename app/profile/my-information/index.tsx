@@ -25,6 +25,7 @@ import { useUser } from "@/hooks/useUser";
 import { useUser as useContextUser } from "@/contexts/UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from "@/constants/Colors";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type FormField = {
   type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
@@ -359,7 +360,7 @@ const UserInformationPage: React.FC = () => {
           renderItem={renderItem}
           keyExtractor={(item, index) => `${item.type}-${index}`}
           contentContainerStyle={{
-            paddingVertical: 50,
+            paddingVertical: responsive(50),
           }}
         />
         <IconButton
@@ -369,10 +370,10 @@ const UserInformationPage: React.FC = () => {
           title={t("Save")}
           style={{
             position: "absolute",
-            bottom: Sizes.marginLarge,
-            right: Sizes.marginHorizontal,
-            borderRadius: Sizes.borderRadiusFull,
-            paddingHorizontal: Sizes.paddingMedium,
+            bottom: responsive(Sizes.marginLarge),
+            right: responsive(Sizes.marginHorizontal),
+            borderRadius: responsive(Sizes.borderRadiusFull),
+            paddingHorizontal: responsive(Sizes.paddingMedium),
           }}
           iconLibrary="MaterialCommunityIcons"
           onPress={handleSave}
@@ -400,16 +401,16 @@ const styles = StyleSheet.create({
   userImageContainer: {
     position: "absolute",
     zIndex: 2,
-    top: -60,
-    width: screenWidth - Sizes.paddingMedium * 2,
-    height: 100,
+    top: responsive(-60),
+    width: vw(100) - responsive(Sizes.paddingMedium * 2),
+    height: responsive(100),
     alignItems: "center",
     justifyContent: "center",
   },
   userImage: {
-    width: 100,
-    height: 100,
-    borderRadius: Sizes.borderRadiusFull,
+    width: responsive(100),
+    height: responsive(100),
+    borderRadius: responsive(Sizes.borderRadiusFull),
   },
   loadingContainer: {
     justifyContent: "center",

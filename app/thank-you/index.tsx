@@ -10,8 +10,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
-
-const { width: screenWidth } = Dimensions.get("window");
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const ThankYou = () => {
   const { message, type, from, to, vehicle, orderNumber, issueDetails } =
@@ -100,7 +99,7 @@ const RouteInfoItem = ({
   iconColor: string;
 }) => (
   <View style={styles.routeInfoItem}>
-    <Ionicons name={icon as any} size={24} color={iconColor} />
+    <Ionicons name={icon as any} size={responsive(24)} color={iconColor} />
     <ThemedText style={styles.routeInfoText}>{text}</ThemedText>
   </View>
 );
@@ -112,72 +111,72 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: Sizes.paddingLarge,
+    padding: responsive(Sizes.paddingLarge),
   },
   backButton: {
     position: "absolute",
-    left: Sizes.marginHorizontal,
-    top: Sizes.StatusBarHeight ?? 0 + 10,
-    borderRadius: Sizes.borderRadiusFull,
+    left: responsive(Sizes.marginHorizontal),
+    top: responsive((Sizes.StatusBarHeight ?? 0) + 10),
+    borderRadius: responsive(Sizes.borderRadiusFull),
   },
   animation: {
-    width: 200,
-    height: 200,
+    width: responsive(200),
+    height: responsive(200),
   },
   heading: {
-    fontSize: Sizes.textExtraLarge,
+    fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginLarge),
   },
   message: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     textAlign: "center",
-    marginTop: Sizes.marginMedium,
-    marginHorizontal: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginMedium),
+    marginHorizontal: responsive(Sizes.marginLarge),
   },
   routeInfoContainer: {
-    marginTop: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginLarge),
     alignItems: "center",
     width: "100%",
   },
   routeInfoItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: responsive(Sizes.marginSmall),
   },
   routeInfoText: {
-    fontSize: Sizes.textMedium,
-    marginLeft: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textMedium),
+    marginLeft: responsive(Sizes.marginSmall),
   },
   button: {
-    marginTop: Sizes.marginLarge,
-    width: screenWidth - Sizes.marginHorizontal * 4,
+    marginTop: responsive(Sizes.marginLarge),
+    width: vw(90),
   },
   reviewMessage: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     textAlign: "center",
-    marginTop: Sizes.marginMedium,
-    marginHorizontal: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginMedium),
+    marginHorizontal: responsive(Sizes.marginLarge),
     fontStyle: "italic",
   },
   unionSupportContainer: {
-    marginTop: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginLarge),
     alignItems: "flex-start",
     width: "100%",
   },
   unionSupportTitle: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
-    marginBottom: Sizes.marginMedium,
+    marginBottom: responsive(Sizes.marginMedium),
   },
   unionSupportText: {
-    fontSize: Sizes.textMedium,
-    marginBottom: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textMedium),
+    marginBottom: responsive(Sizes.marginSmall),
   },
   unionSupportMessage: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontStyle: "italic",
-    marginTop: Sizes.marginMedium,
+    marginTop: responsive(Sizes.marginMedium),
   },
 });

@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { t } from "i18next";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import LargeListItem from "@/components/list-items/LargeListItem";
 import IconButton from "@/components/button/IconButton";
@@ -26,6 +25,8 @@ import {
 } from "@/hooks/useFetchProduct";
 import { Product, ProductOwner } from "@/types/Product";
 import Colors from "@/constants/Colors";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 if (
   Platform.OS === "android" &&
@@ -115,7 +116,7 @@ const ProductItems: React.FC = () => {
             {
               translateY: fastDeliveryScaleAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [50 * (index + 1), 0],
+                outputRange: [responsive(50 * (index + 1)), 0],
               }),
             },
           ],
@@ -152,37 +153,34 @@ const ProductItems: React.FC = () => {
 
   if (productsLoading && !refreshing)
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { alignItems: "center", justifyContent: "center" },
-        ]}
-      >
+      <View style={styles.centeredContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />
-      </SafeAreaView>
+      </View>
     );
 
   if (!productOwnerId) {
     return (
-      <SafeAreaView style={styles.container}>
+      <View style={styles.centeredContainer}>
         <ThemedText style={styles.errorText}>{t("Owner not found")}</ThemedText>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <ThemedView style={styles.container}>
-      <ProductOwnerHeader heading={selectedOwner?.productOwnerName ?? ""} />
-      <FlatList
-        data={products}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
-    </ThemedView>
+    <SafeAreaWrapper>
+      <ThemedView style={styles.container}>
+        <ProductOwnerHeader heading={selectedOwner?.productOwnerName ?? ""} />
+        <FlatList
+          data={products}
+          renderItem={renderItem}
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      </ThemedView>
+    </SafeAreaWrapper>
   );
 };
 
@@ -194,9 +192,9 @@ const ProductOwnerHeader = ({ heading }: { heading: string }) => (
       variant="primary"
       style={{
         position: "absolute",
-        left: 20,
-        borderRadius: Sizes.borderRadiusFull,
-        top: 5,
+        left: responsive(20),
+        borderRadius: responsive(Sizes.borderRadiusFull),
+        top: responsive(5),
       }}
       onPress={() => router.back()}
     />
@@ -205,30 +203,33 @@ const ProductOwnerHeader = ({ heading }: { heading: string }) => (
 );
 
 const styles = StyleSheet.create({
+  centeredContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   container: {
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: Sizes.marginHorizontal,
-    paddingBottom: Sizes.marginLarge,
+    paddingHorizontal: responsive(Sizes.marginHorizontal),
+    paddingBottom: responsive(Sizes.marginLarge),
   },
   errorText: {
     textAlign: "center",
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
-    marginTop: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginLarge),
   },
   productHeadingContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.StatusBarHeight,
-    paddingTop: Sizes.paddingSmall,
-    paddingBottom: Sizes.paddingMedium,
+    paddingBottom: responsive(Sizes.paddingMedium),
   },
   productHeading: {
-    fontSize: Sizes.textExtraLarge,
+    fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
-    paddingTop: Sizes.paddingSmall,
+    paddingTop: responsive(Sizes.paddingLarge),
   },
 });
 

@@ -27,6 +27,7 @@ import {
   useFetchVehicleTypes,
 } from "@/hooks/useFetchVehicle";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
+import { responsive } from "@/utils/responsive";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
@@ -144,8 +145,8 @@ const RouteFinder = () => {
         return (
           <FlexibleSkeleton
             width="100%"
-            height={50}
-            style={{ marginBottom: Sizes.marginSmall }}
+            height={responsive(50)}
+            style={{ marginBottom: responsive(Sizes.marginSmall) }}
           />
         );
       } else {
@@ -221,7 +222,7 @@ const RouteFinder = () => {
             />
             <Ionicons
               name="search"
-              size={24}
+              size={responsive(24)}
               color={Colors.light.textSecondary}
               style={styles.searchIcon}
             />
@@ -234,7 +235,7 @@ const RouteFinder = () => {
             variant="primary"
             size="medium"
             style={styles.findButton}
-            textStyle={{ fontSize: Sizes.textMedium }}
+            textStyle={{ fontSize: responsive(Sizes.textMedium) }}
             onPress={handleSend}
             disabled={loading || !isFormValid()}
           />
@@ -258,32 +259,32 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
-    padding: Sizes.paddingMedium,
+    padding: responsive(Sizes.paddingMedium),
     alignItems: "center",
     justifyContent: "center",
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: responsive(150),
+    height: responsive(150),
     resizeMode: "contain",
-    marginBottom: Sizes.marginMedium,
+    marginBottom: responsive(Sizes.marginMedium),
   },
   title: {
-    fontSize: Sizes.textExtraLarge,
+    fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
     color: Colors.light.primary,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: Sizes.textMedium,
-    marginBottom: Sizes.marginMedium,
+    fontSize: responsive(Sizes.textMedium),
+    marginBottom: responsive(Sizes.marginMedium),
     textAlign: "center",
   },
   sectionTitle: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
-    marginBottom: Sizes.marginSmall,
-    paddingTop: 8,
+    marginBottom: responsive(Sizes.marginSmall),
+    paddingTop: responsive(8),
   },
   inputContainer: {
     width: "100%",
@@ -292,37 +293,39 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderColor: Colors.light.border,
     borderWidth: 1,
-    borderRadius: Sizes.borderRadius,
-    marginBottom: Sizes.marginSmall,
+    borderRadius: responsive(Sizes.borderRadius),
+    marginBottom: responsive(Sizes.marginSmall),
     overflow: "hidden",
   },
   autocompleteInput: {
     flex: 1,
-    paddingHorizontal: Sizes.paddingHorizontal,
+    paddingHorizontal: responsive(Sizes.paddingHorizontal),
+    fontSize: responsive(16),
   },
   searchIcon: {
-    padding: Sizes.paddingSmall,
+    padding: responsive(Sizes.paddingSmall),
   },
   toText: {
-    fontSize: Sizes.textNormal,
-    marginBottom: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textNormal),
+    marginBottom: responsive(Sizes.marginSmall),
     textAlign: "center",
   },
   backButton: {
     position: "absolute",
-    left: Sizes.marginHorizontal,
-    top: Sizes.StatusBarHeight ?? 0 + 10,
-    borderRadius: Sizes.borderRadiusFull,
+    left: responsive(Sizes.marginHorizontal),
+    top: responsive(Sizes.StatusBarHeight ?? 0 + 10),
+    borderRadius: responsive(Sizes.borderRadiusFull),
     zIndex: 10,
   },
   errorText: {
     color: "red",
-    marginTop: Sizes.marginSmall,
+    marginTop: responsive(Sizes.marginSmall),
     textAlign: "center",
+    fontSize: responsive(14),
   },
   findButton: {
     width: "100%",
-    marginTop: Sizes.marginMedium,
+    marginTop: responsive(Sizes.marginMedium),
   },
 });
 

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/Colors";
@@ -18,6 +17,7 @@ import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type PriceBasedOn = "piece" | "quintal";
 type ImageType = "main" | "extra";
@@ -229,23 +229,23 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    borderTopLeftRadius: Sizes.borderRadiusLarge,
-    borderTopRightRadius: Sizes.borderRadiusLarge,
-    marginTop: Sizes.marginMedium,
-    paddingBottom: 60,
+    borderTopLeftRadius: responsive(Sizes.borderRadiusLarge),
+    borderTopRightRadius: responsive(Sizes.borderRadiusLarge),
+    marginTop: responsive(Sizes.marginMedium),
+    paddingBottom: responsive(60),
   },
   scrollContent: {
     flexGrow: 1,
-    padding: Sizes.paddingMedium,
+    padding: responsive(Sizes.paddingMedium),
   },
   imagePickerMain: {
     width: "100%",
-    height: 200,
+    height: responsive(200),
     borderWidth: 1,
     borderColor: Colors.light.border,
-    borderRadius: Sizes.borderRadiusMedium,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
     overflow: "hidden",
-    marginBottom: Sizes.marginLarge,
+    marginBottom: responsive(Sizes.marginLarge),
   },
   productImage: {
     width: "100%",
@@ -257,11 +257,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   imagePlaceholderText: {
-    marginTop: Sizes.marginSmall,
+    marginTop: responsive(Sizes.marginSmall),
     textAlign: "center",
   },
   inputContainer: {
-    marginBottom: Sizes.marginMedium,
+    marginBottom: responsive(Sizes.marginMedium),
   },
   textArea: {
     height: "auto",
@@ -275,44 +275,44 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   marginLeft: {
-    marginLeft: Sizes.marginMedium,
+    marginLeft: responsive(Sizes.marginMedium),
   },
   extraImagesContainer: {
-    marginTop: Sizes.marginLarge,
+    marginTop: responsive(Sizes.marginLarge),
   },
   label: {
-    marginBottom: Sizes.marginSmall,
+    marginBottom: responsive(Sizes.marginSmall),
   },
   imagePickerExtra: {
-    width: 100,
-    height: 100,
+    width: responsive(100),
+    height: responsive(100),
     borderWidth: 1,
     borderColor: Colors.light.border,
-    borderRadius: Sizes.borderRadiusSmall,
+    borderRadius: responsive(Sizes.borderRadiusSmall),
     justifyContent: "center",
     alignItems: "center",
-    marginRight: Sizes.marginMedium,
-    marginVertical: Sizes.marginMedium,
+    marginRight: responsive(Sizes.marginMedium),
+    marginVertical: responsive(Sizes.marginMedium),
   },
   extraImageContainer: {
-    width: 100,
-    height: 100,
+    width: responsive(100),
+    height: responsive(100),
     position: "relative",
-    marginRight: Sizes.marginMedium,
-    marginVertical: Sizes.marginMedium,
+    marginRight: responsive(Sizes.marginMedium),
+    marginVertical: responsive(Sizes.marginMedium),
   },
   extraImage: {
     width: "100%",
     height: "100%",
-    borderRadius: Sizes.borderRadiusSmall,
+    borderRadius: responsive(Sizes.borderRadiusSmall),
   },
   removeImageButton: {
     position: "absolute",
-    top: -10,
-    right: -10,
+    top: responsive(-10),
+    right: responsive(-10),
   },
   addExtraImageText: {
-    marginTop: Sizes.marginSmall,
+    marginTop: responsive(Sizes.marginSmall),
     textAlign: "center",
   },
   addButton: {

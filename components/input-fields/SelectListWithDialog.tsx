@@ -21,6 +21,7 @@ import { t } from "i18next";
 import { ThemedText } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedView } from "../ThemedView";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type IconType =
   | "Ionicons"
@@ -223,46 +224,46 @@ export default memo(SelectListWithDialog) as typeof SelectListWithDialog;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(4),
   },
   labelContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: vh(1),
   },
   label: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
   },
   subLabel: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.textSecondary,
   },
   mandatoryIndicator: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.error,
-    marginLeft: 2,
+    marginLeft: vw(0.5),
   },
   selectBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(4),
     borderWidth: 0.5,
     borderColor: Colors.light.border,
-    borderRadius: Sizes.borderRadiusSmall,
+    borderRadius: responsive(Sizes.borderRadiusSmall),
   },
   selectBoxError: {
     borderColor: Colors.light.error,
   },
   selectedText: {
     flex: 1,
-    fontSize: Sizes.textMedium,
-    marginLeft: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textMedium),
+    marginLeft: vw(2),
   },
   icon: {
-    marginRight: Sizes.marginSmall,
+    marginRight: vw(2),
   },
   modalOverlay: {
     flex: 1,
@@ -272,21 +273,21 @@ const styles = StyleSheet.create({
   },
   popup: {
     width: "80%",
-    borderRadius: Sizes.borderRadiusMedium,
-    padding: Sizes.paddingMedium,
-    maxHeight: 300,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    padding: vw(4),
+    maxHeight: vh(50),
     elevation: 5,
   },
   option: {
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(4),
   },
   optionText: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
   },
   errorText: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.error,
-    marginTop: Sizes.marginSmall,
+    marginTop: vh(1),
   },
 });

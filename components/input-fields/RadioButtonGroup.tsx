@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { ThemedText } from "../ThemedText";
 import Sizes from "@/constants/Sizes";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface Option {
   label: string;
@@ -135,49 +136,49 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
   container: {
-    padding: 10,
+    padding: vw(2.5),
   },
   labelContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: Sizes.marginSmall,
+    marginBottom: vh(1),
   },
   label: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
   },
   subLabel: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.textSecondary,
   },
   mandatoryIndicator: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.error,
-    marginLeft: 2,
+    marginLeft: vw(0.5),
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginBottom: 4,
-    borderRadius: 4,
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(3),
+    marginBottom: vh(0.5),
+    borderRadius: responsive(4),
   },
   radio: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
+    height: responsive(20),
+    width: responsive(20),
+    borderRadius: responsive(10),
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 10,
+    marginRight: vw(2.5),
   },
   selectedRadio: {
-    height: 10,
-    width: 10,
-    borderRadius: 5,
+    height: responsive(10),
+    width: responsive(10),
+    borderRadius: responsive(5),
   },
   optionText: {
-    fontSize: 16,
+    fontSize: responsive(16),
   },
 });
 

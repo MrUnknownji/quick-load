@@ -6,6 +6,7 @@ import { Checkbox } from "./Checkbox";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
+import { responsive } from "@/utils/responsive";
 
 interface SignupFormProps {
   onSubmit: (mobileNumber: string) => Promise<void>;
@@ -77,11 +78,11 @@ export const SignInForm: React.FC<SignupFormProps> = ({ onSubmit }) => {
 const styles = StyleSheet.create({
   inputsContainer: {
     width: "100%",
-    gap: 15,
-    marginBottom: 20,
+    gap: responsive(15),
+    marginBottom: responsive(20),
   },
   button: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: responsive(20),
   },
 });

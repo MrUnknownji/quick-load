@@ -6,6 +6,7 @@ import FileUploadField from "@/components/input-fields/FileUploadField";
 import Button from "@/components/button/Button";
 import CheckBoxDropdownWithDialog from "@/components/input-fields/CheckBoxDropdownWithDialog";
 import { t } from "i18next";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 const MyShopPage = () => {
   const [shopName, setShopName] = useState("");
@@ -31,7 +32,7 @@ const MyShopPage = () => {
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: 80 }}
+        contentContainerStyle={{ paddingBottom: responsive(80) }}
       >
         <TextInputField
           label={t("Shop Name")}
@@ -137,6 +138,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
+    paddingBottom: responsive(20),
   },
 });
 

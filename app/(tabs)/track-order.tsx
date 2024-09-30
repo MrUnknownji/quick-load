@@ -2,15 +2,14 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import Sizes from "@/constants/Sizes";
-import { ListItemProps } from "@/types/types";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import { router } from "expo-router";
 import { t } from "i18next";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useUser } from "@/contexts/UserContext";
 import { ORDERS } from "@/assets/data/DATA";
 import { Order } from "@/types/Order";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 
 const TrackOrder = () => {
   // const { currentUser } = useUser();
@@ -62,35 +61,39 @@ const TrackOrder = () => {
   ];
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText style={styles.headingText}>
-          {t("Track your route")}
-        </ThemedText>
-      </View>
-      <FlatList
-        data={sections}
-        renderItem={({ item: section }) => (
-          <View>
-            {renderSectionHeader(section.title)}
-            <FlatList
-              data={section.data}
-              renderItem={({ item }) => renderItem({ item, section })}
-              keyExtractor={(item) => item.id}
-            />
-          </View>
-        )}
-        keyExtractor={(item) => item.title}
-        contentContainerStyle={{ paddingBottom: 75 }}
-      />
-    </ThemedView>
+    <SafeAreaWrapper>
+      <ThemedView style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText style={styles.headingText}>
+            {t("Track your route")}
+          </ThemedText>
+        </View>
+        <FlatList
+          data={sections}
+          renderItem={({ item: section }) => (
+            <View>
+              {renderSectionHeader(section.title)}
+              <FlatList
+                data={section.data}
+                renderItem={({ item }) => renderItem({ item, section })}
+                keyExtractor={(item) => item.id}
+              />
+            </View>
+          )}
+          keyExtractor={(item) => item.title}
+          contentContainerStyle={{ paddingBottom: 75 }}
+        />
+      </ThemedView>
+    </SafeAreaWrapper>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    paddingTop: Sizes.StatusBarHeight,
     paddingHorizontal: Sizes.marginHorizontal,
   },
   header: {

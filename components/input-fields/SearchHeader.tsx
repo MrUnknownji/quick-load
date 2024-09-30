@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  Platform,
-  StatusBar,
   StyleSheet,
   TextInput,
   View,
@@ -20,14 +18,9 @@ import {
   useSpeechRecognitionEvent,
 } from "expo-speech-recognition";
 import LottieView from "lottie-react-native";
+import { responsive, vw, vh } from "@/utils/responsive";
 
-interface SearchHeaderProps {
-  isPaddingNeeded?: boolean;
-}
-
-const SearchHeader: React.FC<SearchHeaderProps> = ({
-  isPaddingNeeded = true,
-}) => {
+const SearchHeader = () => {
   const [searchText, setSearchText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [showListeningModal, setShowListeningModal] = useState(false);
@@ -118,13 +111,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor },
-        isPaddingNeeded && styles.paddingNeeded,
-      ]}
-    >
+    <View style={[styles.container, { backgroundColor }]}>
       <View
         style={[
           styles.searchContainer,
@@ -197,35 +184,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: Sizes.paddingHorizontal,
-    paddingBottom: Sizes.paddingMedium,
-    gap: Sizes.marginMedium,
+    paddingHorizontal: vw(4),
+    paddingBottom: vh(2),
+    gap: vw(2),
     zIndex: 10,
-  },
-  paddingNeeded: {
-    paddingTop:
-      Platform.OS === "android"
-        ? (StatusBar.currentHeight ?? 0) + Sizes.paddingSmall
-        : Sizes.paddingSmall,
   },
   searchContainer: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: Sizes.borderRadiusFull,
-    paddingHorizontal: Sizes.paddingExtraSmall,
-    paddingVertical: Sizes.paddingExtraSmall / 2,
+    borderRadius: responsive(Sizes.borderRadiusFull),
+    paddingHorizontal: vw(2),
+    paddingVertical: vh(0.5),
     borderWidth: 1,
   },
   searchInput: {
     flex: 1,
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
   },
   searchIcon: {
-    padding: Sizes.paddingSmall,
+    padding: vw(2),
   },
   microphoneIcon: {
-    padding: Sizes.paddingSmall,
+    padding: vw(2),
   },
   modalContainer: {
     flex: 1,
@@ -235,13 +216,13 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
+    borderRadius: responsive(10),
+    padding: vw(5),
     alignItems: "center",
     justifyContent: "center",
   },
   lottieAnimation: {
-    width: 200,
-    height: 200,
+    width: vw(50),
+    height: vw(50),
   },
 });

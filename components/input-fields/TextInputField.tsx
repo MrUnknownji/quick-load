@@ -11,6 +11,7 @@ import {
 } from "@expo/vector-icons";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "../ThemedText";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface TextInputFieldProps {
   iconName?:
@@ -128,9 +129,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Sizes.marginSmall,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    gap: vw(2),
+    paddingVertical: vh(1),
+    paddingHorizontal: vw(4),
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.light.border,
   },
@@ -143,19 +144,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   label: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
   },
   subLabel: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.textSecondary,
   },
   mandatoryIndicator: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     color: Colors.light.error,
-    marginLeft: 2,
+    marginLeft: vw(0.5),
   },
   textInput: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.light.border,
   },
@@ -163,8 +164,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.light.error,
   },
   errorText: {
-    fontSize: Sizes.textSmall,
-    marginTop: Sizes.marginSmall,
+    fontSize: responsive(Sizes.textSmall),
+    marginTop: vh(1),
     color: Colors.light.error,
   },
 });

@@ -10,8 +10,7 @@ import LogoutDialog from "@/components/popups/LogoutDialog";
 import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useUser } from "@/contexts/UserContext";
-
-const { width: screenWidth } = Dimensions.get("window");
+import { responsive, vw } from "@/utils/responsive";
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
@@ -114,50 +113,49 @@ const Profile = () => {
   );
 };
 
-export default Profile;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: Sizes.StatusBarHeight,
     backgroundColor: Colors.light.primary,
   },
   profileHeader: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: Sizes.marginMedium,
-    paddingVertical: Sizes.paddingSmall,
-    paddingHorizontal: Sizes.paddingMedium,
+    marginTop: responsive(Sizes.marginMedium),
+    paddingBottom: responsive(Sizes.paddingMedium),
+    paddingHorizontal: responsive(Sizes.paddingMedium),
   },
   profileHeading: {
     textAlign: "center",
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     fontWeight: "bold",
     color: Colors.light.background,
   },
   profileDetails: {
-    marginTop: 100,
-    padding: Sizes.paddingMedium,
-    borderTopLeftRadius: Sizes.borderRadiusLarge,
-    borderTopRightRadius: Sizes.borderRadiusLarge,
+    marginTop: responsive(100),
+    padding: responsive(Sizes.paddingMedium),
+    borderTopLeftRadius: responsive(Sizes.borderRadiusLarge),
+    borderTopRightRadius: responsive(Sizes.borderRadiusLarge),
     elevation: 3,
     flex: 1,
   },
   userImageContainer: {
     position: "absolute",
     zIndex: 2,
-    top: -50,
-    width: screenWidth,
-    height: 100,
+    top: responsive(-50),
+    width: vw(100),
+    height: responsive(100),
     alignItems: "center",
     justifyContent: "center",
   },
   userImage: {
-    width: 100,
-    height: 100,
-    borderRadius: Sizes.borderRadiusFull,
+    width: responsive(100),
+    height: responsive(100),
+    borderRadius: responsive(Sizes.borderRadiusFull),
   },
   userDetailsContainer: {
-    marginTop: 25,
+    marginTop: responsive(25),
   },
 });
+
+export default Profile;

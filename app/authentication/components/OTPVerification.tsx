@@ -5,6 +5,7 @@ import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import { ThemedText } from "@/components/ThemedText";
+import { responsive } from "@/utils/responsive";
 
 interface OTPVerificationProps {
   mobileNumber: string;
@@ -153,47 +154,49 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
 const styles = StyleSheet.create({
   button: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: responsive(20),
   },
   otpContainer: {
     alignItems: "center",
     width: "100%",
   },
   otpTitle: {
-    fontSize: 24,
+    fontSize: responsive(24),
     fontWeight: "bold",
-    marginBottom: 10,
-    paddingTop: 8,
+    marginBottom: responsive(10),
+    paddingTop: responsive(8),
   },
   otpSubtitle: {
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: responsive(20),
+    fontSize: responsive(14),
   },
   otpInputContainer: {
     flexDirection: "row",
     justifyContent: "center",
     width: "100%",
-    marginBottom: 20,
+    marginBottom: responsive(20),
   },
   otpInput: {
-    width: 45,
-    height: 45,
+    width: responsive(45),
+    height: responsive(45),
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: responsive(10),
     textAlign: "center",
-    fontSize: 20,
-    marginHorizontal: 3,
+    fontSize: responsive(20),
+    marginHorizontal: responsive(3),
   },
   resendContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: responsive(20),
   },
   resendButtonText: {
     fontWeight: "bold",
+    fontSize: responsive(14),
   },
   wrongNumberText: {
-    fontSize: 14,
+    fontSize: responsive(14),
     fontWeight: "500",
   },
 });

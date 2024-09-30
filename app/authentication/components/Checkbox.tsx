@@ -6,6 +6,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { ThemedText } from "@/components/ThemedText";
+import { responsive } from "@/utils/responsive";
 
 interface CheckboxProps {
   checked: boolean;
@@ -40,7 +41,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     >
       <Ionicons
         name={checked ? "checkmark-circle" : "ellipse-outline"}
-        size={Sizes.icon.small}
+        size={responsive(Sizes.icon.small)}
         color={disabled ? disabledColor : checked ? iconColor : textColor}
       />
       <ThemedText
@@ -56,10 +57,11 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: responsive(20),
   },
   checkboxText: {
-    marginLeft: 8,
+    marginLeft: responsive(8),
+    fontSize: responsive(14),
   },
   disabled: {
     opacity: 0.6,

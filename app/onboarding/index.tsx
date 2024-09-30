@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Platform, StatusBar } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Image } from "expo-image";
 import RadioButtonGroup from "@/components/input-fields/RadioButtonGroup";
@@ -14,8 +14,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import OnboardingImageSkeleton from "@/components/Loading/OnboardingImageSkeleton";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+import { responsive, vw } from "@/utils/responsive";
 
 const Onboarding = () => {
   const [selectedPage, setSelectedPage] = useState(0);
@@ -51,71 +50,84 @@ const Onboarding = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      {selectedPage === 0 && (
-        <View style={styles.contentContainer}>
-          <Image
-            source={require("@/assets/images/icon.png")}
-            style={styles.icon}
-          />
-          <View style={styles.welcomeTextContainer}>
-            <ThemedText style={styles.welcomeText}>
-              {t("Welcome to Quick Load")}
-            </ThemedText>
-            <ThemedText style={styles.welcomeSubText}>
-              {t("Let's get started")}
-            </ThemedText>
-          </View>
-          <View style={styles.selectLanguageTextContainer}>
-            <Ionicons name="language" size={24} color={primaryColor} />
-            <Text style={[styles.selectLanguageText, { color: primaryColor }]}>
-              {t("Select Language")}
-            </Text>
-          </View>
-          <View style={styles.selectLanguageContainer}>
-            <RadioButtonGroup
-              options={[
-                { label: "English", value: "en" },
-                { label: "Hindi(हिन्दी)", value: "hi" },
-              ]}
-              initialSelection={appLanguage ?? "en"}
-              onSelect={(selectedLanguage) => setAppLanguage(selectedLanguage)}
-            />
-          </View>
-        </View>
-      )}
-      {selectedPage === 1 && (
-        <View style={styles.imageContainer}>
-          {!imagesLoaded.image1 ? (
-            <OnboardingImageSkeleton />
-          ) : (
+    <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" />
+      <SafeAreaView style={styles.safeArea} edges={["bottom"]}>
+        {selectedPage === 0 && (
+          <View style={styles.contentContainer}>
             <Image
-              source={`https://quick-load.onrender.com/assets/cheep-transport.png`}
-              style={styles.fullScreenImage}
+              source={require("@/assets/images/icon.png")}
+              style={styles.icon}
             />
-          )}
-        </View>
-      )}
-      {selectedPage === 2 && (
-        <View style={styles.imageContainer}>
-          {!imagesLoaded.image2 ? (
-            <OnboardingImageSkeleton />
-          ) : (
-            <Image
-              source={`https://quick-load.onrender.com/assets/cheep-material.png`}
-              style={styles.fullScreenImage}
-            />
-          )}
-        </View>
-      )}
-      <Button
-        title={t("Continue")}
-        variant="primary"
-        size="medium"
-        style={styles.button}
-        onPress={handleNext}
-      />
-    </SafeAreaView>
+            <View style={styles.welcomeTextContainer}>
+              <ThemedText style={styles.welcomeText}>
+                {t("Welcome to Quick Load")}
+              </ThemedText>
+              <ThemedText style={styles.welcomeSubText}>
+                {t("Let's get started")}
+              </ThemedText>
+            </View>
+            <View style={styles.selectLanguageTextContainer}>
+              <Ionicons
+                name="language"
+                size={responsive(24)}
+                color={primaryColor}
+              />
+              <Text
+                style={[styles.selectLanguageText, { color: primaryColor }]}
+              >
+                {t("Select Language")}
+              </Text>
+            </View>
+            <View style={styles.selectLanguageContainer}>
+              <RadioButtonGroup
+                options={[
+                  { label: "English", value: "en" },
+                  { label: "Hindi(हिन्दी)", value: "hi" },
+                ]}
+                initialSelection={appLanguage ?? "en"}
+                onSelect={(selectedLanguage) =>
+                  setAppLanguage(selectedLanguage)
+                }
+              />
+            </View>
+          </View>
+        )}
+        {selectedPage === 1 && (
+          <View style={styles.imageContainer}>
+            {!imagesLoaded.image1 ? (
+              <OnboardingImageSkeleton />
+            ) : (
+              <Image
+                source={`https://quick-load.onrender.com/assets/cheep-transport.png`}
+                style={styles.fullScreenImage}
+                contentFit="cover"
+              />
+            )}
+          </View>
+        )}
+        {selectedPage === 2 && (
+          <View style={styles.imageContainer}>
+            {!imagesLoaded.image2 ? (
+              <OnboardingImageSkeleton />
+            ) : (
+              <Image
+                source={`https://quick-load.onrender.com/assets/cheep-material.png`}
+                style={styles.fullScreenImage}
+                contentFit="cover"
+              />
+            )}
+          </View>
+        )}
+        <Button
+          title={t("Continue")}
+          variant="primary"
+          size="medium"
+          style={styles.button}
+          onPress={handleNext}
+        />
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -124,12 +136,17 @@ export default Onboarding;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
+  },
+  safeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight ?? 0) : 0,
   },
   contentContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: Sizes.marginHorizontal,
+    paddingHorizontal: responsive(Sizes.marginHorizontal),
   },
   imageContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -137,35 +154,34 @@ const styles = StyleSheet.create({
   fullScreenImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
   },
   icon: {
-    width: 200,
-    height: 200,
+    width: responsive(200),
+    height: responsive(200),
   },
   welcomeTextContainer: {
     alignItems: "flex-start",
-    marginTop: Sizes.marginLarge,
-    marginBottom: 50,
+    marginTop: responsive(Sizes.marginLarge),
+    marginBottom: responsive(50),
   },
   welcomeText: {
-    fontSize: Sizes.textExtraLarge,
+    fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
     textAlign: "center",
-    paddingTop: 8,
+    paddingTop: responsive(8),
   },
   welcomeSubText: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
     textAlign: "center",
   },
   selectLanguageTextContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: responsive(10),
   },
   selectLanguageText: {
-    fontSize: Sizes.textLarge,
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
   },
   selectLanguageContainer: {
@@ -174,8 +190,8 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    width: screenWidth - Sizes.marginHorizontal * 2,
-    bottom: 10,
+    width: vw(100) - responsive(Sizes.marginHorizontal * 2),
+    bottom: responsive(10),
     alignSelf: "center",
   },
 });

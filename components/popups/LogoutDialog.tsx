@@ -11,6 +11,7 @@ import { BlurView } from "expo-blur";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { t } from "i18next";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface LogoutDialogProps {
   isVisible: boolean;
@@ -88,18 +89,18 @@ const styles = StyleSheet.create({
   },
   dialog: {
     backgroundColor: Colors.light.primary,
-    borderRadius: Sizes.borderRadiusMedium,
-    padding: 20,
-    width: "80%",
-    maxWidth: 300,
+    borderRadius: responsive(Sizes.borderRadiusMedium),
+    padding: vw(5),
+    width: vw(80),
+    maxWidth: vw(80),
   },
   content: {
     alignItems: "center",
   },
   title: {
-    fontSize: 18,
+    fontSize: responsive(18),
     fontWeight: "bold",
-    paddingBottom: 20,
+    paddingBottom: vh(2.5),
     textAlign: "center",
     color: Colors.light.background,
   },
@@ -109,8 +110,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   button: {
-    padding: 10,
-    borderRadius: Sizes.borderRadiusMedium,
+    padding: vh(1.5),
+    borderRadius: responsive(Sizes.borderRadiusMedium),
     width: "45%",
     alignItems: "center",
     borderWidth: 1,
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: responsive(16),
     color: "black",
   },
   logoutButton: {

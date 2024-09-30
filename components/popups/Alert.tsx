@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "i18next";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 interface AlertProps {
   message: string;
@@ -94,9 +95,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    width: "90%",
-    maxWidth: 400,
-    borderRadius: 15,
+    width: vw(90),
+    maxWidth: vw(90),
+    borderRadius: responsive(15),
     overflow: "hidden",
     elevation: 5,
     shadowColor: "#000",
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   alertContainer: {
-    padding: 20,
+    padding: vw(5),
     flexDirection: "row",
     alignItems: "center",
   },
@@ -122,23 +123,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
   },
   iconContainer: {
-    marginRight: 15,
+    marginRight: vw(4),
   },
   message: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: responsive(16),
     flex: 1,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    padding: 10,
+    padding: vw(2.5),
   },
   button: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginLeft: 10,
+    paddingHorizontal: vw(4),
+    paddingVertical: vh(1.5),
+    borderRadius: responsive(5),
+    marginLeft: vw(2.5),
   },
   confirmButton: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
@@ -146,6 +147,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+    fontSize: responsive(14),
   },
 });
 

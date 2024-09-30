@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  Animated,
-  ToastAndroid,
-  Platform,
-} from "react-native";
+import { StyleSheet, Animated, ToastAndroid, Platform } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +14,7 @@ import { useUser as useContextUser } from "@/contexts/UserContext";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/hooks/useUser";
 import { t } from "i18next";
+import { responsive } from "@/utils/responsive";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"signin" | "otp">("signin");
@@ -270,13 +265,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: responsive(20),
   },
   icon: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 20,
+    width: responsive(120),
+    height: responsive(120),
+    borderRadius: responsive(60),
+    marginBottom: responsive(20),
   },
   formContainer: {
     width: "100%",

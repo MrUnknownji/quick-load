@@ -11,13 +11,11 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
-  ActivityIndicator,
   Animated,
   LayoutAnimation,
   UIManager,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { t } from "i18next";
@@ -35,6 +33,10 @@ import {
   useFetchProducts,
 } from "@/hooks/useFetchProduct";
 import CategorySkeleton from "@/components/Loading/CategorySkeleton";
+import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
+import { responsive, vw, vh } from "@/utils/responsive";
+import { SafeAreaView } from "react-native-safe-area-context";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 
 if (
   Platform.OS === "android" &&
@@ -69,7 +71,6 @@ const HomeScreen: React.FC = () => {
   useEffect(() => {
     if (selectedCategory) {
       fetchOwners(selectedCategory);
-      // Add a small delay before showing the owners list
       setTimeout(() => setShowOwners(true), 50);
     } else {
       setShowOwners(false);
@@ -100,7 +101,6 @@ const HomeScreen: React.FC = () => {
   const handleCategoryPress = useCallback(
     (category: any) => {
       if (selectedCategory === "") {
-        // Selecting a category when none was selected
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedCategory(category.name);
         listItemsAnim.setValue(0);
@@ -111,12 +111,10 @@ const HomeScreen: React.FC = () => {
           useNativeDriver: true,
         }).start();
       } else if (selectedCategory === category.name) {
-        // Deselecting the current category
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedCategory("");
         setShowOwners(false);
       } else {
-        // Switching between categories
         setShowOwners(false);
         setTimeout(() => {
           setSelectedCategory(category.name);
@@ -138,43 +136,62 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   const renderProductOwners = useCallback(() => {
-    if (ownersLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.light.primary} />
-        </View>
-      );
-    }
-
-    if (!selectedCategory || productOwners.length === 0 || !showOwners) {
+    if (!selectedCategory || !showOwners) {
       return null;
     }
 
-    return (
-      <View>
-        {productOwners.map((owner) => (
-          <LargeListItem
-            key={owner.productOwnerId}
-            heading={owner.productOwnerName}
-            imageUrl={`https://quick-load.onrender.com/assets/${owner.productImage}`}
-            price={`${owner.productPrizeFrom} - ${owner.productPrizeTo}`}
-            onPress={() =>
-              router.push({
-                pathname: "/product-items",
-                params: {
-                  productOwnerId: owner._id,
-                  productType: selectedCategory,
-                },
-              })
-            }
-            measurementType={getMeasurementType(selectedCategory)}
-            buttonTitle={t("More Information")}
-            location={owner.productLocation}
-            rating={owner.productRating}
-          />
-        ))}
-      </View>
-    );
+    if (ownersLoading) {
+      return Array(3)
+        .fill(0)
+        .map((_, index) => (
+          <View key={`skeleton-${index}`} style={styles.skeletonContainer}>
+            <FlexibleSkeleton
+              width={vw(25)}
+              height={vw(25)}
+              borderRadius={Sizes.borderRadius}
+            />
+            <View style={styles.skeletonContent}>
+              <FlexibleSkeleton
+                width="80%"
+                height={vh(2.5)}
+                borderRadius={Sizes.borderRadius}
+              />
+              <FlexibleSkeleton
+                width="60%"
+                height={vh(2)}
+                borderRadius={Sizes.borderRadius}
+              />
+              <FlexibleSkeleton
+                width="40%"
+                height={vh(2)}
+                borderRadius={Sizes.borderRadius}
+              />
+            </View>
+          </View>
+        ));
+    }
+
+    return productOwners.map((owner) => (
+      <LargeListItem
+        key={owner._id}
+        heading={owner.productOwnerName}
+        imageUrl={`https://quick-load.onrender.com/assets/${owner.productImage}`}
+        price={`${owner.productPrizeFrom ?? "XX"} - ${owner.productPrizeTo ?? "XX"}`}
+        onPress={() =>
+          router.push({
+            pathname: "/product-items",
+            params: {
+              productOwnerId: owner._id,
+              productType: selectedCategory,
+            },
+          })
+        }
+        measurementType={getMeasurementType(selectedCategory)}
+        buttonTitle={t("More Information")}
+        location={owner.productLocation}
+        rating={owner.productRating}
+      />
+    ));
   }, [
     productOwners,
     ownersLoading,
@@ -184,64 +201,69 @@ const HomeScreen: React.FC = () => {
   ]);
 
   return (
-    <ThemedView style={styles.container}>
-      <SearchHeader />
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={styles.scrollViewContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {selectedCategory === "" && (
-          <View style={styles.heroContainer}>
-            <ImageCarousel />
-          </View>
-        )}
+    <SafeAreaWrapper>
+      <ThemedView style={styles.container}>
+        <SearchHeader />
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categories}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false}
         >
-          {productsLoading
-            ? Array(4)
-                .fill(0)
-                .map((_, index) => <CategorySkeleton key={index} />)
-            : uniqueCategories.map((category, index) => (
-                <View key={index} style={styles.category}>
-                  <TouchableOpacity
-                    onPress={() => handleCategoryPress(category)}
-                  >
-                    <View
-                      style={[
-                        styles.categoryImageContainer,
-                        selectedCategory === category.name && { borderColor },
-                      ]}
-                    >
-                      <Image
-                        source={category.url}
-                        style={styles.categoryImage}
-                      />
-                    </View>
-                  </TouchableOpacity>
-                  <ThemedText style={styles.categoryLabel}>
-                    {t(category.name)}
-                  </ThemedText>
-                </View>
-              ))}
-        </ScrollView>
-        <SafeAreaView edges={["bottom"]}>
-          {selectedCategory === "" ? (
-            <LargeImageView
-              imageUrl="https://quick-load.onrender.com/assets/fast-deliver-truck.png"
-              style={styles.largeImageView}
-            />
-          ) : (
-            <View style={styles.itemsContainer}>{renderProductOwners()}</View>
+          {selectedCategory === "" && (
+            <View style={styles.heroContainer}>
+              <ImageCarousel />
+            </View>
           )}
-        </SafeAreaView>
-      </ScrollView>
-    </ThemedView>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categories}
+          >
+            {productsLoading
+              ? Array(4)
+                  .fill(0)
+                  .map((_, index) => (
+                    <CategorySkeleton key={`category-skeleton-${index}`} />
+                  ))
+              : uniqueCategories.map((category, index) => (
+                  <View key={`category-${index}`} style={styles.category}>
+                    <TouchableOpacity
+                      onPress={() => handleCategoryPress(category)}
+                    >
+                      <View
+                        style={[
+                          styles.categoryImageContainer,
+                          selectedCategory === category.name && { borderColor },
+                        ]}
+                      >
+                        <Image
+                          source={category.url}
+                          style={styles.categoryImage}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <ThemedText style={styles.categoryLabel}>
+                      {t(category.name)}
+                    </ThemedText>
+                  </View>
+                ))}
+          </ScrollView>
+          <SafeAreaView edges={["bottom"]}>
+            {selectedCategory === "" ? (
+              <LargeImageView
+                imageUrl="https://quick-load.onrender.com/assets/fast-deliver-truck.png"
+                style={styles.largeImageView}
+                key={Date.now()}
+              />
+            ) : (
+              <View style={styles.itemsContainer}>{renderProductOwners()}</View>
+            )}
+          </SafeAreaView>
+        </ScrollView>
+      </ThemedView>
+    </SafeAreaWrapper>
   );
 };
 
@@ -250,43 +272,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollViewContent: {
-    paddingBottom: 80,
+    paddingBottom: vh(10),
   },
   heroContainer: {
-    marginHorizontal: Sizes.marginHorizontal,
-    marginTop: Sizes.marginMedium,
-    height: Sizes.carouselHeight,
-    borderRadius: Sizes.borderRadiusLarge,
+    height: vh(25),
+    marginHorizontal: vw(4),
+    marginTop: vh(2),
+    borderRadius: responsive(Sizes.borderRadiusLarge),
     overflow: "hidden",
   },
   categories: {
-    paddingHorizontal: Sizes.paddingHorizontal,
-    paddingTop: Sizes.paddingMedium,
+    paddingHorizontal: vw(4),
+    paddingTop: vh(2),
     backgroundColor: "transparent",
   },
   category: {
     alignItems: "center",
-    marginHorizontal: Sizes.marginSmall,
+    marginHorizontal: vw(2),
   },
   categoryImageContainer: {
-    borderRadius: Sizes.borderRadiusFull,
+    borderRadius: responsive(30),
     overflow: "hidden",
     borderWidth: 2,
     borderColor: "transparent",
   },
   categoryImage: {
-    width: 60,
-    height: 60,
+    width: responsive(60),
+    height: responsive(60),
   },
   categoryLabel: {
-    fontSize: Sizes.textSmall,
+    fontSize: responsive(Sizes.textSmall),
     textAlign: "center",
     fontWeight: "bold",
-    marginVertical: 4,
+    marginVertical: vh(0.5),
   },
   itemsContainer: {
-    marginTop: Sizes.marginLarge,
-    marginHorizontal: Sizes.marginHorizontal,
+    marginTop: vh(2),
+    marginHorizontal: vw(4),
   },
   loadingContainer: {
     flex: 1,
@@ -300,6 +322,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     backgroundColor: "white",
+  },
+  skeletonContainer: {
+    flexDirection: "row",
+    marginVertical: vh(1),
+    borderRadius: responsive(Sizes.borderRadius),
+    padding: vw(3),
+    backgroundColor: "rgba(0, 0, 0, 0.05)",
+  },
+  skeletonContent: {
+    flex: 1,
+    marginLeft: vw(3),
+    justifyContent: "space-between",
   },
 });
 

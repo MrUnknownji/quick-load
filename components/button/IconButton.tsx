@@ -16,6 +16,7 @@ import {
   FontAwesome,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { responsive, vw, vh } from "@/utils/responsive";
 
 type IconLibrary =
   | "Ionicons"
@@ -80,17 +81,31 @@ const IconButton = ({
   const dangerColor = Colors.light.error;
 
   const getButtonStyle = () => {
+    const baseStyle = {
+      elevation: variant !== "transparent" ? 3 : 0,
+      shadowColor: variant !== "transparent" ? "#000" : "transparent",
+      shadowOffset:
+        variant !== "transparent"
+          ? { width: 0, height: 2 }
+          : { width: 0, height: 0 },
+      shadowOpacity: variant !== "transparent" ? 0.1 : 0,
+      shadowRadius: variant !== "transparent" ? 4 : 0,
+    };
+
     switch (variant) {
       case "primary":
         return {
+          ...baseStyle,
           backgroundColor: disabled ? Colors.light.disabled : backgroundColor,
         };
       case "secondary":
         return {
+          ...baseStyle,
           backgroundColor: disabled ? Colors.light.disabled : secondaryColor,
         };
       case "outlined":
         return {
+          ...baseStyle,
           backgroundColor: "transparent",
           borderColor: disabled ? Colors.light.disabled : outlinedColor,
           borderWidth: 1,
@@ -102,10 +117,11 @@ const IconButton = ({
         };
       case "danger":
         return {
+          ...baseStyle,
           backgroundColor: disabled ? Colors.light.disabled : dangerColor,
         };
       default:
-        return {};
+        return baseStyle;
     }
   };
 
@@ -113,18 +129,21 @@ const IconButton = ({
     switch (size) {
       case "small":
         return {
-          padding: Sizes.paddingSmall,
-          borderRadius: Sizes.borderRadiusSmall,
+          padding: vw(2),
+          minWidth: vw(8),
+          minHeight: vw(8),
         };
       case "large":
         return {
-          padding: Sizes.paddingLarge,
-          borderRadius: Sizes.borderRadiusLarge,
+          padding: vw(3),
+          minWidth: vw(12),
+          minHeight: vw(12),
         };
       default:
         return {
-          padding: Sizes.paddingMedium,
-          borderRadius: Sizes.borderRadiusFull,
+          padding: vw(2.5),
+          minWidth: vw(10),
+          minHeight: vw(10),
         };
     }
   };
@@ -140,17 +159,10 @@ const IconButton = ({
             : MaterialCommunityIcons;
 
     return (
-      <View
-        style={{
-          flexDirection: "row",
-          gap: Sizes.marginSmall,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <View style={styles.iconContainer}>
         <IconComponent
           name={iconName as never}
-          size={Sizes.icon[size]}
+          size={responsive(Sizes.icon[size])}
           color={variant === "transparent" ? textColor : iconColor}
           style={iconStyle}
         />
@@ -184,17 +196,24 @@ const IconButton = ({
   );
 };
 
-export default IconButton;
-
 const styles = StyleSheet.create({
   button: {
+    borderRadius: 9999,
     alignItems: "center",
     justifyContent: "center",
   },
   disabled: {
     opacity: 0.6,
   },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   title: {
-    fontSize: Sizes.textMedium,
+    fontSize: responsive(Sizes.textMedium),
+    marginLeft: vw(2),
   },
 });
+
+export default IconButton;
