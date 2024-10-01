@@ -32,67 +32,62 @@ const Authentication: React.FC = () => {
     type: "info",
   });
   const { setCurrentUser } = useContextUser();
-  const { getUser } = useUser();
-  const [logoutTimer, setLogoutTimer] = useState<NodeJS.Timeout | null>(null);
-
-  const setupLogoutTimer = () => {
-    if (logoutTimer) {
-      clearTimeout(logoutTimer);
-    }
-    const newTimer = setTimeout(
-      () => {
-        handleLogout();
-      },
-      60 * 60 * 1000,
-    );
-    setLogoutTimer(newTimer);
-  };
-
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem("accessToken");
-    await AsyncStorage.removeItem("refreshToken");
-    await AsyncStorage.removeItem("userId");
-    setCurrentUser(null);
-    if (logoutTimer) {
-      clearTimeout(logoutTimer);
-      setLogoutTimer(null);
-    }
-    router.replace("/authentication");
-  };
+  const { getUser, login, refreshToken } = useUser();
 
   useEffect(() => {
     const checkAuthState = async () => {
-      const token = await AsyncStorage.getItem("accessToken");
+      const accessToken = await AsyncStorage.getItem("accessToken");
+      const refreshTokenValue = await AsyncStorage.getItem("refreshToken");
       const userId = await AsyncStorage.getItem("userId");
-      if (token && userId) {
+
+      if (accessToken && refreshTokenValue && userId) {
         try {
           const userData = await getUser(userId);
           if (userData) {
             setCurrentUser(userData);
             router.replace("/");
-            setupLogoutTimer();
           } else {
             throw new Error("User data is null");
           }
         } catch (error) {
           console.error("Failed to fetch user data:", error);
-          showAlert(
-            "Failed to fetch user data. Please try signing in again.",
-            "error",
-          );
+          try {
+            const refreshedData = await refreshToken(refreshTokenValue);
+            await AsyncStorage.setItem(
+              "accessToken",
+              refreshedData.accessToken,
+            );
+            await AsyncStorage.setItem(
+              "refreshToken",
+              refreshedData.refreshToken,
+            );
+            const userData = await getUser(userId);
+            if (userData) {
+              setCurrentUser(userData);
+              router.replace("/");
+            } else {
+              throw new Error("User data is null after token refresh");
+            }
+          } catch (refreshError) {
+            console.error("Failed to refresh token:", refreshError);
+            showAlert("Session expired. Please sign in again.", "error");
+            await handleLogout();
+          }
         }
       } else {
         console.log("User is signed out");
       }
     };
     checkAuthState();
+  }, [getUser, setCurrentUser, refreshToken]);
 
-    return () => {
-      if (logoutTimer) {
-        clearTimeout(logoutTimer);
-      }
-    };
-  }, [getUser, setCurrentUser]);
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("accessToken");
+    await AsyncStorage.removeItem("refreshToken");
+    await AsyncStorage.removeItem("userId");
+    setCurrentUser(null);
+    router.replace("/authentication");
+  };
 
   const toggleAuthMode = (mode: "signin" | "otp") => {
     Animated.sequence([
@@ -162,7 +157,7 @@ const Authentication: React.FC = () => {
         throw new Error("Failed to get Firebase token");
       }
 
-      const loginResponse = await loginUser(firebaseToken);
+      const loginResponse = await login(firebaseToken);
 
       if (
         !loginResponse ||
@@ -180,7 +175,6 @@ const Authentication: React.FC = () => {
       await AsyncStorage.setItem("userId", loginResponse.user._id);
       setCurrentUser(loginResponse.user);
       showAlert("Sign in successful!", "success");
-      setupLogoutTimer();
       if (loginResponse.user.isVerified) {
         router.replace("/");
       } else {

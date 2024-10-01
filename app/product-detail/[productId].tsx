@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   StyleSheet,
   View,
   TextInput,
@@ -26,8 +25,6 @@ import { useFetchProductById } from "@/hooks/useFetchProduct";
 import { Product } from "@/types/Product";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 import { responsive, vw, vh } from "@/utils/responsive";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 
 const ProductDetailPage = () => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
@@ -313,7 +310,7 @@ const styles = StyleSheet.create({
     gap: responsive(Sizes.marginMedium),
   },
   productDescription: {
-    textAlign: "justify",
+    textAlign: "left",
     marginHorizontal: responsive(Sizes.marginHorizontal),
     fontSize: responsive(Sizes.textNormal),
   },

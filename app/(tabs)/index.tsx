@@ -78,7 +78,7 @@ const HomeScreen: React.FC = () => {
   }, [selectedCategory, fetchOwners]);
 
   const uniqueCategories = useMemo(() => {
-    if (productsLoading || productsError) return [];
+    if (productsLoading || productsError || !products) return [];
 
     const categorySet = new Set<string>();
     products.forEach((product) => categorySet.add(product.productType));
@@ -175,8 +175,7 @@ const HomeScreen: React.FC = () => {
       <LargeListItem
         key={owner._id}
         heading={owner.productOwnerName}
-        imageUrl={`https://quick-load.onrender.com/assets/${owner.productImage}`}
-        price={`${owner.productPrizeFrom ?? "XX"} - ${owner.productPrizeTo ?? "XX"}`}
+        imageUrl={`https://quick-load.onrender.com/assets/${owner.shopImage}`}
         onPress={() =>
           router.push({
             pathname: "/product-items",
@@ -188,8 +187,8 @@ const HomeScreen: React.FC = () => {
         }
         measurementType={getMeasurementType(selectedCategory)}
         buttonTitle={t("More Information")}
-        location={owner.productLocation}
-        rating={owner.productRating}
+        location={owner.shopAddress}
+        rating={owner.shopRating}
       />
     ));
   }, [

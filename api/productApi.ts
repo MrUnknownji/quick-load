@@ -1,4 +1,5 @@
 import { authApiClient } from "./apiClient";
+import { ApiResponse, Product, ProductOwner } from "../types/Product";
 
 export const fetchProducts = async () => {
   const response = await authApiClient.get("/product/list");
@@ -56,5 +57,19 @@ export const updateProduct = async (
       headers: { "Content-Type": "multipart/form-data" },
     },
   );
-  return response.data.product;
+  return response.data;
+};
+
+export const updateProductOwner = async (
+  ownerId: string,
+  productOwnerData: FormData,
+) => {
+  const response = await authApiClient.put(
+    `/product/owner/${ownerId}`,
+    productOwnerData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    },
+  );
+  return response.data;
 };

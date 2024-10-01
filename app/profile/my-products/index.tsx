@@ -1,6 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { StyleSheet, TouchableOpacity, View, Platform } from "react-native";
-import { FlatList, RefreshControl } from "react-native-gesture-handler";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  RefreshControl,
+} from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 import { Image } from "expo-image";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
@@ -10,13 +15,16 @@ import { t } from "i18next";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ThemedText } from "@/components/ThemedText";
 import { Product } from "@/types/Product";
-import { useFetchProducts, useUpdateProduct } from "@/hooks/useFetchProduct";
+import {
+  useDeleteProduct,
+  useFetchProductsByUserId,
+} from "@/hooks/useFetchProduct";
 import Alert from "@/components/popups/Alert";
 import { useUser } from "@/contexts/UserContext";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
-import { responsive, vw, vh } from "@/utils/responsive";
+import { responsive } from "@/utils/responsive";
 
 const ProductItem: React.FC<{
   product: Product;
@@ -82,12 +90,15 @@ const ProductItem: React.FC<{
 
 const MyProducts: React.FC = () => {
   const { currentUser } = useUser();
-  const { products, loading, error, fetchProducts } = useFetchProducts();
+  const { products, loading, error, fetchProducts } = useFetchProductsByUserId(
+    currentUser?._id ?? "",
+  );
+
   const {
-    updateProduct,
-    loading: updateLoading,
-    error: updateError,
-  } = useUpdateProduct();
+    deleteProduct,
+    loading: deleteLoading,
+    error: deleteError,
+  } = useDeleteProduct();
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -103,7 +114,7 @@ const MyProducts: React.FC = () => {
 
   const handleEditProduct = (product: Product) => {
     router.push({
-      pathname: "/profile/my-products/add-product" as const,
+      pathname: "/profile/my-products/add-product",
       params: { productId: product._id, isEdit: "true" },
     });
   };
@@ -116,7 +127,7 @@ const MyProducts: React.FC = () => {
   const confirmDeleteProduct = async () => {
     if (selectedProduct) {
       try {
-        await updateProduct(selectedProduct._id, { status: "deleted" } as any);
+        await deleteProduct(selectedProduct._id as string);
         fetchProducts();
         setAlertVisible(false);
       } catch (error) {
@@ -166,11 +177,7 @@ const MyProducts: React.FC = () => {
       return <ThemedText>Error: {error}</ThemedText>;
     }
 
-    const userProducts = products.filter(
-      (product) => product.productOwner === currentUser?._id,
-    );
-
-    if (userProducts.length === 0) {
+    if (products.length === 0) {
       return (
         <View style={styles.emptyStateContainer}>
           <Ionicons
@@ -191,7 +198,7 @@ const MyProducts: React.FC = () => {
     return (
       <ListContainer>
         <FlatList
-          data={userProducts}
+          data={products}
           renderItem={({ item }) => (
             <ProductItem
               product={item}
@@ -219,7 +226,7 @@ const MyProducts: React.FC = () => {
         style={styles.addButton}
         onPress={() =>
           router.push({
-            pathname: "/profile/my-products/add-product" as const,
+            pathname: "/profile/my-products/add-product",
             params: { isEdit: "false" },
           })
         }

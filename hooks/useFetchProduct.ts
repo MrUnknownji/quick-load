@@ -7,6 +7,7 @@ import {
   addNewProduct,
   addNewProductOwner,
   updateExistingProduct,
+  updateExistingProductOwner,
 } from "../services/productService";
 import { Product, ProductOwner } from "../types/Product";
 
@@ -126,6 +127,7 @@ export const useAddProduct = () => {
       setLoading(false);
       return result;
     } catch (err) {
+      console.log("Error adding product:", err);
       setError("Failed to add product");
       setLoading(false);
     }
@@ -170,4 +172,83 @@ export const useUpdateProduct = () => {
   };
 
   return { updateProduct, loading, error };
+};
+
+export const useUpdateProductOwner = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateProductOwner = async (
+    ownerId: string,
+    productOwnerData: FormData,
+  ) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await updateExistingProductOwner(
+        ownerId,
+        productOwnerData,
+      );
+      setLoading(false);
+      return result;
+    } catch (err) {
+      console.error("Error updating product owner:", err);
+      setError("Failed to update product owner");
+      setLoading(false);
+      throw err;
+    }
+  };
+
+  return { updateProductOwner, loading, error };
+};
+
+export const useFetchProductsByUserId = (userId: string) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const allProducts = await getProducts();
+      const filteredProducts = allProducts.filter(
+        (product) => product.productOwner === userId,
+      );
+      setProducts(filteredProducts);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError("Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  return { products, loading, error, fetchProducts };
+};
+
+export const useDeleteProduct = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteProduct = async (productId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Simulating API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log(`Product ${productId} deleted`);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      setError("Failed to delete product");
+      setLoading(false);
+    }
+  };
+
+  return { deleteProduct, loading, error };
 };

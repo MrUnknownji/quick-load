@@ -6,6 +6,7 @@ import {
   addProduct,
   addProductOwner,
   updateProduct,
+  updateProductOwner,
 } from "../api/productApi";
 import { Product, ProductOwner } from "../types/Product";
 
@@ -47,4 +48,11 @@ export const updateExistingProduct = async (
   productData: FormData,
 ): Promise<Product> => {
   return await updateProduct(productId, productData);
+};
+
+export const updateExistingProductOwner = async (
+  ownerId: string,
+  productOwnerData: FormData,
+): Promise<ProductOwner> => {
+  return await updateProductOwner(ownerId, productOwnerData);
 };

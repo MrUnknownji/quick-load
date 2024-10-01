@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
 } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/Colors";
@@ -17,35 +21,65 @@ import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import Button from "@/components/button/Button";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { responsive, vw, vh } from "@/utils/responsive";
+import { responsive } from "@/utils/responsive";
+import Alert from "@/components/popups/Alert";
+import {
+  useFetchProductById,
+  useAddProduct,
+  useUpdateProduct,
+} from "@/hooks/useFetchProduct";
+import { useUser } from "@/contexts/UserContext";
 
-type PriceBasedOn = "piece" | "quintal";
-type ImageType = "main" | "extra";
-
-interface ProductImage {
-  uri: string;
-  type: ImageType;
-}
-
-const productCategories = ["Electronics", "Clothing", "Toys", "Books", "Home"];
-const productBrands = ["Apple", "Samsung", "Google", "Microsoft", "Amazon"];
+const productTypes = ["Grit", "Bajri", "Bricks"];
 
 const AddProductPage: React.FC = () => {
-  const [productName, setProductName] = useState("");
+  const { productId, isEdit } = useLocalSearchParams<{
+    productId: string;
+    isEdit: string;
+  }>();
+  const { currentUser } = useUser();
   const [productDescription, setProductDescription] = useState("");
-  const [productSubheading, setProductSubheading] = useState("");
   const [productPrice, setProductPrice] = useState("");
-  const [priceBasedOn, setPriceBasedOn] = useState<PriceBasedOn>("piece");
-  const [productStock, setProductStock] = useState("");
-  const [productCategory, setProductCategory] = useState(productCategories[0]);
-  const [productBrand, setProductBrand] = useState(productBrands[0]);
-  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [productType, setProductType] = useState(productTypes[0]);
+  const [productSize, setProductSize] = useState("");
+  const [productQuantity, setProductQuantity] = useState("");
+  const [productLocation, setProductLocation] = useState("");
+  const [productRating, setProductRating] = useState("");
+  const [productImage, setProductImage] = useState<string | null>(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    product,
+    loading: productLoading,
+    error: productError,
+  } = useFetchProductById(isEdit === "true" ? productId || "" : "");
+
+  const { addProduct, loading: addLoading, error: addError } = useAddProduct();
+  const {
+    updateProduct,
+    loading: updateLoading,
+    error: updateError,
+  } = useUpdateProduct();
+
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
 
-  const pickImage = async (type: ImageType) => {
+  useEffect(() => {
+    if (isEdit === "true" && product) {
+      setProductDescription(product.productDetails);
+      setProductPrice(product.productPrice.toString());
+      setProductType(product.productType);
+      setProductSize(product.productSize);
+      setProductImage(product.productImage);
+    }
+    setIsLoading(productLoading);
+  }, [isEdit, product, productLoading]);
+
+  const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -54,172 +88,171 @@ const AddProductPage: React.FC = () => {
     });
 
     if (!result.canceled && result.assets?.[0]?.uri) {
-      const newImage = { uri: result.assets[0].uri, type };
-      setProductImages((prev) =>
-        type === "main"
-          ? [
-              { uri: result.assets[0].uri, type },
-              ...prev.filter((img) => img.type !== "main"),
-            ]
-          : [...prev, newImage],
-      );
+      setProductImage(result.assets[0].uri);
     }
   };
 
-  const removeImage = (index: number) => {
-    setProductImages((prev) => prev.filter((_, i) => i !== index));
+  const handleAddProduct = async () => {
+    const requiredFields = [
+      { field: "Image", value: productImage },
+      { field: "Product Type", value: productType },
+      { field: "Product Size", value: productSize },
+      { field: "Product Quantity", value: productQuantity },
+      { field: "Price", value: productPrice },
+      { field: "Description", value: productDescription },
+    ];
+
+    const missingFields = requiredFields.filter((field) => !field.value);
+
+    if (missingFields.length > 0) {
+      const missingFieldNames = missingFields
+        .map((field) => field.field)
+        .join(", ");
+
+      setAlertMessage(
+        `${t("Please fill in the following required fields:")}\n\n${missingFieldNames}`,
+      );
+      setAlertVisible(true);
+      return;
+    }
+    setProductLocation(currentUser?.address ?? "");
+    setProductRating("0");
+    try {
+      const formData = new FormData();
+      formData.append("productOwner", currentUser?._id || "");
+      formData.append("productPrice", productPrice);
+      formData.append("productSize", productSize);
+      formData.append("productQuantity", productQuantity);
+      formData.append("productLocation", productLocation);
+      formData.append("productRating", productRating);
+      formData.append("productType", productType);
+      formData.append("productDetails", productDescription);
+
+      if (productImage) {
+        formData.append("productImage", {
+          uri: productImage,
+          type: "image/jpeg",
+          name: "product_image.jpg",
+        } as any);
+      }
+
+      if (isEdit === "true" && productId) {
+        await updateProduct(productId, formData);
+      } else {
+        await addProduct(formData);
+      }
+      router.back();
+    } catch (error) {
+      console.error("Error saving product:", error);
+      setAlertMessage("Failed to save product data. Please try again.");
+      setAlertVisible(true);
+    }
   };
 
-  const handleAddProduct = () => console.log("Adding product");
+  const handleCloseAlert = () => {
+    setAlertVisible(false);
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.light.primary} />
+      </View>
+    );
+  }
 
   return (
-    <ThemedView style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <ThemedView style={styles.content}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <TouchableOpacity
-            style={styles.imagePickerMain}
-            onPress={() => pickImage("main")}
-          >
-            {productImages.find((img) => img.type === "main") ? (
+          <TouchableOpacity style={styles.imagePickerMain} onPress={pickImage}>
+            {productImage ? (
               <Image
-                source={{
-                  uri: productImages.find((img) => img.type === "main")!.uri,
-                }}
+                source={{ uri: productImage }}
                 style={styles.productImage}
               />
             ) : (
               <View style={styles.imagePlaceholder}>
                 <Ionicons name="camera" size={40} color={iconColor} />
                 <ThemedText style={styles.imagePlaceholderText}>
-                  {t("Tap to add main product image")}
+                  {t("Tap to add product image")}
                 </ThemedText>
               </View>
             )}
           </TouchableOpacity>
 
-          {[
-            {
-              label: t("Product Name"),
-              value: productName,
-              setter: setProductName,
-            },
-            {
-              label: t("Product Subheading (Optional)"),
-              value: productSubheading,
-              setter: setProductSubheading,
-            },
-          ].map((input, index) => (
-            <TextInputField
-              key={index}
-              label={input.label}
-              value={input.value}
-              onChangeText={input.setter}
-              style={styles.inputContainer}
-            />
-          ))}
+          <SelectListWithDialog
+            label={t("Product Type")}
+            options={productTypes}
+            selectedOption={productType}
+            onSelect={(value) => setProductType(value as string)}
+            placeholder={t("Select Product Type")}
+            initialSelectedOption={productType}
+            isMandatory
+          />
+
+          <TextInputField
+            label={t("Product Size")}
+            value={productSize}
+            onChangeText={setProductSize}
+            placeholder={productType === "Bricks" ? "ex. 1 Number" : "ex. 1 mm"}
+            isMandatory
+          />
+          <TextInputField
+            label={t("Product Quantity")}
+            subLabel={
+              productType === "Bricks"
+                ? "Number of pieces"
+                : "Number of quintals"
+            }
+            value={productQuantity}
+            onChangeText={setProductQuantity}
+            placeholder={"Number only"}
+            isMandatory
+          />
+          <TextInputField
+            label={t("Price")}
+            subLabel={
+              productType === "Bricks"
+                ? "Rs. per 1000 pieces"
+                : "Rs. per quintal"
+            }
+            placeholder="ex. 3500"
+            value={productPrice}
+            onChangeText={setProductPrice}
+            keyboardType="numeric"
+            style={styles.flex1}
+            isMandatory
+          />
 
           <TextInputField
             label={t("Product Description")}
+            placeholder={t("Describe your product in detail")}
             value={productDescription}
             onChangeText={setProductDescription}
             multiline
+            numberOfLines={2}
             style={[styles.inputContainer, styles.textArea]}
+            isMandatory
           />
-
-          <SelectListWithDialog
-            label={t("Product Category")}
-            options={productCategories}
-            selectedOption={productCategory}
-            onSelect={(value) => setProductCategory(value as string)}
-            placeholder={t("Select Category")}
-            defaultText={t("Select Category")}
-            initialSelectedOption={productCategory}
-          />
-
-          <SelectListWithDialog
-            label={t("Product Brand")}
-            options={productBrands}
-            selectedOption={productBrand}
-            onSelect={(value) => setProductBrand(value as string)}
-            placeholder={t("Select Brand")}
-            defaultText={t("Select Brand")}
-            initialSelectedOption={productBrand}
-          />
-
-          <View style={styles.row}>
-            <TextInputField
-              label={t("Price")}
-              value={productPrice}
-              onChangeText={setProductPrice}
-              keyboardType="numeric"
-              style={styles.flex1}
-            />
-            <View style={[styles.flex1, styles.marginLeft]}>
-              <SelectListWithDialog
-                options={[t("Piece"), t("Quintal")]}
-                selectedOption={priceBasedOn}
-                onSelect={(value) => setPriceBasedOn(value as PriceBasedOn)}
-                placeholder={t("Unit")}
-                defaultText={t("Unit")}
-                initialSelectedOption={priceBasedOn}
-                label={t("Price Per")}
-              />
-            </View>
-          </View>
-
-          <TextInputField
-            label={t("Product Stock")}
-            value={productStock}
-            onChangeText={setProductStock}
-            keyboardType="numeric"
-            style={styles.inputContainer}
-          />
-
-          <View style={styles.extraImagesContainer}>
-            <ThemedText style={styles.label}>
-              {t("Additional Product Images")}
-            </ThemedText>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <TouchableOpacity
-                style={styles.imagePickerExtra}
-                onPress={() => pickImage("extra")}
-              >
-                <Ionicons name="add" size={40} color={iconColor} />
-                <ThemedText style={styles.addExtraImageText}>
-                  {t("Add")}
-                </ThemedText>
-              </TouchableOpacity>
-              {productImages
-                .filter((img) => img.type === "extra")
-                .map((image, index) => (
-                  <View key={index} style={styles.extraImageContainer}>
-                    <Image
-                      source={{ uri: image.uri }}
-                      style={styles.extraImage}
-                    />
-                    <TouchableOpacity
-                      style={styles.removeImageButton}
-                      onPress={() => removeImage(index)}
-                    >
-                      <Ionicons
-                        name="close-circle"
-                        size={24}
-                        color={Colors.light.error}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                ))}
-            </ScrollView>
-          </View>
         </ScrollView>
         <Button
-          title={t("Add Product")}
+          title={isEdit === "true" ? t("Update Product") : t("Add Product")}
           size="medium"
           onPress={handleAddProduct}
           style={styles.addButton}
         />
       </ThemedView>
-    </ThemedView>
+      <Alert
+        message={alertMessage}
+        type="error"
+        visible={alertVisible}
+        onClose={handleCloseAlert}
+      />
+    </KeyboardAvoidingView>
   );
 };
 
@@ -319,6 +352,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

@@ -173,7 +173,6 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     paddingVertical: vh(1),
-    paddingHorizontal: vw(4),
   },
   labelContainer: {
     flexDirection: "row",

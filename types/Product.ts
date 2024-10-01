@@ -12,22 +12,23 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   productImage: string;
+  isVerified: boolean;
   __v: number;
 }
 
 export interface ProductOwner {
-  _id: string;
-  productOwnerId: string;
+  _id?: string;
+  userId: string;
   productOwnerName: string;
-  productPrizeFrom: number;
-  productPrizeTo: number;
-  productLocation: string;
-  productRating: number;
-  productType: string;
-  productImage: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
+  phoneNumber: number;
+  gstNumber: string;
+  shopAddress: string;
+  state: string;
+  city: string;
+  shopRating: number;
+  productType: string[];
+  shopImage: string;
+  isVerified: boolean;
 }
 
 export interface NewProduct {
@@ -44,12 +45,14 @@ export interface NewProduct {
 
 export interface NewProductOwner {
   productOwnerName: string;
-  productPriceFrom: number;
-  productPriceTo: number;
-  productLocation: string;
-  productRating: number;
-  productType: string;
-  productImage: File;
+  phoneNumber: number;
+  gstNumber: string;
+  shopAddress: string;
+  state: string;
+  city: string;
+  shopRating: number;
+  productType: string[];
+  shopImage: File;
 }
 
 export interface UpdateProduct {
@@ -61,6 +64,20 @@ export interface UpdateProduct {
   productType?: string;
   productDetails?: string;
   productImage?: File;
+  isVerified?: boolean;
+}
+
+export interface UpdateProductOwner {
+  productOwnerName?: string;
+  phoneNumber?: number;
+  gstNumber?: string;
+  shopAddress?: string;
+  state?: string;
+  city?: string;
+  shopRating?: number;
+  productType?: string[];
+  shopImage?: File;
+  isVerified?: boolean;
 }
 
 export interface ApiResponse<T> {

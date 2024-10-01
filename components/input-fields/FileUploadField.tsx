@@ -148,7 +148,6 @@ export default memo(FileUploadField);
 const styles = StyleSheet.create({
   container: {
     paddingVertical: vh(1),
-    paddingHorizontal: vw(4),
   },
   labelContainer: {
     flexDirection: "row",

@@ -7,17 +7,19 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  TouchableOpacity,
+  Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
 import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
-import FileUploadField from "@/components/input-fields/FileUploadField";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { VehicleFormState } from "@/types/Vehicle";
 import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
 import {
   useFetchVehicleById,
   useAddVehicle,
@@ -27,9 +29,10 @@ import {
 import Alert from "@/components/popups/Alert";
 import Colors from "@/constants/Colors";
 import { responsive, vw, vh } from "@/utils/responsive";
+import { Ionicons } from "@expo/vector-icons";
 
 type FormField = {
-  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
+  type: "TextInputField" | "SelectListWithDialog" | "ImagePicker";
   props: any;
 };
 
@@ -149,16 +152,14 @@ const AddVehicles: React.FC = () => {
       } else {
         const formData = new FormData();
         Object.entries(formState).forEach(([key, value]) => {
-          if (value instanceof File) {
-            formData.append(key, value);
-          } else if (typeof value === "string") {
-            formData.append(key, value);
-          } else if (value && typeof value === "object" && "uri" in value) {
+          if (value && typeof value === "object" && "uri" in value) {
             formData.append(key, {
               uri: value.uri,
-              type: value.mimeType || "application/octet-stream",
-              name: value.name || `${key}.jpg`,
+              type: "image/jpeg",
+              name: `${key}.jpg`,
             } as any);
+          } else if (typeof value === "string") {
+            formData.append(key, value);
           }
         });
         await addVehicle(formData);
@@ -175,19 +176,27 @@ const AddVehicles: React.FC = () => {
     setAlertVisible(false);
   };
 
-  const handleFileSelect =
-    (field: "panCard" | "aadharCard" | "drivingLicence" | "rc") =>
-    async (file: DocumentPicker.DocumentPickerResult) => {
-      if (file.assets && file.assets.length > 0) {
-        const selectedFile = file.assets[0];
-        setFormState((prev) => ({
-          ...prev,
-          [field]: {
-            uri: selectedFile.uri,
-            mimeType: selectedFile.mimeType,
-            name: selectedFile.name,
-          },
-        }));
+  const handleImagePick =
+    (field: "panCard" | "aadharCard" | "drivingLicence" | "rc") => async () => {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        if (selectedImage.uri) {
+          setFormState((prev) => ({
+            ...prev,
+            [field]: {
+              uri: selectedImage.uri,
+              type: "image/jpeg",
+              name: `${field}.jpg`,
+            },
+          }));
+        }
       }
     };
 
@@ -243,57 +252,95 @@ const AddVehicles: React.FC = () => {
       },
     },
     {
-      type: "FileUploadField",
+      type: "ImagePicker",
       props: {
         label: t("Driving License"),
-        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onFileSelect: handleFileSelect("drivingLicence"),
-        selectedFile: formState.drivingLicence,
+        onImageSelect: handleImagePick("drivingLicence"),
+        selectedImage: formState.drivingLicence,
+        field: "drivingLicence",
       },
     },
     {
-      type: "FileUploadField",
+      type: "ImagePicker",
       props: {
         label: t("RC"),
-        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onFileSelect: handleFileSelect("rc"),
-        selectedFile: formState.rc,
+        onImageSelect: handleImagePick("rc"),
+        selectedImage: formState.rc,
+        field: "rc",
       },
     },
     {
-      type: "FileUploadField",
+      type: "ImagePicker",
       props: {
         label: t("Pan Card"),
-        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onFileSelect: handleFileSelect("panCard"),
-        selectedFile: formState.panCard,
+        onImageSelect: handleImagePick("panCard"),
+        selectedImage: formState.panCard,
+        field: "panCard",
       },
     },
     {
-      type: "FileUploadField",
+      type: "ImagePicker",
       props: {
         label: t("Aadhaar Card"),
-        subLabel: t("only .jpeg,.jpg,.png,.pdf of max 10MB"),
+        subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onFileSelect: handleFileSelect("aadharCard"),
-        selectedFile: formState.aadharCard,
+        onImageSelect: handleImagePick("aadharCard"),
+        selectedImage: formState.aadharCard,
+        field: "aadharCard",
       },
     },
   ];
 
   const renderItem: ListRenderItem<FormField> = ({ item }) => {
-    const Component =
-      item.type === "TextInputField"
-        ? TextInputField
-        : item.type === "SelectListWithDialog"
-          ? SelectListWithDialog
-          : item.type === "FileUploadField"
-            ? FileUploadField
-            : View;
-    return <Component {...item.props} />;
+    if (item.type === "TextInputField") {
+      return <TextInputField {...item.props} />;
+    } else if (item.type === "SelectListWithDialog") {
+      return <SelectListWithDialog {...item.props} />;
+    } else if (item.type === "ImagePicker") {
+      return (
+        <View style={styles.imagePickerContainer}>
+          <ThemedText style={styles.label}>
+            {item.props.label}
+            <ThemedText style={styles.subLabel}>
+              {" "}
+              ({item.props.subLabel})
+            </ThemedText>
+            {item.props.isMandatory && (
+              <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
+            )}
+          </ThemedText>
+          <TouchableOpacity
+            style={styles.imagePicker}
+            onPress={item.props.onImageSelect}
+          >
+            {item.props.selectedImage && item.props.selectedImage.uri ? (
+              <Image
+                source={{ uri: item.props.selectedImage.uri }}
+                style={styles.image}
+              />
+            ) : (
+              <View style={styles.placeholder}>
+                <Ionicons
+                  name="camera-outline"
+                  size={24}
+                  color={Colors.light.primary}
+                />
+                <ThemedText style={styles.placeholderText}>
+                  {t("Select an image")}
+                </ThemedText>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return null;
   };
 
   if (isLoading) {
@@ -358,5 +405,44 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  imagePickerContainer: {
+    marginBottom: vh(2),
+  },
+  label: {
+    fontSize: responsive(Sizes.textSmall),
+    marginBottom: vh(1),
+  },
+  subLabel: {
+    fontSize: responsive(Sizes.textSmall),
+    color: Colors.light.textSecondary,
+  },
+  mandatoryIndicator: {
+    fontSize: responsive(Sizes.textSmall),
+    color: Colors.light.error,
+    marginLeft: vw(0.5),
+  },
+  imagePicker: {
+    width: "100%",
+    height: vh(20),
+    borderWidth: 1,
+    borderColor: Colors.light.border,
+    borderRadius: responsive(Sizes.borderRadiusSmall),
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  placeholder: {
+    alignItems: "center",
+  },
+  placeholderText: {
+    marginTop: vh(1),
+    fontSize: responsive(Sizes.textSmall),
+    color: Colors.light.textSecondary,
   },
 });
