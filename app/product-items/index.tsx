@@ -124,7 +124,7 @@ const ProductItems: React.FC = () => {
       >
         <LargeListItem
           heading={item.productSize}
-          imageUrl={`https://quick-load.onrender.com/assets/${item.productImage}`}
+          imageUrl={`https://quick-load.onrender.com${item.productImage}`}
           price={item.productPrice.toString()}
           location={item.productLocation}
           rating={item.productRating}

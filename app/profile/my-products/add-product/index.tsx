@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  FlatList,
+  ListRenderItem,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
-import Button from "@/components/button/Button";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import IconButton from "@/components/button/IconButton";
 import { responsive } from "@/utils/responsive";
 import Alert from "@/components/popups/Alert";
 import {
@@ -29,8 +24,16 @@ import {
   useUpdateProduct,
 } from "@/hooks/useFetchProduct";
 import { useUser } from "@/contexts/UserContext";
+import * as DocumentPicker from "expo-document-picker";
+import FileUploadField from "@/components/input-fields/FileUploadField";
+import { Product } from "@/types/Product";
 
 const productTypes = ["Grit", "Bajri", "Bricks"];
+
+type FormField = {
+  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
+  props: any;
+};
 
 const AddProductPage: React.FC = () => {
   const { productId, isEdit } = useLocalSearchParams<{
@@ -38,14 +41,16 @@ const AddProductPage: React.FC = () => {
     isEdit: string;
   }>();
   const { currentUser } = useUser();
-  const [productDescription, setProductDescription] = useState("");
-  const [productPrice, setProductPrice] = useState("");
-  const [productType, setProductType] = useState(productTypes[0]);
-  const [productSize, setProductSize] = useState("");
-  const [productQuantity, setProductQuantity] = useState("");
-  const [productLocation, setProductLocation] = useState("");
-  const [productRating, setProductRating] = useState("");
-  const [productImage, setProductImage] = useState<string | null>(null);
+  const [formState, setFormState] = useState<Partial<Product>>({
+    productDetails: "",
+    productPrice: 0,
+    productType: productTypes[0],
+    productSize: "",
+    productQuantity: 0,
+    productLocation: "",
+    productRating: 0,
+    productImage: "",
+  });
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -63,50 +68,41 @@ const AddProductPage: React.FC = () => {
     error: updateError,
   } = useUpdateProduct();
 
-  const iconColor = useThemeColor(
-    { light: Colors.light.primary, dark: Colors.dark.secondary },
-    "primary",
-  );
-
   useEffect(() => {
     if (isEdit === "true" && product) {
-      setProductDescription(product.productDetails);
-      setProductPrice(product.productPrice.toString());
-      setProductType(product.productType);
-      setProductSize(product.productSize);
-      setProductImage(product.productImage);
+      setFormState((prev) => ({
+        ...prev,
+        ...product,
+      }));
     }
     setIsLoading(productLoading);
   }, [isEdit, product, productLoading]);
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets?.[0]?.uri) {
-      setProductImage(result.assets[0].uri);
-    }
+  const handleInputChange = (field: keyof Product) => (value: string) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleAddProduct = async () => {
-    const requiredFields = [
-      { field: "Image", value: productImage },
-      { field: "Product Type", value: productType },
-      { field: "Product Size", value: productSize },
-      { field: "Product Quantity", value: productQuantity },
-      { field: "Price", value: productPrice },
-      { field: "Description", value: productDescription },
+    const requiredFields: (keyof Product)[] = [
+      "productPrice",
+      "productSize",
+      "productQuantity",
+      "productType",
+      "productDetails",
     ];
 
-    const missingFields = requiredFields.filter((field) => !field.value);
+    const missingFields = requiredFields.filter(
+      (field) => !formState[field] || formState[field] === "",
+    );
 
     if (missingFields.length > 0) {
       const missingFieldNames = missingFields
-        .map((field) => field.field)
+        .map((field) =>
+          field
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())
+            .trim(),
+        )
         .join(", ");
 
       setAlertMessage(
@@ -115,24 +111,34 @@ const AddProductPage: React.FC = () => {
       setAlertVisible(true);
       return;
     }
-    setProductLocation(currentUser?.address ?? "");
-    setProductRating("0");
+
     try {
       const formData = new FormData();
-      formData.append("productOwner", currentUser?._id || "");
-      formData.append("productPrice", productPrice);
-      formData.append("productSize", productSize);
-      formData.append("productQuantity", productQuantity);
-      formData.append("productLocation", productLocation);
-      formData.append("productRating", productRating);
-      formData.append("productType", productType);
-      formData.append("productDetails", productDescription);
 
-      if (productImage) {
+      // Add required fields
+      formData.append("productOwnerId", currentUser?._id || "");
+      formData.append("productPrice", formState.productPrice?.toString() || "");
+      formData.append("productSize", formState.productSize || "");
+      formData.append(
+        "productQuantity",
+        formState.productQuantity?.toString() || "",
+      );
+      formData.append("productLocation", currentUser?.address || "");
+      formData.append("productRating", "0"); // Default to 0 for new products
+      formData.append("productType", formState.productType || "");
+      formData.append("productDetails", formState.productDetails || "");
+
+      // Handle image upload
+      if (formState.productImage) {
+        const imageUri = formState.productImage;
+        const filename = imageUri.split("/").pop();
+        const match = /\.(\w+)$/.exec(filename || "");
+        const type = match ? `image/${match[1]}` : "image";
+
         formData.append("productImage", {
-          uri: productImage,
-          type: "image/jpeg",
-          name: "product_image.jpg",
+          uri: imageUri,
+          name: filename,
+          type,
         } as any);
       }
 
@@ -153,7 +159,103 @@ const AddProductPage: React.FC = () => {
     setAlertVisible(false);
   };
 
-  if (isLoading) {
+  const handleFileSelect = (file: DocumentPicker.DocumentPickerResult) => {
+    if (file.assets && file.assets.length > 0) {
+      const selectedFile = file.assets[0];
+      setFormState((prev) => ({ ...prev, productImage: selectedFile.name }));
+    }
+  };
+
+  const formFields: FormField[] = [
+    {
+      type: "SelectListWithDialog",
+      props: {
+        label: t("Product Type"),
+        options: productTypes,
+        selectedOption: formState.productType || "",
+        onSelect: handleInputChange("productType"),
+        placeholder: t("Select Product Type"),
+        isMandatory: true,
+      },
+    },
+    {
+      type: "TextInputField",
+      props: {
+        label: t("Product Size"),
+        value: formState.productSize,
+        onChangeText: handleInputChange("productSize"),
+        placeholder:
+          formState.productType === "Bricks" ? "ex. 1 Number" : "ex. 1 mm",
+        isMandatory: true,
+      },
+    },
+    {
+      type: "TextInputField",
+      props: {
+        label: t("Product Quantity"),
+        subLabel:
+          formState.productType === "Bricks"
+            ? "Number of pieces"
+            : "Number of quintals",
+        value: formState.productQuantity?.toString(),
+        onChangeText: handleInputChange("productQuantity"),
+        placeholder: "Number only",
+        keyboardType: "numeric",
+        isMandatory: true,
+      },
+    },
+    {
+      type: "TextInputField",
+      props: {
+        label: t("Price"),
+        subLabel:
+          formState.productType === "Bricks"
+            ? "Rs. per 1000 pieces"
+            : "Rs. per quintal",
+        placeholder: "ex. 3500",
+        value: formState.productPrice?.toString(),
+        onChangeText: handleInputChange("productPrice"),
+        keyboardType: "numeric",
+        isMandatory: true,
+      },
+    },
+    {
+      type: "FileUploadField",
+      props: {
+        label: t("Product Image"),
+        onFileSelect: handleFileSelect,
+        selectedFile: formState.productImage,
+        allowedExtensions: ["jpg", "jpeg", "png"],
+        isMandatory: true,
+      },
+    },
+    {
+      type: "TextInputField",
+      props: {
+        label: t("Product Description"),
+        placeholder: t("Describe your product in detail"),
+        value: formState.productDetails,
+        onChangeText: handleInputChange("productDetails"),
+        multiline: true,
+        numberOfLines: 2,
+        isMandatory: true,
+      },
+    },
+  ];
+
+  const renderItem: ListRenderItem<FormField> = ({ item }) => {
+    const Component =
+      item.type === "TextInputField"
+        ? TextInputField
+        : item.type === "SelectListWithDialog"
+          ? SelectListWithDialog
+          : item.type === "FileUploadField"
+            ? FileUploadField
+            : View;
+    return <Component {...item.props} />;
+  };
+
+  if (isLoading || addLoading || updateLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />
@@ -167,83 +269,19 @@ const AddProductPage: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ThemedView style={styles.content}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <TouchableOpacity style={styles.imagePickerMain} onPress={pickImage}>
-            {productImage ? (
-              <Image
-                source={{ uri: productImage }}
-                style={styles.productImage}
-              />
-            ) : (
-              <View style={styles.imagePlaceholder}>
-                <Ionicons name="camera" size={40} color={iconColor} />
-                <ThemedText style={styles.imagePlaceholderText}>
-                  {t("Tap to add product image")}
-                </ThemedText>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          <SelectListWithDialog
-            label={t("Product Type")}
-            options={productTypes}
-            selectedOption={productType}
-            onSelect={(value) => setProductType(value as string)}
-            placeholder={t("Select Product Type")}
-            initialSelectedOption={productType}
-            isMandatory
-          />
-
-          <TextInputField
-            label={t("Product Size")}
-            value={productSize}
-            onChangeText={setProductSize}
-            placeholder={productType === "Bricks" ? "ex. 1 Number" : "ex. 1 mm"}
-            isMandatory
-          />
-          <TextInputField
-            label={t("Product Quantity")}
-            subLabel={
-              productType === "Bricks"
-                ? "Number of pieces"
-                : "Number of quintals"
-            }
-            value={productQuantity}
-            onChangeText={setProductQuantity}
-            placeholder={"Number only"}
-            isMandatory
-          />
-          <TextInputField
-            label={t("Price")}
-            subLabel={
-              productType === "Bricks"
-                ? "Rs. per 1000 pieces"
-                : "Rs. per quintal"
-            }
-            placeholder="ex. 3500"
-            value={productPrice}
-            onChangeText={setProductPrice}
-            keyboardType="numeric"
-            style={styles.flex1}
-            isMandatory
-          />
-
-          <TextInputField
-            label={t("Product Description")}
-            placeholder={t("Describe your product in detail")}
-            value={productDescription}
-            onChangeText={setProductDescription}
-            multiline
-            numberOfLines={2}
-            style={[styles.inputContainer, styles.textArea]}
-            isMandatory
-          />
-        </ScrollView>
-        <Button
+        <FlatList
+          data={formFields}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => `${item.type}-${index}`}
+          contentContainerStyle={styles.scrollContent}
+        />
+        <IconButton
+          iconName={isEdit === "true" ? "save" : "add"}
+          size="small"
           title={isEdit === "true" ? t("Update Product") : t("Add Product")}
-          size="medium"
-          onPress={handleAddProduct}
+          variant="primary"
           style={styles.addButton}
+          onPress={handleAddProduct}
         />
       </ThemedView>
       <Alert
@@ -265,93 +303,19 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: responsive(Sizes.borderRadiusLarge),
     borderTopRightRadius: responsive(Sizes.borderRadiusLarge),
     marginTop: responsive(Sizes.marginMedium),
-    paddingBottom: responsive(60),
   },
   scrollContent: {
     flexGrow: 1,
     padding: responsive(Sizes.paddingMedium),
-  },
-  imagePickerMain: {
-    width: "100%",
-    height: responsive(200),
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: responsive(Sizes.borderRadiusMedium),
-    overflow: "hidden",
-    marginBottom: responsive(Sizes.marginLarge),
-  },
-  productImage: {
-    width: "100%",
-    height: "100%",
-  },
-  imagePlaceholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  imagePlaceholderText: {
-    marginTop: responsive(Sizes.marginSmall),
-    textAlign: "center",
-  },
-  inputContainer: {
-    marginBottom: responsive(Sizes.marginMedium),
-  },
-  textArea: {
-    height: "auto",
-    textAlignVertical: "top",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  flex1: {
-    flex: 1,
-  },
-  marginLeft: {
-    marginLeft: responsive(Sizes.marginMedium),
-  },
-  extraImagesContainer: {
-    marginTop: responsive(Sizes.marginLarge),
-  },
-  label: {
-    marginBottom: responsive(Sizes.marginSmall),
-  },
-  imagePickerExtra: {
-    width: responsive(100),
-    height: responsive(100),
-    borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: responsive(Sizes.borderRadiusSmall),
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: responsive(Sizes.marginMedium),
-    marginVertical: responsive(Sizes.marginMedium),
-  },
-  extraImageContainer: {
-    width: responsive(100),
-    height: responsive(100),
-    position: "relative",
-    marginRight: responsive(Sizes.marginMedium),
-    marginVertical: responsive(Sizes.marginMedium),
-  },
-  extraImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: responsive(Sizes.borderRadiusSmall),
-  },
-  removeImageButton: {
-    position: "absolute",
-    top: responsive(-10),
-    right: responsive(-10),
-  },
-  addExtraImageText: {
-    marginTop: responsive(Sizes.marginSmall),
-    textAlign: "center",
+    paddingBottom: responsive(400),
   },
   addButton: {
     position: "absolute",
-    bottom: 0,
-    width: "100%",
+    bottom: responsive(Sizes.marginLarge),
+    right: responsive(Sizes.marginHorizontal),
+    borderRadius: responsive(Sizes.borderRadiusFull),
+    paddingHorizontal: responsive(Sizes.paddingMedium),
+    paddingVertical: responsive(Sizes.paddingMedium),
   },
   loadingContainer: {
     flex: 1,

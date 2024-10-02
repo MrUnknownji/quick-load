@@ -1,88 +1,147 @@
-import React, { useState } from "react";
-import {
-  View,
-  ScrollView,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
-import * as ImagePicker from "expo-image-picker";
 import { useUser as useContextUser } from "@/contexts/UserContext";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import Button from "@/components/button/Button";
 import CheckBoxDropdownWithDialog from "@/components/input-fields/CheckBoxDropdownWithDialog";
-import { useUpdateProductOwner } from "@/hooks/useFetchProduct";
+import {
+  useAddProductOwner,
+  useUpdateProductOwner,
+} from "@/hooks/useFetchProduct";
 import { responsive, vh, vw } from "@/utils/responsive";
 import Colors from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
-import { ThemedText } from "@/components/ThemedText";
-import { Ionicons } from "@expo/vector-icons";
+import FileUploadField from "@/components/input-fields/FileUploadField";
+import Alert from "@/components/popups/Alert";
+import * as DocumentPicker from "expo-document-picker";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
   const { currentUser } = useContextUser();
-  const { updateProductOwner, loading, error } = useUpdateProductOwner();
+  const {
+    addProductOwner,
+    loading: addLoading,
+    error: addError,
+  } = useAddProductOwner();
+  const {
+    updateProductOwner,
+    loading: updateLoading,
+    error: updateError,
+  } = useUpdateProductOwner();
 
-  const [productOwnerName, setProductOwnerName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [gstNumber, setGstNumber] = useState("");
-  const [shopImage, setShopImage] = useState<string | null>(null);
-  const [shopAddress, setShopAddress] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [otherCity, setOtherCity] = useState("");
-  const [productType, setProductType] = useState<string[]>([]);
+  const [formState, setFormState] = useState({
+    productOwnerName: "",
+    phoneNumber: "",
+    gstNumber: "",
+    shopImage: "",
+    shopAddress: "",
+    state: "",
+    city: "",
+    otherCity: "",
+    productType: [] as string[],
+  });
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const states = ["State 1", "State 2", "State 3"];
   const cities = ["City 1", "City 2", "City 3", "Other"];
   const productTypes = ["Bricks", "Grit", "Bajri", "Cement"];
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+  useEffect(() => {
+    setTimeout(() => {
+      if (currentUser?.productOwnerId) {
+        setFormState({
+          productOwnerName: "Sample Shop",
+          phoneNumber: "1234567890",
+          gstNumber: "GST1234567",
+          shopImage: "",
+          shopAddress: "123 Main St",
+          state: "State 1",
+          city: "City 1",
+          otherCity: "",
+          productType: ["Bricks", "Grit"],
+        });
+      }
+      setIsLoading(false);
+    }, 1000);
+  }, [currentUser]);
 
-    if (!result.canceled) {
-      setShopImage(result.assets[0].uri);
+  const handleInputChange = (field: string) => (value: string) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileSelect = (file: DocumentPicker.DocumentPickerResult) => {
+    if (file.assets && file.assets.length > 0) {
+      const selectedFile = file.assets[0];
+      setFormState((prev) => ({ ...prev, shopImage: selectedFile.uri }));
     }
   };
 
   const handleSubmit = async () => {
-    if (!currentUser?._id) {
-      console.error("User ID not found");
+    const requiredFields = [
+      "productOwnerName",
+      "phoneNumber",
+      "gstNumber",
+      "shopImage",
+      "shopAddress",
+      "state",
+      "city",
+      "productType",
+    ];
+
+    const missingFields = requiredFields.filter(
+      (field) => !formState[field as keyof typeof formState],
+    );
+
+    if (missingFields.length > 0) {
+      setAlertMessage(
+        `Please fill in all required fields: ${missingFields.join(", ")}`,
+      );
+      setAlertVisible(true);
       return;
     }
 
     const formData = new FormData();
-    formData.append("productOwnerName", productOwnerName);
-    formData.append("phoneNumber", phoneNumber);
-    formData.append("gstNumber", gstNumber);
-    formData.append("shopAddress", shopAddress);
-    formData.append("state", state);
-    formData.append("city", city === "Other" ? otherCity : city);
-    formData.append("shopRating", "0");
-    productType.forEach((type) => formData.append("productType[]", type));
-    if (shopImage) {
-      formData.append("shopImage", {
-        uri: shopImage,
-        type: "image/jpeg",
-        name: "shop_image.jpg",
-      } as any);
-    }
+    Object.entries(formState).forEach(([key, value]) => {
+      if (key === "productType") {
+        (value as string[]).forEach((type) =>
+          formData.append("productType[]", type),
+        );
+      } else if (key === "shopImage") {
+        const uri = value as string;
+        const name = uri.split("/").pop();
+        const type = "image/jpeg";
+        formData.append("shopImage", { uri, name, type } as any);
+      } else {
+        formData.append(key, value as string);
+      }
+    });
 
     try {
-      await updateProductOwner(currentUser._id, formData);
-      console.log("Shop information updated successfully");
-    } catch (err) {
-      console.error("Error updating shop information:", err);
+      if (currentUser?.productOwnerId) {
+        await updateProductOwner(currentUser.productOwnerId, formData);
+      } else {
+        await addProductOwner(formData);
+      }
+      setAlertMessage("Shop information saved successfully");
+      setAlertVisible(true);
+    } catch (error) {
+      console.error("Error saving shop information:", error);
+      setAlertMessage("Failed to save shop information. Please try again.");
+      setAlertVisible(true);
     }
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.light.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -93,53 +152,34 @@ const MyShopPage = () => {
         <TextInputField
           label={t("Shop Name")}
           isMandatory
-          value={productOwnerName}
-          onChangeText={setProductOwnerName}
+          value={formState.productOwnerName}
+          onChangeText={handleInputChange("productOwnerName")}
         />
         <TextInputField
           label={t("Phone Number")}
           isMandatory
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
+          value={formState.phoneNumber}
+          onChangeText={handleInputChange("phoneNumber")}
           keyboardType="phone-pad"
         />
         <TextInputField
           label={t("GST Number")}
           isMandatory
-          value={gstNumber}
-          onChangeText={setGstNumber}
+          value={formState.gstNumber}
+          onChangeText={handleInputChange("gstNumber")}
         />
-        <View style={styles.imagePickerContainer}>
-          <ThemedText style={styles.label}>
-            {t("Shop Photo")}
-            <ThemedText style={styles.subLabel}>
-              {" "}
-              ({t(".jpeg, .jpg, .png of less than 10MB")})
-            </ThemedText>
-            <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
-          </ThemedText>
-          <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-            {shopImage ? (
-              <Image source={{ uri: shopImage }} style={styles.image} />
-            ) : (
-              <View style={styles.placeholder}>
-                <Ionicons
-                  name="camera-outline"
-                  size={24}
-                  color={Colors.light.primary}
-                />
-                <ThemedText style={styles.placeholderText}>
-                  {t("Select an image")}
-                </ThemedText>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+        <FileUploadField
+          label={t("Shop Photo")}
+          subLabel={t(".jpeg, .jpg, .png of less than 10MB")}
+          isMandatory
+          onFileSelect={handleFileSelect}
+          selectedFile={formState.shopImage}
+        />
         <TextInputField
           label={t("Address")}
           isMandatory
-          value={shopAddress}
-          onChangeText={setShopAddress}
+          value={formState.shopAddress}
+          onChangeText={handleInputChange("shopAddress")}
           multiline
           numberOfLines={3}
         />
@@ -149,8 +189,8 @@ const MyShopPage = () => {
             defaultText={t("State")}
             isMandatory
             options={states}
-            selectedOption={state}
-            onSelect={setState}
+            selectedOption={formState.state}
+            onSelect={handleInputChange("state")}
             containerStyle={styles.halfWidth}
           />
           <SelectListWithDialog
@@ -158,34 +198,41 @@ const MyShopPage = () => {
             defaultText={t("City")}
             isMandatory
             options={cities}
-            selectedOption={city}
-            onSelect={setCity}
+            selectedOption={formState.city}
+            onSelect={handleInputChange("city")}
             containerStyle={styles.halfWidth}
           />
         </View>
-        {city === "Other" && (
+        {formState.city === "Other" && (
           <TextInputField
             label={t("Other City")}
             isMandatory
-            value={otherCity}
-            onChangeText={setOtherCity}
+            value={formState.otherCity}
+            onChangeText={handleInputChange("otherCity")}
           />
         )}
         <CheckBoxDropdownWithDialog
           label={t("Select Product Types")}
           isMandatory
           options={productTypes}
-          selectedOptions={productType}
-          onSelect={setProductType}
+          selectedOptions={formState.productType}
+          onSelect={(selected) =>
+            setFormState((prev) => ({ ...prev, productType: selected }))
+          }
         />
       </ScrollView>
       <Button
-        title={t("Save")}
+        title={currentUser?.productOwnerId ? t("Update Shop") : t("Add Shop")}
         onPress={handleSubmit}
         style={styles.submitButton}
-        disabled={loading}
+        disabled={addLoading || updateLoading}
       />
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      <Alert
+        message={alertMessage}
+        type="info"
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+      />
     </View>
   );
 };
@@ -252,6 +299,11 @@ const styles = StyleSheet.create({
     marginTop: vh(1),
     fontSize: responsive(Sizes.textSmall),
     color: Colors.light.textSecondary,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

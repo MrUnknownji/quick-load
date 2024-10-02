@@ -7,19 +7,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  TouchableOpacity,
-  Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
+import * as DocumentPicker from "expo-document-picker";
 import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
-import { VehicleFormState } from "@/types/Vehicle";
+import { Vehicle, VehicleFormState } from "@/types/Vehicle";
 import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
 import {
   useFetchVehicleById,
   useAddVehicle,
@@ -29,10 +26,10 @@ import {
 import Alert from "@/components/popups/Alert";
 import Colors from "@/constants/Colors";
 import { responsive, vw, vh } from "@/utils/responsive";
-import { Ionicons } from "@expo/vector-icons";
+import FileUploadField from "@/components/input-fields/FileUploadField";
 
 type FormField = {
-  type: "TextInputField" | "SelectListWithDialog" | "ImagePicker";
+  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
   props: any;
 };
 
@@ -41,11 +38,15 @@ const AddVehicles: React.FC = () => {
     vehicleId: string;
     isEdit: string;
   }>();
-  const [formState, setFormState] = useState<VehicleFormState>({
+  const [formState, setFormState] = useState<Partial<Vehicle>>({
     driverName: "John Doe",
     phoneNumber: "+911234567890",
     vehicleNumber: "AB 12 C 3456",
     vehicleType: "Truck",
+    drivingLicence: "",
+    rc: "",
+    panCard: "",
+    aadharCard: "",
   });
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -147,21 +148,19 @@ const AddVehicles: React.FC = () => {
     }
 
     try {
+      const formData = new FormData();
+      Object.entries(formState).forEach(([key, value]) => {
+        if (
+          value !== undefined &&
+          value !== null &&
+          value !== vehicle?.[key as keyof Vehicle]
+        ) {
+          formData.append(key, value as string | Blob);
+        }
+      });
       if (isEdit === "true" && vehicleId) {
         await updateVehicle(vehicleId, formState);
       } else {
-        const formData = new FormData();
-        Object.entries(formState).forEach(([key, value]) => {
-          if (value && typeof value === "object" && "uri" in value) {
-            formData.append(key, {
-              uri: value.uri,
-              type: "image/jpeg",
-              name: `${key}.jpg`,
-            } as any);
-          } else if (typeof value === "string") {
-            formData.append(key, value);
-          }
-        });
         await addVehicle(formData);
       }
       router.back();
@@ -176,27 +175,12 @@ const AddVehicles: React.FC = () => {
     setAlertVisible(false);
   };
 
-  const handleImagePick =
-    (field: "panCard" | "aadharCard" | "drivingLicence" | "rc") => async () => {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const selectedImage = result.assets[0];
-        if (selectedImage.uri) {
-          setFormState((prev) => ({
-            ...prev,
-            [field]: {
-              uri: selectedImage.uri,
-              type: "image/jpeg",
-              name: `${field}.jpg`,
-            },
-          }));
-        }
+  const handleFileSelect =
+    (field: "drivingLicence" | "rc" | "panCard" | "aadharCard") =>
+    (file: DocumentPicker.DocumentPickerResult) => {
+      if (file.assets && file.assets.length > 0) {
+        const selectedFile = file.assets[0];
+        setFormState((prev) => ({ ...prev, [field]: selectedFile.name }));
       }
     };
 
@@ -252,98 +236,64 @@ const AddVehicles: React.FC = () => {
       },
     },
     {
-      type: "ImagePicker",
+      type: "FileUploadField",
       props: {
         label: t("Driving License"),
         subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onImageSelect: handleImagePick("drivingLicence"),
-        selectedImage: formState.drivingLicence,
-        field: "drivingLicence",
+        onFileSelect: handleFileSelect("drivingLicence"),
+        selectedFile: formState.drivingLicence,
+        allowedExtensions: ["jpg", "jpeg", "png"],
       },
     },
     {
-      type: "ImagePicker",
+      type: "FileUploadField",
       props: {
         label: t("RC"),
         subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onImageSelect: handleImagePick("rc"),
-        selectedImage: formState.rc,
-        field: "rc",
+        onFileSelect: handleFileSelect("rc"),
+        selectedFile: formState.rc,
+        allowedExtensions: ["jpg", "jpeg", "png"],
       },
     },
     {
-      type: "ImagePicker",
+      type: "FileUploadField",
       props: {
         label: t("Pan Card"),
         subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onImageSelect: handleImagePick("panCard"),
-        selectedImage: formState.panCard,
-        field: "panCard",
+        onFileSelect: handleFileSelect("panCard"),
+        selectedFile: formState.panCard,
+        allowedExtensions: ["jpg", "jpeg", "png"],
       },
     },
     {
-      type: "ImagePicker",
+      type: "FileUploadField",
       props: {
         label: t("Aadhaar Card"),
         subLabel: t("only .jpeg,.jpg,.png of max 10MB"),
         isMandatory: true,
-        onImageSelect: handleImagePick("aadharCard"),
-        selectedImage: formState.aadharCard,
-        field: "aadharCard",
+        onFileSelect: handleFileSelect("aadharCard"),
+        selectedFile: formState.aadharCard,
+        allowedExtensions: ["jpg", "jpeg", "png"],
       },
     },
   ];
 
   const renderItem: ListRenderItem<FormField> = ({ item }) => {
-    if (item.type === "TextInputField") {
-      return <TextInputField {...item.props} />;
-    } else if (item.type === "SelectListWithDialog") {
-      return <SelectListWithDialog {...item.props} />;
-    } else if (item.type === "ImagePicker") {
-      return (
-        <View style={styles.imagePickerContainer}>
-          <ThemedText style={styles.label}>
-            {item.props.label}
-            <ThemedText style={styles.subLabel}>
-              {" "}
-              ({item.props.subLabel})
-            </ThemedText>
-            {item.props.isMandatory && (
-              <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
-            )}
-          </ThemedText>
-          <TouchableOpacity
-            style={styles.imagePicker}
-            onPress={item.props.onImageSelect}
-          >
-            {item.props.selectedImage && item.props.selectedImage.uri ? (
-              <Image
-                source={{ uri: item.props.selectedImage.uri }}
-                style={styles.image}
-              />
-            ) : (
-              <View style={styles.placeholder}>
-                <Ionicons
-                  name="camera-outline"
-                  size={24}
-                  color={Colors.light.primary}
-                />
-                <ThemedText style={styles.placeholderText}>
-                  {t("Select an image")}
-                </ThemedText>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-      );
-    }
-    return null;
+    const Component =
+      item.type === "TextInputField"
+        ? TextInputField
+        : item.type === "SelectListWithDialog"
+          ? SelectListWithDialog
+          : item.type === "FileUploadField"
+            ? FileUploadField
+            : View;
+    return <Component {...item.props} />;
   };
 
-  if (isLoading) {
+  if (isLoading || addLoading || updateLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />

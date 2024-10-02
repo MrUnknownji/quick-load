@@ -74,7 +74,7 @@ const ProductDetailPage = () => {
         >
           <View style={styles.productContainer}>
             <LargeImageView
-              imageUrl={`https://quick-load.onrender.com/assets/${product.productImage}`}
+              imageUrl={`https://quick-load.onrender.com${product.productImage}`}
               style={{ marginHorizontal: 0 }}
             />
             {!isPricingVisible && (

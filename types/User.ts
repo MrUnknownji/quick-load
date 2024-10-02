@@ -22,6 +22,7 @@ export interface User {
   deviceId: string;
   platform: "android" | "ios";
   deletedAt: string | null;
+  productOwnerId?: string | null;
 }
 
 export interface UserEdit {

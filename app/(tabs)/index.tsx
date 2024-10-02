@@ -175,7 +175,7 @@ const HomeScreen: React.FC = () => {
       <LargeListItem
         key={owner._id}
         heading={owner.productOwnerName}
-        imageUrl={`https://quick-load.onrender.com/assets/${owner.shopImage}`}
+        imageUrl={`https://quick-load.onrender.com${owner.shopImage}`}
         onPress={() =>
           router.push({
             pathname: "/product-items",
