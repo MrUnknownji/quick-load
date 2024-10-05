@@ -11,6 +11,7 @@ export interface Vehicle {
   panCard: string;
   aadharCard: string;
   vehicleImage?: string;
+  isVerified?: boolean;
 }
 
 export interface NewVehicle {

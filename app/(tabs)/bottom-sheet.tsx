@@ -3,14 +3,14 @@ import { StyleSheet, View, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { t } from "i18next";
-import { useUser } from "@/contexts/UserContext";
 import { ThemedText } from "@/components/ThemedText";
 import { responsive, vw, vh } from "@/utils/responsive";
+import { useUser } from "@/hooks/useUser";
 
 const FindRouteBottomSheet = () => {
-  const { currentUser } = useUser();
+  const { user } = useUser();
 
-  if (!currentUser || currentUser.type === "customer") {
+  if (!user || user.type === "customer") {
     return null;
   }
 
@@ -45,8 +45,7 @@ const FindRouteBottomSheet = () => {
       <ThemedText style={styles.titleText}>
         {t("Fast & Cheapest Transport")}
       </ThemedText>
-      {(currentUser.type === "merchant-driver" ||
-        currentUser.type === "admin") && (
+      {(user.type === "merchant-driver" || user.type === "admin") && (
         <>
           {renderOption("Find Load", "(For Drivers)", "driver", "find-load")}
           {renderOption(

@@ -1,17 +1,36 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   deleteUserAccount,
   getCurrentUser,
   updateUserProfile,
   loginUserAccount,
-  refreshUserToken,
 } from "../services/userService";
-import { User, UserEdit } from "../types/User";
+import { User } from "../types/User";
 
 export const useUser = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const initializeUser = useCallback(async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (err) {
+      console.error("Error initializing user:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+
+  useEffect(() => {
+    initializeUser();
+  }, [initializeUser]);
 
   const deleteAccount = useCallback(async (userId: string) => {
     setLoading(true);
@@ -19,6 +38,7 @@ export const useUser = () => {
     try {
       await deleteUserAccount(userId);
       setUser(null);
+      await AsyncStorage.removeItem("user");
     } catch (err) {
       setError("Failed to delete account");
     } finally {
@@ -32,6 +52,7 @@ export const useUser = () => {
     try {
       const userData = await getCurrentUser(userId);
       setUser(userData);
+      await AsyncStorage.setItem("user", JSON.stringify(userData));
       return userData;
     } catch (err) {
       setError("Failed to fetch user info");
@@ -48,6 +69,7 @@ export const useUser = () => {
       try {
         const updatedUser = await updateUserProfile(userId, userData);
         setUser(updatedUser);
+        await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
       } catch (err) {
         setError("Failed to update profile");
       } finally {
@@ -63,21 +85,12 @@ export const useUser = () => {
     try {
       const loggedInUser = await loginUserAccount(accessToken);
       setUser(loggedInUser.user);
+      await AsyncStorage.setItem("user", JSON.stringify(loggedInUser.user));
+      await AsyncStorage.setItem("accessToken", loggedInUser.accessToken);
+      await AsyncStorage.setItem("refreshToken", loggedInUser.refreshToken);
       return loggedInUser;
     } catch (err) {
       setError("Failed to login");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const refreshToken = useCallback(async (refreshToken: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      return await refreshUserToken(refreshToken);
-    } catch (err) {
-      setError("Failed to refresh token");
     } finally {
       setLoading(false);
     }
@@ -91,6 +104,5 @@ export const useUser = () => {
     getUser,
     updateProfile,
     login,
-    refreshToken,
   };
 };

@@ -7,10 +7,8 @@ import { auth } from "@/firebase/firebase";
 import { SignInForm } from "./components/SignInForm";
 import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import { loginUser } from "@/api/userApi";
 import Alert from "@/components/popups/Alert";
 import * as Clipboard from "expo-clipboard";
-import { useUser as useContextUser } from "@/contexts/UserContext";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/hooks/useUser";
 import { t } from "i18next";
@@ -31,61 +29,37 @@ const Authentication: React.FC = () => {
     message: "",
     type: "info",
   });
-  const { setCurrentUser } = useContextUser();
-  const { getUser, login, refreshToken } = useUser();
+  const { getUser, login } = useUser();
 
   useEffect(() => {
     const checkAuthState = async () => {
       const accessToken = await AsyncStorage.getItem("accessToken");
-      const refreshTokenValue = await AsyncStorage.getItem("refreshToken");
       const userId = await AsyncStorage.getItem("userId");
 
-      if (accessToken && refreshTokenValue && userId) {
+      if (accessToken && userId) {
         try {
           const userData = await getUser(userId);
           if (userData) {
-            setCurrentUser(userData);
             router.replace("/");
           } else {
             throw new Error("User data is null");
           }
         } catch (error) {
           console.error("Failed to fetch user data:", error);
-          try {
-            const refreshedData = await refreshToken(refreshTokenValue);
-            await AsyncStorage.setItem(
-              "accessToken",
-              refreshedData.accessToken,
-            );
-            await AsyncStorage.setItem(
-              "refreshToken",
-              refreshedData.refreshToken,
-            );
-            const userData = await getUser(userId);
-            if (userData) {
-              setCurrentUser(userData);
-              router.replace("/");
-            } else {
-              throw new Error("User data is null after token refresh");
-            }
-          } catch (refreshError) {
-            console.error("Failed to refresh token:", refreshError);
-            showAlert("Session expired. Please sign in again.", "error");
-            await handleLogout();
-          }
+          showAlert("Session expired. Please sign in again.", "error");
+          await handleLogout();
         }
       } else {
         console.log("User is signed out");
       }
     };
     checkAuthState();
-  }, [getUser, setCurrentUser, refreshToken]);
+  }, [getUser]);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("accessToken");
     await AsyncStorage.removeItem("refreshToken");
     await AsyncStorage.removeItem("userId");
-    setCurrentUser(null);
     router.replace("/authentication");
   };
 
@@ -173,7 +147,6 @@ const Authentication: React.FC = () => {
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
       await AsyncStorage.setItem("userId", loginResponse.user._id);
-      setCurrentUser(loginResponse.user);
       showAlert("Sign in successful!", "success");
       if (loginResponse.user.isVerified) {
         router.replace("/");

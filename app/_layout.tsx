@@ -12,7 +12,6 @@ import { ForceUpdateProvider } from "@/contexts/ForceUpdateProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemeProvider } from "@/contexts/AppThemeProvider";
 import NavigationBarManager from "@/components/NavigationBarManager";
-import { UserProvider } from "@/contexts/UserContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -54,25 +53,23 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <UserProvider>
-        <ForceUpdateProvider>
-          <LanguageProvider>
-            <I18nextProvider i18n={i18n}>
-              <StatusBarManager />
-              <NavigationBarManager />
-              <GestureHandlerRootView>
-                <Slot
-                  screenOptions={{
-                    headerShown: false,
-                    animation: "fade_from_bottom",
-                    animationDuration: 100,
-                  }}
-                />
-              </GestureHandlerRootView>
-            </I18nextProvider>
-          </LanguageProvider>
-        </ForceUpdateProvider>
-      </UserProvider>
+      <ForceUpdateProvider>
+        <LanguageProvider>
+          <I18nextProvider i18n={i18n}>
+            <StatusBarManager />
+            <NavigationBarManager />
+            <GestureHandlerRootView>
+              <Slot
+                screenOptions={{
+                  headerShown: false,
+                  animation: "fade_from_bottom",
+                  animationDuration: 100,
+                }}
+              />
+            </GestureHandlerRootView>
+          </I18nextProvider>
+        </LanguageProvider>
+      </ForceUpdateProvider>
     </ThemeProvider>
   );
 }

@@ -9,18 +9,17 @@ import { t } from "i18next";
 import LogoutDialog from "@/components/popups/LogoutDialog";
 import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useUser } from "@/contexts/UserContext";
 import { responsive, vw } from "@/utils/responsive";
+import { useUser } from "@/hooks/useUser";
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const { currentUser, setCurrentUser } = useUser();
+  const { user } = useUser();
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("accessToken");
     await AsyncStorage.removeItem("refreshToken");
     await AsyncStorage.removeItem("userId");
-    setCurrentUser(null);
     setIsDialogVisible(false);
     router.replace("/authentication");
   };
@@ -30,7 +29,6 @@ const Profile = () => {
       try {
         const userData = await AsyncStorage.getItem("currentUser");
         if (userData) {
-          setCurrentUser(JSON.parse(userData));
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -44,7 +42,7 @@ const Profile = () => {
     <View style={styles.container}>
       <View style={styles.profileHeader}>
         <Text style={styles.profileHeading}>
-          {currentUser?.firstName || t("Username")}
+          {user?.firstName || t("Username")}
         </Text>
       </View>
       <ThemedView style={styles.profileDetails}>
@@ -60,27 +58,27 @@ const Profile = () => {
             iconName="person"
             onPress={() => router.push("/profile/my-information")}
           />
-          {(currentUser?.type === "merchant" ||
-            currentUser?.type === "admin" ||
-            currentUser?.type === "merchant-driver") && (
+          {(user?.type === "merchant" ||
+            user?.type === "admin" ||
+            user?.type === "merchant-driver") && (
             <SmallListItem
               title={t("My Shop")}
               iconName="business"
               onPress={() => router.push("/profile/my-shop")}
             />
           )}
-          {(currentUser?.type === "merchant" ||
-            currentUser?.type === "admin" ||
-            currentUser?.type === "merchant-driver") && (
+          {(user?.type === "merchant" ||
+            user?.type === "admin" ||
+            user?.type === "merchant-driver") && (
             <SmallListItem
               title={t("My Products")}
               iconName="cart"
               onPress={() => router.push("/profile/my-products")}
             />
           )}
-          {(currentUser?.type === "driver" ||
-            currentUser?.type === "admin" ||
-            currentUser?.type === "merchant-driver") && (
+          {(user?.type === "driver" ||
+            user?.type === "admin" ||
+            user?.type === "merchant-driver") && (
             <SmallListItem
               title={t("My Vehicles")}
               iconName="car"

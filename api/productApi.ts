@@ -1,9 +1,14 @@
 import { authApiClient } from "./apiClient";
-import { ApiResponse, Product, ProductOwner } from "../types/Product";
+import { Product, ProductOwner } from "../types/Product";
 
 export const fetchProducts = async () => {
   const response = await authApiClient.get("/product/list");
   return response.data.products;
+};
+
+export const fetchProductOwners = async () => {
+  const response = await authApiClient.get("/product/productOwner/list");
+  return response.data.productOwners;
 };
 
 export const fetchProductById = async (productId: string) => {
@@ -28,14 +33,21 @@ export const fetchProductOwnersByType = async (productType: string) => {
   return response.data.productOwners;
 };
 
-export const addProduct = async (productData: FormData) => {
+export const fetchProductsByUserId = async () => {
+  const response = await authApiClient.get("/product/productlistbyuserId");
+  return response.data.products;
+};
+
+export const addProduct = async (productData: FormData): Promise<Product> => {
   const response = await authApiClient.post("/product/add", productData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data.product;
 };
 
-export const addProductOwner = async (productOwnerData: FormData) => {
+export const addProductOwner = async (
+  productOwnerData: FormData,
+): Promise<ProductOwner> => {
   const response = await authApiClient.post(
     "/product/addProductOwner",
     productOwnerData,
@@ -49,7 +61,7 @@ export const addProductOwner = async (productOwnerData: FormData) => {
 export const updateProduct = async (
   productId: string,
   productData: FormData,
-) => {
+): Promise<Product> => {
   const response = await authApiClient.put(
     `/product/${productId}`,
     productData,
@@ -57,13 +69,13 @@ export const updateProduct = async (
       headers: { "Content-Type": "multipart/form-data" },
     },
   );
-  return response.data;
+  return response.data.product;
 };
 
 export const updateProductOwner = async (
   ownerId: string,
   productOwnerData: FormData,
-) => {
+): Promise<ProductOwner> => {
   const response = await authApiClient.put(
     `/product/owner/${ownerId}`,
     productOwnerData,
@@ -71,5 +83,5 @@ export const updateProductOwner = async (
       headers: { "Content-Type": "multipart/form-data" },
     },
   );
-  return response.data;
+  return response.data.productOwner;
 };

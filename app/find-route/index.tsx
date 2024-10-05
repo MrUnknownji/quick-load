@@ -21,17 +21,17 @@ import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import { useAddRoute } from "@/hooks/useFetchRoute";
-import { useUser } from "@/contexts/UserContext";
 import {
   useFetchVehiclesByUserId,
   useFetchVehicleTypes,
 } from "@/hooks/useFetchVehicle";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { responsive } from "@/utils/responsive";
+import { useUser } from "@/hooks/useUser";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
-  const { currentUser } = useUser();
+  const { user } = useUser();
   const [startingPoint, setStartingPoint] = useState("");
   const [endingPoint, setEndingPoint] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
@@ -42,7 +42,7 @@ const RouteFinder = () => {
     vehicles,
     loading: vehiclesLoading,
     error: vehiclesError,
-  } = useFetchVehiclesByUserId(currentUser?._id ?? "");
+  } = useFetchVehiclesByUserId(user?._id ?? "");
   const {
     vehicleTypes,
     loading: vehicleTypesLoading,

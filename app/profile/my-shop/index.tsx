@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useUser as useContextUser } from "@/contexts/UserContext";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import Button from "@/components/button/Button";
@@ -16,10 +15,11 @@ import Sizes from "@/constants/Sizes";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Alert from "@/components/popups/Alert";
 import * as DocumentPicker from "expo-document-picker";
+import { useUser } from "@/hooks/useUser";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
-  const { currentUser } = useContextUser();
+  const { user } = useUser();
   const {
     addProductOwner,
     loading: addLoading,
@@ -52,7 +52,7 @@ const MyShopPage = () => {
 
   useEffect(() => {
     setTimeout(() => {
-      if (currentUser?.productOwnerId) {
+      if (user?.productOwnerId) {
         setFormState({
           productOwnerName: "Sample Shop",
           phoneNumber: "1234567890",
@@ -67,7 +67,7 @@ const MyShopPage = () => {
       }
       setIsLoading(false);
     }, 1000);
-  }, [currentUser]);
+  }, [user]);
 
   const handleInputChange = (field: string) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -121,8 +121,8 @@ const MyShopPage = () => {
     });
 
     try {
-      if (currentUser?.productOwnerId) {
-        await updateProductOwner(currentUser.productOwnerId, formData);
+      if (user?.productOwnerId) {
+        await updateProductOwner(user.productOwnerId, formData);
       } else {
         await addProductOwner(formData);
       }
@@ -222,7 +222,7 @@ const MyShopPage = () => {
         />
       </ScrollView>
       <Button
-        title={currentUser?.productOwnerId ? t("Update Shop") : t("Add Shop")}
+        title={user?.productOwnerId ? t("Update Shop") : t("Add Shop")}
         onPress={handleSubmit}
         style={styles.submitButton}
         disabled={addLoading || updateLoading}

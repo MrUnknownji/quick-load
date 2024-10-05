@@ -8,6 +8,8 @@ import {
   addNewProductOwner,
   updateExistingProduct,
   updateExistingProductOwner,
+  getProductsByUserId,
+  getProductOwners,
 } from "../services/productService";
 import { Product, ProductOwner } from "../types/Product";
 
@@ -202,7 +204,33 @@ export const useUpdateProductOwner = () => {
   return { updateProductOwner, loading, error };
 };
 
-export const useFetchProductsByUserId = (userId: string) => {
+export const useFetchProductOwners = () => {
+  const [productOwners, setProductOwners] = useState<ProductOwner[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProductOwners = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getProductOwners();
+      setProductOwners(data);
+    } catch (err) {
+      console.error("Error fetching product owners:", err);
+      setError("Failed to fetch product owners");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProductOwners();
+  }, [fetchProductOwners]);
+
+  return { productOwners, loading, error, fetchProductOwners };
+};
+
+export const useFetchProductsByUserId = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -211,18 +239,15 @@ export const useFetchProductsByUserId = (userId: string) => {
     setLoading(true);
     setError(null);
     try {
-      const allProducts = await getProducts();
-      const filteredProducts = allProducts.filter(
-        (product) => product.productOwner === userId,
-      );
-      setProducts(filteredProducts);
+      const data = await getProductsByUserId();
+      setProducts(data);
     } catch (err) {
       console.error("Error fetching products:", err);
       setError("Failed to fetch products");
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     fetchProducts();

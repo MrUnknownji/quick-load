@@ -3,7 +3,6 @@ import {
   getUserInfo,
   editUserProfile,
   loginUser,
-  refreshToken as refreshTokenApi,
 } from "../api/userApi";
 import { User } from "../types/User";
 
@@ -24,8 +23,4 @@ export const updateUserProfile = async (
 
 export const loginUserAccount = async (accessToken: string): Promise<any> => {
   return await loginUser(accessToken);
-};
-
-export const refreshUserToken = async (refreshToken: string): Promise<any> => {
-  return await refreshTokenApi(refreshToken);
 };

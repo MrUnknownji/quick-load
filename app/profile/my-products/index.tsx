@@ -20,11 +20,11 @@ import {
   useFetchProductsByUserId,
 } from "@/hooks/useFetchProduct";
 import Alert from "@/components/popups/Alert";
-import { useUser } from "@/contexts/UserContext";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 import { responsive } from "@/utils/responsive";
+import { useUser } from "@/hooks/useUser";
 
 const ProductItem: React.FC<{
   product: Product;
@@ -89,10 +89,9 @@ const ProductItem: React.FC<{
 };
 
 const MyProducts: React.FC = () => {
-  const { currentUser } = useUser();
-  const { products, loading, error, fetchProducts } = useFetchProductsByUserId(
-    currentUser?._id ?? "",
-  );
+  const { user } = useUser();
+  const { products, loading, error, fetchProducts } =
+    useFetchProductsByUserId();
 
   const {
     deleteProduct,

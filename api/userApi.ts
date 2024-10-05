@@ -23,10 +23,3 @@ export const loginUser = async (accessToken: string) => {
   });
   return response.data;
 };
-
-export const refreshToken = async (refreshToken: string) => {
-  const response = await apiClient.post("/user/refresh-token", {
-    refreshToken,
-  });
-  return response.data;
-};

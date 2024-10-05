@@ -23,10 +23,10 @@ import {
   useAddProduct,
   useUpdateProduct,
 } from "@/hooks/useFetchProduct";
-import { useUser } from "@/contexts/UserContext";
 import * as DocumentPicker from "expo-document-picker";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import { Product } from "@/types/Product";
+import { useUser } from "@/hooks/useUser";
 
 const productTypes = ["Grit", "Bajri", "Bricks"];
 
@@ -40,7 +40,7 @@ const AddProductPage: React.FC = () => {
     productId: string;
     isEdit: string;
   }>();
-  const { currentUser } = useUser();
+  const { user } = useUser();
   const [formState, setFormState] = useState<Partial<Product>>({
     productDetails: "",
     productPrice: 0,
@@ -115,20 +115,18 @@ const AddProductPage: React.FC = () => {
     try {
       const formData = new FormData();
 
-      // Add required fields
-      formData.append("productOwnerId", currentUser?._id || "");
+      formData.append("productOwnerId", user?._id || "");
       formData.append("productPrice", formState.productPrice?.toString() || "");
       formData.append("productSize", formState.productSize || "");
       formData.append(
         "productQuantity",
         formState.productQuantity?.toString() || "",
       );
-      formData.append("productLocation", currentUser?.address || "");
-      formData.append("productRating", "0"); // Default to 0 for new products
+      formData.append("productLocation", user?.address || "");
+      formData.append("productRating", "0");
       formData.append("productType", formState.productType || "");
       formData.append("productDetails", formState.productDetails || "");
 
-      // Handle image upload
       if (formState.productImage) {
         const imageUri = formState.productImage;
         const filename = imageUri.split("/").pop();

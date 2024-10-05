@@ -18,6 +18,7 @@ export const useAddRoute = () => {
       setLoading(false);
       return result;
     } catch (err) {
+      console.error("Error adding route:", err);
       setError("Failed to add route");
       setLoading(false);
     }
@@ -38,6 +39,7 @@ export const useFetchDrivers = () => {
       const data = await getDrivers();
       setDrivers(data);
     } catch (err) {
+      console.error("Error fetching drivers:", err);
       setError("Failed to fetch drivers");
     } finally {
       setLoading(false);
@@ -63,6 +65,7 @@ export const useFetchMerchantDrivers = () => {
       const data = await getMerchantDrivers();
       setMerchantDrivers(data);
     } catch (err) {
+      console.error("Error fetching merchant drivers:", err);
       setError("Failed to fetch merchant drivers");
     } finally {
       setLoading(false);
@@ -88,6 +91,7 @@ export const useFetchMerchants = () => {
       const data = await getMerchants();
       setMerchants(data);
     } catch (err) {
+      console.error("Error fetching merchants:", err);
       setError("Failed to fetch merchants");
     } finally {
       setLoading(false);

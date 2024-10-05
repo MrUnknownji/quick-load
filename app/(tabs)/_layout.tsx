@@ -26,8 +26,8 @@ import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useUser } from "@/contexts/UserContext";
 import { responsive, vw, vh } from "@/utils/responsive";
+import { useUser } from "@/hooks/useUser";
 
 const SCREEN_HEIGHT = vh(100);
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
@@ -168,7 +168,7 @@ export default function TabLayout() {
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
   const { activePath, setActivePath } = usePathChangeListener();
   const { loading } = useLanguage();
-  const { currentUser } = useUser();
+  const { user } = useUser();
 
   const bottomSheetBackgroundColor = useThemeColor(
     {
@@ -228,12 +228,9 @@ export default function TabLayout() {
   }));
 
   const handleToggleBottomSheet = useCallback(() => {
-    if (!currentUser) return;
+    if (!user) return;
 
-    if (
-      currentUser.type === "merchant-driver" ||
-      currentUser.type === "admin"
-    ) {
+    if (user.type === "merchant-driver" || user.type === "admin") {
       if (!isBottomSheetActive) {
         setIsBottomSheetActive(true);
         setIsOverlayVisible(true);
@@ -241,18 +238,18 @@ export default function TabLayout() {
       } else {
         closeBottomSheet();
       }
-    } else if (currentUser.type === "merchant") {
+    } else if (user.type === "merchant") {
       router.push({
         pathname: "/find-route",
         params: { userType: "merchant" },
       });
-    } else if (currentUser.type === "driver") {
+    } else if (user.type === "driver") {
       router.push({
         pathname: "/find-route",
         params: { userType: "driver" },
       });
     }
-  }, [isBottomSheetActive, scrollTo, closeBottomSheet, currentUser]);
+  }, [isBottomSheetActive, scrollTo, closeBottomSheet, user]);
 
   const preventTabPress = useCallback(
     (e: { preventDefault: () => void }, tabName: string) => {
@@ -312,8 +309,7 @@ export default function TabLayout() {
           listeners={{ tabPress: (e) => preventTabPress(e, "profile") }}
         />
       </Tabs>
-      {(currentUser?.type === "merchant-driver" ||
-        currentUser?.type === "admin") && (
+      {(user?.type === "merchant-driver" || user?.type === "admin") && (
         <>
           {isOverlayVisible && <View style={styles.overlay} />}
           <GestureDetector gesture={gesture}>

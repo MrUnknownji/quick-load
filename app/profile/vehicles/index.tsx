@@ -21,11 +21,11 @@ import {
   useFetchVehiclesByUserId,
 } from "@/hooks/useFetchVehicle";
 import Alert from "@/components/popups/Alert";
-import { useUser } from "@/contexts/UserContext";
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 import { responsive, vw, vh } from "@/utils/responsive";
+import { useUser } from "@/hooks/useUser";
 
 const VehicleItem: React.FC<{
   vehicle: Vehicle;
@@ -90,9 +90,9 @@ const VehicleItem: React.FC<{
 };
 
 const Vehicles: React.FC = () => {
-  const { currentUser } = useUser();
+  const { user } = useUser();
   const { vehicles, loading, error, fetchVehicles } = useFetchVehiclesByUserId(
-    currentUser?._id ?? "",
+    user?._id ?? "",
   );
 
   const {

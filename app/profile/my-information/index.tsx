@@ -22,7 +22,6 @@ import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { User } from "@/types/User";
 import { useUser } from "@/hooks/useUser";
-import { useUser as useContextUser } from "@/contexts/UserContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from "@/constants/Colors";
 import { responsive, vw, vh } from "@/utils/responsive";
@@ -36,7 +35,6 @@ const { width: screenWidth } = Dimensions.get("window");
 
 const UserInformationPage: React.FC = () => {
   const { user, loading, error, getUser, updateProfile } = useUser();
-  const { setCurrentUser } = useContextUser();
   const [userId, setUserId] = useState<string | null>(null);
   const [isNewUser, setIsNewUser] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -298,7 +296,6 @@ const UserInformationPage: React.FC = () => {
       if (hasChanges) {
         await updateProfile(userId, formData);
         const user = await getUser(userId);
-        setCurrentUser(user);
 
         setAlertMessage("Your information has been saved successfully.");
         setAlertType("success");
