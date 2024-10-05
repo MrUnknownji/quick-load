@@ -18,6 +18,7 @@ export const updateUserProfile = async (
   userId: string,
   userData: FormData,
 ): Promise<User> => {
+  console.log(userData);
   return await editUserProfile(userId, userData);
 };
 

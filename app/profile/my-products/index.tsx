@@ -24,7 +24,6 @@ import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 import { responsive } from "@/utils/responsive";
-import { useUser } from "@/hooks/useUser";
 
 const ProductItem: React.FC<{
   product: Product;
@@ -89,7 +88,6 @@ const ProductItem: React.FC<{
 };
 
 const MyProducts: React.FC = () => {
-  const { user } = useUser();
   const { products, loading, error, fetchProducts } =
     useFetchProductsByUserId();
 

@@ -20,16 +20,9 @@ import { useUser } from "@/hooks/useUser";
 const MyShopPage = () => {
   const { t } = useTranslation();
   const { user } = useUser();
-  const {
-    addProductOwner,
-    loading: addLoading,
-    error: addError,
-  } = useAddProductOwner();
-  const {
-    updateProductOwner,
-    loading: updateLoading,
-    error: updateError,
-  } = useUpdateProductOwner();
+  const { addProductOwner, loading: addLoading } = useAddProductOwner();
+  const { updateProductOwner, loading: updateLoading } =
+    useUpdateProductOwner();
 
   const [formState, setFormState] = useState({
     productOwnerName: "",
@@ -42,8 +35,14 @@ const MyShopPage = () => {
     otherCity: "",
     productType: [] as string[],
   });
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
+  const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
+    {},
+  );
+  const [alertState, setAlertState] = useState({
+    visible: false,
+    message: "",
+    type: "info" as "error" | "success" | "info",
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const states = ["State 1", "State 2", "State 3"];
@@ -51,32 +50,49 @@ const MyShopPage = () => {
   const productTypes = ["Bricks", "Grit", "Bajri", "Cement"];
 
   useEffect(() => {
-    setTimeout(() => {
-      if (user?.productOwnerId) {
-        setFormState({
-          productOwnerName: "Sample Shop",
-          phoneNumber: "1234567890",
-          gstNumber: "GST1234567",
-          shopImage: "",
-          shopAddress: "123 Main St",
-          state: "State 1",
-          city: "City 1",
-          otherCity: "",
-          productType: ["Bricks", "Grit"],
+    const fetchShopData = async () => {
+      try {
+        if (user?.productOwnerId) {
+          // Fetch shop data from API
+          // For now, using dummy data
+          const shopData = {
+            productOwnerName: "Sample Shop",
+            phoneNumber: "1234567890",
+            gstNumber: "GST1234567",
+            shopImage: "",
+            shopAddress: "123 Main St",
+            state: "State 1",
+            city: "City 1",
+            otherCity: "",
+            productType: ["Bricks", "Grit"],
+          };
+          setFormState(shopData);
+        }
+      } catch (error) {
+        console.error("Error fetching shop data:", error);
+        setAlertState({
+          visible: true,
+          message: "Failed to fetch shop information. Please try again.",
+          type: "error",
         });
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }, 1000);
+    };
+
+    fetchShopData();
   }, [user]);
 
-  const handleInputChange = (field: string) => (value: string) => {
+  const handleInputChange = (field: string) => (value: string | string[]) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
+    setUpdatedFields((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileSelect = (file: DocumentPicker.DocumentPickerResult) => {
-    if (file.assets && file.assets.length > 0) {
-      const selectedFile = file.assets[0];
-      setFormState((prev) => ({ ...prev, shopImage: selectedFile.uri }));
+  const handleFileSelect = (result: DocumentPicker.DocumentPickerResult) => {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const file = result.assets[0];
+      setFormState((prev) => ({ ...prev, shopImage: file.name }));
+      setUpdatedFields((prev) => ({ ...prev, shopImage: file }));
     }
   };
 
@@ -97,45 +113,66 @@ const MyShopPage = () => {
     );
 
     if (missingFields.length > 0) {
-      setAlertMessage(
-        `Please fill in all required fields: ${missingFields.join(", ")}`,
-      );
-      setAlertVisible(true);
+      setAlertState({
+        visible: true,
+        message: `Please fill in all required fields: ${missingFields.join(", ")}`,
+        type: "error",
+      });
       return;
     }
 
-    const formData = new FormData();
-    Object.entries(formState).forEach(([key, value]) => {
-      if (key === "productType") {
-        (value as string[]).forEach((type) =>
-          formData.append("productType[]", type),
-        );
-      } else if (key === "shopImage") {
-        const uri = value as string;
-        const name = uri.split("/").pop();
-        const type = "image/jpeg";
-        formData.append("shopImage", { uri, name, type } as any);
-      } else {
-        formData.append(key, value as string);
-      }
-    });
-
     try {
+      const formData = new FormData();
+      Object.entries(updatedFields).forEach(([key, value]) => {
+        if (key === "productType") {
+          (value as string[]).forEach((type) =>
+            formData.append("productType[]", type),
+          );
+        } else if (value && typeof value === "object" && "uri" in value) {
+          formData.append(key, {
+            uri: value.uri,
+            type: value.mimeType,
+            name: value.name,
+          } as any);
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
+      });
+
+      let result;
       if (user?.productOwnerId) {
-        await updateProductOwner(user.productOwnerId, formData);
+        result = await updateProductOwner(user.productOwnerId, formData);
       } else {
-        await addProductOwner(formData);
+        result = await addProductOwner(formData);
       }
-      setAlertMessage("Shop information saved successfully");
-      setAlertVisible(true);
+
+      if (result && result._id) {
+        setAlertState({
+          visible: true,
+          message: "Shop information saved successfully",
+          type: "success",
+        });
+      } else {
+        throw new Error("Failed to save shop information");
+      }
     } catch (error) {
       console.error("Error saving shop information:", error);
-      setAlertMessage("Failed to save shop information. Please try again.");
-      setAlertVisible(true);
+      setAlertState({
+        visible: true,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to save shop information. Please try again.",
+        type: "error",
+      });
     }
   };
 
-  if (isLoading) {
+  const handleCloseAlert = () => {
+    setAlertState((prev) => ({ ...prev, visible: false }));
+  };
+
+  if (isLoading || addLoading || updateLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />
@@ -174,6 +211,7 @@ const MyShopPage = () => {
           isMandatory
           onFileSelect={handleFileSelect}
           selectedFile={formState.shopImage}
+          allowedExtensions={["jpg", "jpeg", "png"]}
         />
         <TextInputField
           label={t("Address")}
@@ -216,9 +254,7 @@ const MyShopPage = () => {
           isMandatory
           options={productTypes}
           selectedOptions={formState.productType}
-          onSelect={(selected) =>
-            setFormState((prev) => ({ ...prev, productType: selected }))
-          }
+          onSelect={handleInputChange("productType")}
         />
       </ScrollView>
       <Button
@@ -228,10 +264,10 @@ const MyShopPage = () => {
         disabled={addLoading || updateLoading}
       />
       <Alert
-        message={alertMessage}
-        type="info"
-        visible={alertVisible}
-        onClose={() => setAlertVisible(false)}
+        message={alertState.message}
+        type={alertState.type}
+        visible={alertState.visible}
+        onClose={handleCloseAlert}
       />
     </View>
   );

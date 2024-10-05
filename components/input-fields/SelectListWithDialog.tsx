@@ -61,6 +61,7 @@ interface SelectListProps<T extends Option | string> {
   errorTextStyle?: TextStyle;
   defaultText?: string;
   initialSelectedOption?: string;
+  displayValue?: (value: string) => string;
 }
 
 function SelectListWithDialog<T extends Option | string>({
@@ -86,6 +87,7 @@ function SelectListWithDialog<T extends Option | string>({
   errorTextStyle,
   defaultText = "Select an option",
   initialSelectedOption,
+  displayValue,
 }: SelectListProps<T>) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
@@ -126,6 +128,7 @@ function SelectListWithDialog<T extends Option | string>({
 
   const getSelectedLabel = useCallback(() => {
     if (!selectedOption) return defaultText;
+    if (displayValue) return displayValue(selectedOption);
     const selectedItem = options.find(
       (option) =>
         (typeof option === "string" ? option : option.value) === selectedOption,
@@ -133,7 +136,7 @@ function SelectListWithDialog<T extends Option | string>({
     return typeof selectedItem === "string"
       ? selectedItem
       : selectedItem?.label || defaultText;
-  }, [selectedOption, options, defaultText]);
+  }, [selectedOption, options, defaultText, displayValue]);
 
   return (
     <View style={[styles.container, containerStyle]}>

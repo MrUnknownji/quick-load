@@ -9,6 +9,7 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
+import * as Location from "expo-location";
 import Button from "@/components/button/Button";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
@@ -28,6 +29,7 @@ import {
 import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { responsive } from "@/utils/responsive";
 import { useUser } from "@/hooks/useUser";
+import Alert from "@/components/popups/Alert";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
@@ -37,6 +39,11 @@ const RouteFinder = () => {
   const [selectedVehicle, setSelectedVehicle] = useState("");
   const [formError, setFormError] = useState("");
   const { addRoute, loading, error } = useAddRoute();
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<
+    "success" | "error" | "warning" | "info"
+  >("info");
 
   const {
     vehicles,
@@ -60,10 +67,34 @@ const RouteFinder = () => {
   );
 
   useEffect(() => {
+    if (userType.toLowerCase() === "driver") {
+      requestLocationPermission();
+    }
     if (userType.toLowerCase() === "driver" && vehicles.length === 1) {
       setSelectedVehicle(vehicles[0].vehicleId);
     }
   }, [userType, vehicles]);
+
+  const requestLocationPermission = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage(
+        t(
+          "As a driver, enabling GPS is crucial for providing accurate route information and ensuring a smooth experience. Would you like to enable GPS now?",
+        ),
+      );
+      setAlertType("warning");
+      setAlertVisible(true);
+    } else {
+      setAlertMessage(
+        t(
+          "Thank you for enabling GPS. This will help us provide you with better route suggestions and improve your overall experience.",
+        ),
+      );
+      setAlertType("success");
+      setAlertVisible(true);
+    }
+  };
 
   const isFormValid = () => {
     if (!startingPoint || !endingPoint) {
@@ -246,6 +277,17 @@ const RouteFinder = () => {
           )}
         </ScrollView>
       </ThemedView>
+      <Alert
+        message={alertMessage}
+        type={alertType}
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+        onConfirm={
+          alertType === "warning"
+            ? () => Location.requestForegroundPermissionsAsync()
+            : undefined
+        }
+      />
     </KeyboardAvoidingView>
   );
 };

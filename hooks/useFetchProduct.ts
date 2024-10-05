@@ -122,7 +122,10 @@ export const useAddProduct = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const addProduct = async (productData: FormData) => {
+  const addProduct = async (
+    productData: FormData,
+  ): Promise<Product | undefined> => {
+    console.log("addProduct", productData);
     setLoading(true);
     try {
       const result = await addNewProduct(productData);
@@ -138,30 +141,14 @@ export const useAddProduct = () => {
   return { addProduct, loading, error };
 };
 
-export const useAddProductOwner = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const addProductOwner = async (productOwnerData: FormData) => {
-    setLoading(true);
-    try {
-      const result = await addNewProductOwner(productOwnerData);
-      setLoading(false);
-      return result;
-    } catch (err) {
-      setError("Failed to add product owner");
-      setLoading(false);
-    }
-  };
-
-  return { addProductOwner, loading, error };
-};
-
 export const useUpdateProduct = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateProduct = async (productId: string, productData: FormData) => {
+  const updateProduct = async (
+    productId: string,
+    productData: FormData,
+  ): Promise<Product | undefined> => {
     setLoading(true);
     try {
       const result = await updateExistingProduct(productId, productData);
@@ -174,6 +161,27 @@ export const useUpdateProduct = () => {
   };
 
   return { updateProduct, loading, error };
+};
+
+export const useAddProductOwner = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addProductOwner = async (productOwnerData: FormData) => {
+    console.log("addProductOwner", productOwnerData);
+    setLoading(true);
+    try {
+      const result = await addNewProductOwner(productOwnerData);
+      setLoading(false);
+      return result;
+    } catch (err) {
+      console.log("Error adding product owner:", err);
+      setError("Failed to add product owner");
+      setLoading(false);
+    }
+  };
+
+  return { addProductOwner, loading, error };
 };
 
 export const useUpdateProductOwner = () => {

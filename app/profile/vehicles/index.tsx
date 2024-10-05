@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -25,7 +25,7 @@ import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 import { responsive, vw, vh } from "@/utils/responsive";
-import { useUser } from "@/hooks/useUser";
+import { useContextUser } from "@/contexts/userContext";
 
 const VehicleItem: React.FC<{
   vehicle: Vehicle;
@@ -90,11 +90,10 @@ const VehicleItem: React.FC<{
 };
 
 const Vehicles: React.FC = () => {
-  const { user } = useUser();
+  const { user } = useContextUser();
   const { vehicles, loading, error, fetchVehicles } = useFetchVehiclesByUserId(
     user?._id ?? "",
   );
-
   const {
     deleteVehicle,
     loading: deleteLoading,

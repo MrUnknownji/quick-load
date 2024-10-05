@@ -1,67 +1,47 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  FlatList,
-  ListRenderItem,
   StyleSheet,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
-import Alert from "@/components/popups/Alert";
 import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
-import * as DocumentPicker from "expo-document-picker";
+import Alert from "@/components/popups/Alert";
 import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import FileUploadField from "@/components/input-fields/FileUploadField";
-import Sizes from "@/constants/Sizes";
-import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { User } from "@/types/User";
 import { useUser } from "@/hooks/useUser";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Colors from "@/constants/Colors";
 import { responsive, vw, vh } from "@/utils/responsive";
+import { t } from "i18next";
+import * as DocumentPicker from "expo-document-picker";
+import Sizes from "@/constants/Sizes";
 
-type FormField = {
-  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
-  props: any;
-};
-
-const { width: screenWidth } = Dimensions.get("window");
+const userTypeOptions = [
+  { label: "None", value: "customer" },
+  { label: "Driver", value: "driver" },
+  { label: "Merchant", value: "merchant" },
+  { label: "Merchant-Driver", value: "merchant-driver" },
+];
 
 const UserInformationPage: React.FC = () => {
   const { user, loading, error, getUser, updateProfile } = useUser();
   const [userId, setUserId] = useState<string | null>(null);
-  const [isNewUser, setIsNewUser] = useState(true);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState<
-    "success" | "error" | "warning" | "info"
-  >("info");
-  const [formState, setFormState] = useState<Partial<User>>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    type: "customer",
-    panCard: "",
-    aadharCard: "",
-    username: "",
-    language: "en",
-    gender: "other",
-    countryCode: "+91",
-    timezone: 0,
-    birthDate: "",
-    isActivated: false,
-    isVerified: false,
-    deviceId: "",
-    platform: "android",
+  const [formState, setFormState] = useState<Partial<User>>({});
+  const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
+    {},
+  );
+  const [alertState, setAlertState] = useState({
+    visible: false,
+    message: "",
+    type: "info" as "success" | "error" | "warning" | "info",
   });
 
   useEffect(() => {
@@ -70,267 +50,175 @@ const UserInformationPage: React.FC = () => {
         const storedUserId = await AsyncStorage.getItem("userId");
         setUserId(storedUserId);
         if (storedUserId) {
-          getUser(storedUserId);
+          const userData = await getUser(storedUserId);
+          setFormState(userData || {});
         }
       } catch (error) {
-        console.error("Error fetching userId from AsyncStorage:", error);
-        setAlertMessage("Failed to fetch user information. Please try again.");
-        setAlertVisible(true);
+        console.error("Error fetching user data:", error);
+        setAlertState({
+          visible: true,
+          message: "Failed to fetch user information. Please try again.",
+          type: "error",
+        });
       }
     };
 
     fetchUserId();
   }, [getUser]);
 
-  useEffect(() => {
-    if (user) {
-      setFormState(user);
-      setIsNewUser(!user.isVerified);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (error) {
-      setAlertMessage(error);
-      setAlertVisible(true);
-    }
-  }, [error]);
-
   const handleInputChange = (field: keyof User) => (value: string) => {
-    if (field === "phone") {
-      const phoneNumber = value.startsWith("+91")
-        ? value.slice(0, 13)
-        : "+91" + value.slice(3, 13);
-      setFormState((prev) => ({ ...prev, [field]: phoneNumber }));
-    } else {
-      setFormState((prev) => ({ ...prev, [field]: value }));
-    }
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    setUpdatedFields((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileSelect =
-    (field: "panCard" | "aadharCard") =>
-    (file: DocumentPicker.DocumentPickerResult) => {
-      if (file.assets && file.assets.length > 0) {
-        const selectedFile = file.assets[0];
+  const handleFileSelect = (field: "panCard" | "aadharCard") => async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ["image/*", "application/pdf"],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled) {
+        const selectedFile = result.assets[0];
         setFormState((prev) => ({ ...prev, [field]: selectedFile.name }));
+        setUpdatedFields((prev) => ({ ...prev, [field]: selectedFile }));
       }
-    };
-
-  const userTypeOptions = [
-    { label: "None", value: "customer" },
-    { label: "Driver", value: "driver" },
-    { label: "Merchant", value: "merchant" },
-    { label: "Merchant-Driver", value: "merchant-driver" },
-  ];
-
-  const formFields: FormField[] = [
-    {
-      type: "TextInputField",
-      props: {
-        label: t("First Name"),
-        subLabel: t("As per official documents"),
-        isMandatory: true,
-        iconName: "person",
-        value: formState.firstName,
-        onChangeText: handleInputChange("firstName"),
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Last Name"),
-        subLabel: t("As per official documents"),
-        isMandatory: true,
-        iconName: "person-add",
-        value: formState.lastName,
-        onChangeText: handleInputChange("lastName"),
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Email"),
-        subLabel: t("For communication purposes"),
-        isMandatory: true,
-        iconName: "mail",
-        value: formState.email,
-        onChangeText: handleInputChange("email"),
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Phone"),
-        subLabel: t("With country code"),
-        isMandatory: true,
-        iconName: "call",
-        value: formState.phone || "+91",
-        onChangeText: handleInputChange("phone"),
-        keyboardType: "phone-pad",
-        maxLength: 13,
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Address"),
-        subLabel: t("Current residential address"),
-        isMandatory: true,
-        iconName: "location",
-        value: formState.address,
-        onChangeText: handleInputChange("address"),
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("City"),
-        subLabel: t("Current city of residence"),
-        isMandatory: true,
-        iconName: "business",
-        value: formState.city,
-        onChangeText: handleInputChange("city"),
-      },
-    },
-    {
-      type: "FileUploadField",
-      props: {
-        label: t("Pan Card"),
-        subLabel: t("Only .jpg, .png, .pdf of max 10MB allowed"),
-        isMandatory: true,
-        onFileSelect: handleFileSelect("panCard"),
-        selectedFile: formState.panCard,
-        allowedExtensions: ["jpg", "png", "pdf"],
-      },
-    },
-    {
-      type: "FileUploadField",
-      props: {
-        label: t("Aadhaar Card"),
-        subLabel: t("Only .jpg, .png, .pdf of max 10MB allowed"),
-        isMandatory: true,
-        onFileSelect: handleFileSelect("aadharCard"),
-        selectedFile: formState.aadharCard,
-        allowedExtensions: ["jpg", "png", "pdf"],
-      },
-    },
-    {
-      type: "SelectListWithDialog",
-      props: {
-        label: t("User Type"),
-        subLabel: t("Select your primary role"),
-        isMandatory: true,
-        iconName: "people",
-        options: userTypeOptions,
-        selectedOption: formState.type || "customer",
-        onSelect: (value: string) => {
-          handleInputChange("type")(value);
-        },
-        displayValue: (value: string) => {
-          const option = userTypeOptions.find((opt) => opt.value === value);
-          return option ? option.label : "None";
-        },
-      },
-    },
-  ];
-
-  const renderItem: ListRenderItem<FormField> = ({ item }) => {
-    const Component =
-      item.type === "TextInputField"
-        ? TextInputField
-        : item.type === "SelectListWithDialog"
-          ? SelectListWithDialog
-          : item.type === "FileUploadField"
-            ? FileUploadField
-            : View;
-    return <Component {...item.props} />;
+    } catch (error) {
+      console.error("Error selecting file:", error);
+    }
   };
 
   const handleSave = async () => {
-    const requiredFields: (keyof User)[] = [
-      "firstName",
-      "phone",
-      "address",
-      "city",
-    ];
-
-    const missingFields = requiredFields.filter(
-      (field) => !formState[field] || formState[field] === "",
-    );
-
-    if (missingFields.length > 0) {
-      const missingFieldNames = missingFields
-        .map((field) => field.charAt(0).toUpperCase() + field.slice(1))
-        .join(", ");
-
-      setAlertMessage(
-        `Please fill in the following required fields:\n\n${missingFieldNames}`,
-      );
-      setAlertType("warning");
-      setAlertVisible(true);
-      return;
-    }
-
     if (!userId) {
-      setAlertMessage("User ID not found. Please try logging in again.");
-      setAlertType("error");
-      setAlertVisible(true);
+      setAlertState({
+        visible: true,
+        message: "User ID not found. Please try logging in again.",
+        type: "error",
+      });
       return;
     }
 
     try {
       const formData = new FormData();
-      let hasChanges = false;
-
-      Object.entries(formState).forEach(([key, value]) => {
-        if (
-          value !== undefined &&
-          value !== null &&
-          value !== user?.[key as keyof User]
-        ) {
-          hasChanges = true;
-          formData.append(key, value as string | Blob);
+      Object.entries(updatedFields).forEach(([key, value]) => {
+        if (value && typeof value === "object" && "uri" in value) {
+          formData.append(key, {
+            uri: value.uri,
+            type: value.mimeType,
+            name: value.name,
+          } as any);
+        } else if (value !== undefined) {
+          formData.append(key, value.toString());
         }
       });
 
-      if (hasChanges) {
-        await updateProfile(userId, formData);
-        const user = await getUser(userId);
+      const success = await updateProfile(userId, formData);
 
-        setAlertMessage("Your information has been saved successfully.");
-        setAlertType("success");
-        setAlertVisible(true);
-
-        if (isNewUser) {
-          setTimeout(() => {
-            router.replace({
-              pathname: "/thank-you",
-              params: {
-                message: "Your information has been saved successfully.",
-                type: "new_user",
-              },
-            });
-          }, 2000);
-        }
+      if (success) {
+        setAlertState({
+          visible: true,
+          message: "Your information has been saved successfully.",
+          type: "success",
+        });
+        setUpdatedFields({});
       } else {
-        setAlertMessage("No changes detected.");
-        setAlertType("info");
-        setAlertVisible(true);
+        throw new Error("Profile update failed");
       }
     } catch (error) {
       console.error("Error saving user data:", error);
-      setAlertMessage("Failed to save user data. Please try again.");
-      setAlertType("error");
-      setAlertVisible(true);
+      setAlertState({
+        visible: true,
+        message: "Failed to save user data. Please try again.",
+        type: "error",
+      });
     }
   };
 
   const handleCloseAlert = () => {
-    setAlertVisible(false);
-    if (alertType === "success" && !isNewUser) {
+    setAlertState((prev) => ({ ...prev, visible: false }));
+    if (alertState.type === "success") {
       router.replace("/");
     }
   };
+
+  const renderFormFields = () => (
+    <ScrollView>
+      <TextInputField
+        label={t("First Name")}
+        value={formState.firstName}
+        onChangeText={handleInputChange("firstName")}
+      />
+      <TextInputField
+        label={t("Last Name")}
+        value={formState.lastName}
+        onChangeText={handleInputChange("lastName")}
+      />
+      <TextInputField
+        label={t("Email")}
+        subLabel={t("For communication purposes")}
+        isMandatory={true}
+        iconName="mail"
+        value={formState.email}
+        onChangeText={handleInputChange("email")}
+      />
+      <TextInputField
+        label={t("Phone")}
+        subLabel={t("With country code")}
+        isMandatory={true}
+        iconName="call"
+        value={formState.phone || "+91"}
+        onChangeText={handleInputChange("phone")}
+        keyboardType="phone-pad"
+      />
+      <TextInputField
+        label={t("Address")}
+        subLabel={t("Current residential address")}
+        isMandatory={true}
+        iconName="location"
+        value={formState.address}
+        onChangeText={handleInputChange("address")}
+      />
+      <TextInputField
+        label={t("City")}
+        subLabel={t("Current city of residence")}
+        isMandatory={true}
+        iconName="business"
+        value={formState.city}
+        onChangeText={handleInputChange("city")}
+      />
+      <FileUploadField
+        label={t("Pan Card")}
+        isMandatory
+        onFileSelect={handleFileSelect("panCard")}
+        selectedFile={formState.panCard}
+        allowedExtensions={["jpg", "png", "pdf"]}
+        subLabel={t("Only .jpg, .png, .pdf of max 10MB allowed")}
+      />
+      <FileUploadField
+        label={t("Aadhaar Card")}
+        isMandatory
+        onFileSelect={handleFileSelect("aadharCard")}
+        selectedFile={formState.aadharCard}
+        allowedExtensions={["jpg", "png", "pdf"]}
+        subLabel={t("Only .jpg, .png, .pdf of max 10MB allowed")}
+      />
+      <SelectListWithDialog
+        label={t("User Type")}
+        subLabel={t("Select your primary role")}
+        isMandatory={true}
+        iconName="people"
+        options={userTypeOptions}
+        selectedOption={formState.type || "customer"}
+        onSelect={(value: string) => {
+          handleInputChange("type")(value);
+        }}
+        displayValue={(value: string) => {
+          const option = userTypeOptions.find((opt) => opt.value === value);
+          return option ? option.label : "None";
+        }}
+      />
+    </ScrollView>
+  );
 
   if (loading) {
     return (
@@ -352,34 +240,21 @@ const UserInformationPage: React.FC = () => {
             style={styles.userImage}
           />
         </View>
-        <FlatList
-          data={formFields}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => `${item.type}-${index}`}
-          contentContainerStyle={{
-            paddingVertical: responsive(50),
-          }}
-        />
+        {renderFormFields()}
         <IconButton
           iconName="content-save-check"
           size="small"
           variant="primary"
           title={t("Save")}
-          style={{
-            position: "absolute",
-            bottom: responsive(Sizes.marginLarge),
-            right: responsive(Sizes.marginHorizontal),
-            borderRadius: responsive(Sizes.borderRadiusFull),
-            paddingHorizontal: responsive(Sizes.paddingMedium),
-          }}
+          style={styles.saveButton}
           iconLibrary="MaterialCommunityIcons"
           onPress={handleSave}
         />
       </ThemedView>
       <Alert
-        message={t(alertMessage)}
-        type={alertType}
-        visible={alertVisible}
+        message={t(alertState.message)}
+        type={alertState.type}
+        visible={alertState.visible}
         onClose={handleCloseAlert}
       />
     </KeyboardAvoidingView>
@@ -412,5 +287,12 @@ const styles = StyleSheet.create({
   loadingContainer: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  saveButton: {
+    position: "absolute",
+    bottom: responsive(Sizes.marginLarge),
+    right: responsive(Sizes.marginHorizontal),
+    borderRadius: responsive(Sizes.borderRadiusFull),
+    paddingHorizontal: responsive(Sizes.paddingMedium),
   },
 });

@@ -14,6 +14,7 @@ export const useUser = () => {
   const [error, setError] = useState<string | null>(null);
 
   const initializeUser = useCallback(async () => {
+    setLoading(true);
     try {
       const storedUser = await AsyncStorage.getItem("user");
       if (storedUser) {
@@ -21,12 +22,10 @@ export const useUser = () => {
       }
     } catch (err) {
       console.error("Error initializing user:", err);
+    } finally {
+      setLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
 
   useEffect(() => {
     initializeUser();
@@ -70,8 +69,11 @@ export const useUser = () => {
         const updatedUser = await updateUserProfile(userId, userData);
         setUser(updatedUser);
         await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+        return true;
       } catch (err) {
+        console.error("Error updating user profile:", err);
         setError("Failed to update profile");
+        return false;
       } finally {
         setLoading(false);
       }

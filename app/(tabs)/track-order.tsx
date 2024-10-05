@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import Sizes from "@/constants/Sizes";
 import LargeListItem from "@/components/list-items/LargeListItem";
@@ -7,7 +7,7 @@ import { router } from "expo-router";
 import { t } from "i18next";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { ORDERS } from "@/assets/data/DATA";
+// import { ORDERS } from "@/assets/data/DATA";
 import { Order } from "@/types/Order";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 
@@ -15,13 +15,15 @@ const TrackOrder = () => {
   // const { currentUser } = useUser();
 
   // const userOrders = ORDERS.filter((order) => order.userId === currentUser?.id);
-  const userOrders = ORDERS;
-  const pendingOrders = userOrders.filter(
-    (order) => order.status === "pending",
-  );
-  const deliveredOrders = userOrders.filter(
-    (order) => order.status === "delivered",
-  );
+  // const userOrders = ORDERS;
+  // const pendingOrders = userOrders.filter(
+  //   (order) => order.status === "pending",
+  // );
+  // const deliveredOrders = userOrders.filter(
+  //   (order) => order.status === "delivered",
+  // );
+  const pendingOrders: Order[] = [];
+  const deliveredOrders: Order[] = [];
 
   const onItemPress = (orderId: string) => {
     router.push({

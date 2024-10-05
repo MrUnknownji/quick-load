@@ -38,6 +38,8 @@ interface TextInputFieldProps {
   multiline?: boolean;
   numberOfLines?: number;
   secureTextEntry?: boolean;
+  maxLength?: number;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
 }
 
 const TextInputField = ({
@@ -57,6 +59,8 @@ const TextInputField = ({
   multiline = false,
   numberOfLines,
   secureTextEntry = false,
+  maxLength,
+  autoCapitalize,
 }: TextInputFieldProps) => {
   const textColor = useThemeColor(
     { light: Colors.light.text, dark: Colors.dark.text },
@@ -116,6 +120,8 @@ const TextInputField = ({
           multiline={multiline}
           numberOfLines={numberOfLines}
           secureTextEntry={secureTextEntry}
+          maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
         />
         {error && <Text style={styles.errorText}>{error}</Text>}
       </View>

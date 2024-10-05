@@ -88,17 +88,14 @@ export const useUpdateVehicle = () => {
     formData: FormData,
   ): Promise<Vehicle> => {
     setLoading(true);
+    setError(null);
     try {
       const result = await updateExistingVehicle(vehicleId, formData);
       setLoading(false);
-      if (result && "vehicleId" in result) {
-        return result as Vehicle;
-      } else {
-        throw new Error("Invalid response from server");
-      }
+      return result;
     } catch (err) {
-      console.log("Error in update: ", err);
-      setError("Failed to update vehicle: " + err);
+      console.error("Error in update: ", err);
+      setError("Failed to update vehicle");
       setLoading(false);
       throw err;
     }

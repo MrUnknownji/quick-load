@@ -5,8 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  FlatList,
-  ListRenderItem,
+  ScrollView,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Colors from "@/constants/Colors";
@@ -30,56 +29,45 @@ import { useUser } from "@/hooks/useUser";
 
 const productTypes = ["Grit", "Bajri", "Bricks"];
 
-type FormField = {
-  type: "TextInputField" | "SelectListWithDialog" | "FileUploadField";
-  props: any;
-};
-
 const AddProductPage: React.FC = () => {
   const { productId, isEdit } = useLocalSearchParams<{
     productId: string;
     isEdit: string;
   }>();
   const { user } = useUser();
-  const [formState, setFormState] = useState<Partial<Product>>({
-    productDetails: "",
-    productPrice: 0,
-    productType: productTypes[0],
-    productSize: "",
-    productQuantity: 0,
-    productLocation: "",
-    productRating: 0,
-    productImage: "",
+  const [formState, setFormState] = useState<Partial<Product>>({});
+  const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
+    {},
+  );
+  const [alertState, setAlertState] = useState({
+    visible: false,
+    message: "",
+    type: "error" as "error" | "success",
   });
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    product,
-    loading: productLoading,
-    error: productError,
-  } = useFetchProductById(isEdit === "true" ? productId || "" : "");
-
-  const { addProduct, loading: addLoading, error: addError } = useAddProduct();
-  const {
-    updateProduct,
-    loading: updateLoading,
-    error: updateError,
-  } = useUpdateProduct();
+  const { product, loading: productLoading } = useFetchProductById(
+    isEdit === "true" ? productId || "" : "",
+  );
+  const { addProduct, loading: addLoading } = useAddProduct();
+  const { updateProduct, loading: updateLoading } = useUpdateProduct();
 
   useEffect(() => {
     if (isEdit === "true" && product) {
-      setFormState((prev) => ({
-        ...prev,
-        ...product,
-      }));
+      setFormState(product);
     }
-    setIsLoading(productLoading);
-  }, [isEdit, product, productLoading]);
+  }, [isEdit, product]);
 
   const handleInputChange = (field: keyof Product) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
+    setUpdatedFields((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileSelect = (result: DocumentPicker.DocumentPickerResult) => {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const file = result.assets[0];
+      setFormState((prev) => ({ ...prev, productImage: file.name }));
+      setUpdatedFields((prev) => ({ ...prev, productImage: file }));
+    }
   };
 
   const handleAddProduct = async () => {
@@ -89,6 +77,7 @@ const AddProductPage: React.FC = () => {
       "productQuantity",
       "productType",
       "productDetails",
+      "productImage",
     ];
 
     const missingFields = requiredFields.filter(
@@ -96,164 +85,72 @@ const AddProductPage: React.FC = () => {
     );
 
     if (missingFields.length > 0) {
-      const missingFieldNames = missingFields
-        .map((field) =>
-          field
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (str) => str.toUpperCase())
-            .trim(),
-        )
-        .join(", ");
-
-      setAlertMessage(
-        `${t("Please fill in the following required fields:")}\n\n${missingFieldNames}`,
-      );
-      setAlertVisible(true);
+      setAlertState({
+        visible: true,
+        message: `Please fill in all required fields: ${missingFields.join(", ")}`,
+        type: "error",
+      });
       return;
     }
 
     try {
       const formData = new FormData();
 
+      Object.entries(updatedFields).forEach(([key, value]) => {
+        if (value && typeof value === "object" && "uri" in value) {
+          formData.append(key, {
+            uri: value.uri,
+            type: value.mimeType,
+            name: value.name,
+          } as any);
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
+      });
+
       formData.append("productOwnerId", user?._id || "");
-      formData.append("productPrice", formState.productPrice?.toString() || "");
-      formData.append("productSize", formState.productSize || "");
-      formData.append(
-        "productQuantity",
-        formState.productQuantity?.toString() || "",
-      );
       formData.append("productLocation", user?.address || "");
       formData.append("productRating", "0");
-      formData.append("productType", formState.productType || "");
-      formData.append("productDetails", formState.productDetails || "");
 
-      if (formState.productImage) {
-        const imageUri = formState.productImage;
-        const filename = imageUri.split("/").pop();
-        const match = /\.(\w+)$/.exec(filename || "");
-        const type = match ? `image/${match[1]}` : "image";
-
-        formData.append("productImage", {
-          uri: imageUri,
-          name: filename,
-          type,
-        } as any);
-      }
-
+      let result: Product | undefined;
       if (isEdit === "true" && productId) {
-        await updateProduct(productId, formData);
+        result = await updateProduct(productId, formData);
       } else {
-        await addProduct(formData);
+        result = await addProduct(formData);
       }
-      router.back();
+
+      if (result && result._id) {
+        setAlertState({
+          visible: true,
+          message: "Product saved successfully",
+          type: "success",
+        });
+      } else {
+        throw new Error("Failed to save product");
+      }
     } catch (error) {
       console.error("Error saving product:", error);
-      setAlertMessage("Failed to save product data. Please try again.");
-      setAlertVisible(true);
+      setAlertState({
+        visible: true,
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to save product data. Please try again.",
+        type: "error",
+      });
     }
   };
 
   const handleCloseAlert = () => {
-    setAlertVisible(false);
-  };
-
-  const handleFileSelect = (file: DocumentPicker.DocumentPickerResult) => {
-    if (file.assets && file.assets.length > 0) {
-      const selectedFile = file.assets[0];
-      setFormState((prev) => ({ ...prev, productImage: selectedFile.name }));
+    setAlertState((prev) => ({ ...prev, visible: false }));
+    if (alertState.type === "success") {
+      router.back();
     }
   };
 
-  const formFields: FormField[] = [
-    {
-      type: "SelectListWithDialog",
-      props: {
-        label: t("Product Type"),
-        options: productTypes,
-        selectedOption: formState.productType || "",
-        onSelect: handleInputChange("productType"),
-        placeholder: t("Select Product Type"),
-        isMandatory: true,
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Product Size"),
-        value: formState.productSize,
-        onChangeText: handleInputChange("productSize"),
-        placeholder:
-          formState.productType === "Bricks" ? "ex. 1 Number" : "ex. 1 mm",
-        isMandatory: true,
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Product Quantity"),
-        subLabel:
-          formState.productType === "Bricks"
-            ? "Number of pieces"
-            : "Number of quintals",
-        value: formState.productQuantity?.toString(),
-        onChangeText: handleInputChange("productQuantity"),
-        placeholder: "Number only",
-        keyboardType: "numeric",
-        isMandatory: true,
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Price"),
-        subLabel:
-          formState.productType === "Bricks"
-            ? "Rs. per 1000 pieces"
-            : "Rs. per quintal",
-        placeholder: "ex. 3500",
-        value: formState.productPrice?.toString(),
-        onChangeText: handleInputChange("productPrice"),
-        keyboardType: "numeric",
-        isMandatory: true,
-      },
-    },
-    {
-      type: "FileUploadField",
-      props: {
-        label: t("Product Image"),
-        onFileSelect: handleFileSelect,
-        selectedFile: formState.productImage,
-        allowedExtensions: ["jpg", "jpeg", "png"],
-        isMandatory: true,
-      },
-    },
-    {
-      type: "TextInputField",
-      props: {
-        label: t("Product Description"),
-        placeholder: t("Describe your product in detail"),
-        value: formState.productDetails,
-        onChangeText: handleInputChange("productDetails"),
-        multiline: true,
-        numberOfLines: 2,
-        isMandatory: true,
-      },
-    },
-  ];
+  const isLoading = productLoading || addLoading || updateLoading;
 
-  const renderItem: ListRenderItem<FormField> = ({ item }) => {
-    const Component =
-      item.type === "TextInputField"
-        ? TextInputField
-        : item.type === "SelectListWithDialog"
-          ? SelectListWithDialog
-          : item.type === "FileUploadField"
-            ? FileUploadField
-            : View;
-    return <Component {...item.props} />;
-  };
-
-  if (isLoading || addLoading || updateLoading) {
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />
@@ -267,12 +164,67 @@ const AddProductPage: React.FC = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ThemedView style={styles.content}>
-        <FlatList
-          data={formFields}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => `${item.type}-${index}`}
-          contentContainerStyle={styles.scrollContent}
-        />
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <SelectListWithDialog
+            label={t("Product Type")}
+            options={productTypes}
+            selectedOption={formState.productType || ""}
+            onSelect={handleInputChange("productType")}
+            placeholder={t("Select Product Type")}
+            isMandatory={true}
+          />
+          <TextInputField
+            label={t("Product Size")}
+            value={formState.productSize}
+            onChangeText={handleInputChange("productSize")}
+            placeholder={
+              formState.productType === "Bricks" ? "ex. 1 Number" : "ex. 1 mm"
+            }
+            isMandatory={true}
+          />
+          <TextInputField
+            label={t("Product Quantity")}
+            subLabel={
+              formState.productType === "Bricks"
+                ? "Number of pieces"
+                : "Number of quintals"
+            }
+            value={formState.productQuantity?.toString()}
+            onChangeText={handleInputChange("productQuantity")}
+            placeholder="Number only"
+            keyboardType="numeric"
+            isMandatory={true}
+          />
+          <TextInputField
+            label={t("Price")}
+            subLabel={
+              formState.productType === "Bricks"
+                ? "Rs. per 1000 pieces"
+                : "Rs. per quintal"
+            }
+            placeholder="ex. 3500"
+            value={formState.productPrice?.toString()}
+            onChangeText={handleInputChange("productPrice")}
+            keyboardType="numeric"
+            isMandatory={true}
+          />
+          <FileUploadField
+            label={t("Product Image")}
+            onFileSelect={handleFileSelect}
+            selectedFile={formState.productImage}
+            allowedExtensions={["jpg", "jpeg", "png"]}
+            isMandatory={true}
+          />
+          <TextInputField
+            label={t("Product Description")}
+            placeholder={t("Describe your product in detail")}
+            value={formState.productDetails}
+            onChangeText={handleInputChange("productDetails")}
+            multiline={true}
+            numberOfLines={2}
+            isMandatory={true}
+          />
+        </ScrollView>
         <IconButton
           iconName={isEdit === "true" ? "save" : "add"}
           size="small"
@@ -283,9 +235,9 @@ const AddProductPage: React.FC = () => {
         />
       </ThemedView>
       <Alert
-        message={alertMessage}
-        type="error"
-        visible={alertVisible}
+        message={alertState.message}
+        type={alertState.type}
+        visible={alertState.visible}
         onClose={handleCloseAlert}
       />
     </KeyboardAvoidingView>
