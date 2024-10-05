@@ -3,7 +3,6 @@ import {
   View,
   Pressable,
   StyleSheet,
-  Dimensions,
   StatusBar,
   BackHandler,
   ActivityIndicator,
@@ -259,7 +258,14 @@ export default function TabLayout() {
     [isBottomSheetActive, setActivePath],
   );
 
-  if (loading) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
+  if (loading)
+    return (
+      <ActivityIndicator
+        size="large"
+        style={{ flex: 1 }}
+        color={Colors.light.primary}
+      />
+    );
 
   return (
     <>

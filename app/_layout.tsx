@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font";
-import { Slot, useRouter } from "expo-router";
+import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
@@ -9,10 +9,10 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "@/services/i18";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ForceUpdateProvider } from "@/contexts/ForceUpdateProvider";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemeProvider } from "@/contexts/AppThemeProvider";
 import NavigationBarManager from "@/components/NavigationBarManager";
 import { UserProvider } from "@/contexts/userContext";
+import CustomSplashScreen from "@/components/CustomSplashScreen";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -22,23 +22,14 @@ export default function RootLayout() {
   });
 
   const [isReady, setIsReady] = useState(false);
-  const router = useRouter();
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const prepare = async () => {
       try {
         if (loaded) {
           await SplashScreen.hideAsync();
-          const hasOnboarded = await AsyncStorage.getItem("hasOnboarded");
           setIsReady(true);
-
-          setTimeout(() => {
-            if (hasOnboarded === null) {
-              router.replace("/onboarding");
-            } else {
-              router.replace("/authentication");
-            }
-          }, 0);
         }
       } catch (e) {
         console.error("Error during app initialization:", e);
@@ -46,10 +37,14 @@ export default function RootLayout() {
     };
 
     prepare();
-  }, [loaded, router]);
+  }, [loaded]);
 
   if (!isReady || !loaded) {
     return null;
+  }
+
+  if (showSplash) {
+    return <CustomSplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
   return (
@@ -60,14 +55,8 @@ export default function RootLayout() {
             <I18nextProvider i18n={i18n}>
               <StatusBarManager />
               <NavigationBarManager />
-              <GestureHandlerRootView>
-                <Slot
-                  screenOptions={{
-                    headerShown: false,
-                    animation: "fade_from_bottom",
-                    animationDuration: 100,
-                  }}
-                />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Slot />
               </GestureHandlerRootView>
             </I18nextProvider>
           </UserProvider>

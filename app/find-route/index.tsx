@@ -281,10 +281,21 @@ const RouteFinder = () => {
         message={alertMessage}
         type={alertType}
         visible={alertVisible}
-        onClose={() => setAlertVisible(false)}
+        onClose={() => {
+          setAlertVisible(false);
+          if (alertType === "warning") {
+            router.replace("/");
+          }
+        }}
         onConfirm={
           alertType === "warning"
-            ? () => Location.requestForegroundPermissionsAsync()
+            ? async () => {
+                const { status } =
+                  await Location.requestForegroundPermissionsAsync();
+                if (status !== "granted") {
+                  router.replace("/");
+                }
+              }
             : undefined
         }
       />
