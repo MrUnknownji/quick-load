@@ -46,7 +46,7 @@ const CheckboxDropdownWithDialog: React.FC<CheckboxDropdownProps> = ({
   isMandatory = false,
   selectedOptions,
   onSelect,
-  placeholder = "Select options",
+  placeholder = `${t("Select Options")}`,
   error,
   accessibleLabel,
   disabled = false,

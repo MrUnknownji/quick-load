@@ -75,7 +75,8 @@ const ProductDetailPage = () => {
           <View style={styles.productContainer}>
             <LargeImageView
               imageUrl={`https://quick-load.onrender.com${product.productImage}`}
-              style={{ marginHorizontal: 0 }}
+              style={{ marginHorizontal: responsive(Sizes.marginHorizontal) }}
+              height={vh(25)}
             />
             {!isPricingVisible && (
               <>
@@ -131,9 +132,11 @@ const ProductHeader = ({ heading }: { heading: string }) => (
 );
 
 const CenteredContainer = ({ children }: { children: React.ReactNode }) => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  <ThemedView
+    style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+  >
     {children}
-  </View>
+  </ThemedView>
 );
 
 const ProductFeaturesCard = ({ price }: { price?: number }) => {

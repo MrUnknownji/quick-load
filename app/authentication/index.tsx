@@ -40,7 +40,14 @@ const Authentication: React.FC = () => {
         try {
           const userData = await getUser(userId);
           if (userData) {
-            router.replace("/");
+            if (userData.firstName && userData.firstName !== "") {
+              router.replace("/");
+            } else {
+              router.replace({
+                pathname: "/profile/my-information",
+                params: { canLeave: "false" },
+              });
+            }
           } else {
             throw new Error("User data is null");
           }
@@ -148,10 +155,13 @@ const Authentication: React.FC = () => {
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
       await AsyncStorage.setItem("userId", loginResponse.user._id);
       showAlert("Sign in successful!", "success");
-      if (loginResponse.user.isVerified) {
+      if (loginResponse.user.firstName && loginResponse.user.firstName !== "") {
         router.replace("/");
       } else {
-        router.replace(`/profile/my-information`);
+        router.replace({
+          pathname: "/profile/my-information",
+          params: { canLeave: "false" },
+        });
       }
     } catch (error) {
       if (error instanceof Error) {

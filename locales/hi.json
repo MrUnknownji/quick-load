@@ -254,5 +254,21 @@
   "Price Per": "प्रति मूल्य",
   "Product Stock": "उत्पाद स्टॉक",
   "Additional Product Images": "अतिरिक्त उत्पाद छवियाँ",
-  "Add Product": "उत्पाद जोड़ें"
+  "Add Product": "उत्पाद जोड़ें",
+  "More Information": "अधिक जानकारी",
+  "My Products": "मेरी उत्पाद",
+  "Please fill in all required fields:": "कृपया निम्नलिखित फ़ील्ड भरें:",
+  "Product Type": "उत्पाद प्रकार",
+  "Product Size": "उत्पाद आकार",
+  "Product Quantity": "उत्पाद मात्रा",
+  "Price": "मूल्य",
+  "Product Image": "उत्पाद छवि",
+  "Number of quintals": "क्विंटल संख्या",
+  "Number of pieces": "टुकड़ा संख्या",
+  "Rs. per quintal": "क्विंटल प्रति रू",
+  "Rs. per 1000 pieces": "टुकड़ा प्रति 1000 रू",
+  "Update Product": "उत्पाद अपडेट करें",
+  "As a driver, enabling GPS is crucial for providing accurate route information and ensuring a smooth experience. Would you like to enable GPS now?": "चालक के लिए, GPS को सक्षम करने के लिए संभव रूप से सटीक रूप से पता लगाने के लिए एक महत्वपूर्ण अनुभव है. क्या आप अब GPS को सक्षम करना चाहते हैं?",
+  "Thank you for enabling GPS. This will help us provide you with better route suggestions and improve your overall experience.": "GPS को सक्षम करने के लिए धन्यवाद। यह आपको सुनिश्चित रूप सेटअप करने में ",
+  "Select Options": "विकल्प चुनें"
 }

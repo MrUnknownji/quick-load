@@ -1,5 +1,5 @@
 import { useFonts } from "expo-font";
-import { Slot } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
@@ -56,7 +56,41 @@ export default function RootLayout() {
               <StatusBarManager />
               <NavigationBarManager />
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <Slot />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    animation: "fade_from_bottom",
+                  }}
+                >
+                  <Stack.Screen
+                    name="thank-you/index"
+                    options={{ title: "Thank You" }}
+                  />
+                  <Stack.Screen
+                    name="find-route/index"
+                    options={{ title: "Find Route" }}
+                  />
+                  <Stack.Screen
+                    name="onboarding/index"
+                    options={{ title: "Onboarding" }}
+                  />
+                  <Stack.Screen
+                    name="product-items/index"
+                    options={{ title: "Product Items" }}
+                  />
+                  <Stack.Screen
+                    name="authentication/index"
+                    options={{ title: "Authentication" }}
+                  />
+                  <Stack.Screen
+                    name="order-detail/order-track/index"
+                    options={{ title: "Order Detail" }}
+                  />
+                  <Stack.Screen
+                    name="product-detail/[productId]"
+                    options={{ title: "Product Detail" }}
+                  />
+                </Stack>
               </GestureHandlerRootView>
             </I18nextProvider>
           </UserProvider>

@@ -153,16 +153,16 @@ const ProductItems: React.FC = () => {
 
   if (productsLoading && !refreshing)
     return (
-      <View style={styles.centeredContainer}>
+      <ThemedView style={styles.centeredContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />
-      </View>
+      </ThemedView>
     );
 
   if (!productOwnerId) {
     return (
-      <View style={styles.centeredContainer}>
+      <ThemedView style={styles.centeredContainer}>
         <ThemedText style={styles.errorText}>{t("Owner not found")}</ThemedText>
-      </View>
+      </ThemedView>
     );
   }
 

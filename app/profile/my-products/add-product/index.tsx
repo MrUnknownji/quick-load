@@ -25,16 +25,16 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import { Product } from "@/types/Product";
-import { useUser } from "@/hooks/useUser";
+import { useContextUser } from "@/contexts/userContext";
 
-const productTypes = ["Grit", "Bajri", "Bricks"];
+const productTypes = ["Grit", "Bajri", "Bricks", "Cement"];
 
 const AddProductPage: React.FC = () => {
   const { productId, isEdit } = useLocalSearchParams<{
     productId: string;
     isEdit: string;
   }>();
-  const { user } = useUser();
+  const { user } = useContextUser();
   const [formState, setFormState] = useState<Partial<Product>>({});
   const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
     {},
@@ -87,7 +87,7 @@ const AddProductPage: React.FC = () => {
     if (missingFields.length > 0) {
       setAlertState({
         visible: true,
-        message: `Please fill in all required fields: ${missingFields.join(", ")}`,
+        message: `${t("Please fill in all required fields:")} ${missingFields.join(", ")}`,
         type: "error",
       });
       return;
@@ -186,12 +186,12 @@ const AddProductPage: React.FC = () => {
             label={t("Product Quantity")}
             subLabel={
               formState.productType === "Bricks"
-                ? "Number of pieces"
-                : "Number of quintals"
+                ? t("Number of pieces")
+                : t("Number of quintals")
             }
             value={formState.productQuantity?.toString()}
             onChangeText={handleInputChange("productQuantity")}
-            placeholder="Number only"
+            placeholder={`${t("Number only")}`}
             keyboardType="numeric"
             isMandatory={true}
           />
@@ -199,8 +199,8 @@ const AddProductPage: React.FC = () => {
             label={t("Price")}
             subLabel={
               formState.productType === "Bricks"
-                ? "Rs. per 1000 pieces"
-                : "Rs. per quintal"
+                ? t("Rs. per 1000 pieces")
+                : t("Rs. per quintal")
             }
             placeholder="ex. 3500"
             value={formState.productPrice?.toString()}

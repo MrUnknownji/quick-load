@@ -2,7 +2,7 @@ import { Dimensions, PixelRatio, Platform } from "react-native";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-// Base dimensions (you can adjust these based on your design)
+// Base dimensions
 const baseWidth = 375;
 const baseHeight = 812;
 
@@ -27,7 +27,7 @@ export const vw = (percentage: number) =>
 export const vh = (percentage: number) =>
   minSize((SCREEN_HEIGHT * percentage) / 100);
 
-// Improved function for font scaling
+// function for font scaling
 export const scaledFontSize = (size: number) => {
   const scaleFactor = Math.min(scale, SCREEN_HEIGHT / baseHeight);
   const scaledSize = size * scaleFactor;
@@ -38,7 +38,7 @@ export const scaledFontSize = (size: number) => {
   return Math.round(adjustedSize);
 };
 
-// New function for responsive padding and margins
+// responsive padding and margins
 export const responsiveSpacing = (size: number) => {
   const scaleFactor = Math.min(scale, SCREEN_HEIGHT / baseHeight);
   return Math.round(size * scaleFactor);

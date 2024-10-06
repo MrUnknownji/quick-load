@@ -6,8 +6,9 @@ import {
   Platform,
   ActivityIndicator,
   ScrollView,
+  BackHandler,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import Alert from "@/components/popups/Alert";
@@ -23,6 +24,7 @@ import { responsive, vw, vh } from "@/utils/responsive";
 import { t } from "i18next";
 import * as DocumentPicker from "expo-document-picker";
 import Sizes from "@/constants/Sizes";
+import { useContextUser } from "@/contexts/userContext";
 
 const userTypeOptions = [
   { label: "None", value: "customer" },
@@ -32,7 +34,9 @@ const userTypeOptions = [
 ];
 
 const UserInformationPage: React.FC = () => {
-  const { user, loading, error, getUser, updateProfile } = useUser();
+  const { canLeave } = useLocalSearchParams();
+  const { loading, error, getUser, updateProfile } = useUser();
+  const { user, setUser } = useContextUser();
   const [userId, setUserId] = useState<string | null>(null);
   const [formState, setFormState] = useState<Partial<User>>({});
   const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
@@ -43,6 +47,7 @@ const UserInformationPage: React.FC = () => {
     message: "",
     type: "info" as "success" | "error" | "warning" | "info",
   });
+  const [isDetailsSaved, setIsDetailsSaved] = useState(false);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -65,6 +70,27 @@ const UserInformationPage: React.FC = () => {
 
     fetchUserId();
   }, [getUser]);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (canLeave === "false" && !isDetailsSaved) {
+        setAlertState({
+          visible: true,
+          message: "Please save your details before leaving the page.",
+          type: "warning",
+        });
+        return true; // Prevent default behavior
+      }
+      return false; // Allow default behavior
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, [canLeave, isDetailsSaved]);
 
   const handleInputChange = (field: keyof User) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -121,6 +147,8 @@ const UserInformationPage: React.FC = () => {
           type: "success",
         });
         setUpdatedFields({});
+        setIsDetailsSaved(true);
+        setUser({ ...user, ...formState });
       } else {
         throw new Error("Profile update failed");
       }
@@ -136,7 +164,7 @@ const UserInformationPage: React.FC = () => {
 
   const handleCloseAlert = () => {
     setAlertState((prev) => ({ ...prev, visible: false }));
-    if (alertState.type === "success") {
+    if (alertState.type === "success" && canLeave !== "false") {
       router.replace("/");
     }
   };

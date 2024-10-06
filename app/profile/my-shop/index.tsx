@@ -15,11 +15,11 @@ import Sizes from "@/constants/Sizes";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Alert from "@/components/popups/Alert";
 import * as DocumentPicker from "expo-document-picker";
-import { useUser } from "@/hooks/useUser";
+import { useContextUser } from "@/contexts/userContext";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
-  const { user } = useUser();
+  const { user } = useContextUser();
   const { addProductOwner, loading: addLoading } = useAddProductOwner();
   const { updateProductOwner, loading: updateLoading } =
     useUpdateProductOwner();
@@ -53,8 +53,6 @@ const MyShopPage = () => {
     const fetchShopData = async () => {
       try {
         if (user?.productOwnerId) {
-          // Fetch shop data from API
-          // For now, using dummy data
           const shopData = {
             productOwnerName: "Sample Shop",
             phoneNumber: "1234567890",
