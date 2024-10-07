@@ -1,31 +1,31 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   ScrollView,
+  StyleSheet,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import Colors from "@/constants/Colors";
-import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import IconButton from "@/components/button/IconButton";
-import { responsive } from "@/utils/responsive";
 import Alert from "@/components/popups/Alert";
 import {
   useFetchProductById,
   useAddProduct,
   useUpdateProduct,
+  useFetchProductOwnerByUserId,
 } from "@/hooks/useFetchProduct";
 import * as DocumentPicker from "expo-document-picker";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import { Product } from "@/types/Product";
-import { useContextUser } from "@/contexts/userContext";
+import { responsive } from "@/utils/responsive";
+import Sizes from "@/constants/Sizes";
 
 const productTypes = ["Grit", "Bajri", "Bricks", "Cement"];
 
@@ -34,7 +34,6 @@ const AddProductPage: React.FC = () => {
     productId: string;
     isEdit: string;
   }>();
-  const { user } = useContextUser();
   const [formState, setFormState] = useState<Partial<Product>>({});
   const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
     {},
@@ -50,6 +49,8 @@ const AddProductPage: React.FC = () => {
   );
   const { addProduct, loading: addLoading } = useAddProduct();
   const { updateProduct, loading: updateLoading } = useUpdateProduct();
+  const { productOwner, loading: ownerLoading } =
+    useFetchProductOwnerByUserId();
 
   useEffect(() => {
     if (isEdit === "true" && product) {
@@ -93,6 +94,15 @@ const AddProductPage: React.FC = () => {
       return;
     }
 
+    if (!productOwner) {
+      setAlertState({
+        visible: true,
+        message: "Product owner information not found",
+        type: "error",
+      });
+      return;
+    }
+
     try {
       const formData = new FormData();
 
@@ -108,8 +118,8 @@ const AddProductPage: React.FC = () => {
         }
       });
 
-      formData.append("productOwnerId", user?._id || "");
-      formData.append("productLocation", user?.address || "");
+      formData.append("productOwnerId", productOwner._id || "");
+      formData.append("productLocation", productOwner.shopAddress || "");
       formData.append("productRating", "0");
 
       let result: Product | undefined;
@@ -148,7 +158,8 @@ const AddProductPage: React.FC = () => {
     }
   };
 
-  const isLoading = productLoading || addLoading || updateLoading;
+  const isLoading =
+    productLoading || addLoading || updateLoading || ownerLoading;
 
   if (isLoading) {
     return (

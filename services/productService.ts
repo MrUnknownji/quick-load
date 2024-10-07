@@ -9,6 +9,7 @@ import {
   addProductOwner,
   updateProduct,
   updateProductOwner,
+  fetchProductOwnerByUserId,
 } from "../api/productApi";
 import { Product, ProductOwner } from "../types/Product";
 
@@ -35,6 +36,10 @@ export const getProductOwnersByType = async (
   type: string,
 ): Promise<ProductOwner[]> => {
   return await fetchProductOwnersByType(type);
+};
+
+export const getProductOwnerByUserId = async (): Promise<ProductOwner> => {
+  return await fetchProductOwnerByUserId();
 };
 
 export const getProductsByUserId = async (): Promise<Product[]> => {

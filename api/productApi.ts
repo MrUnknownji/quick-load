@@ -45,6 +45,13 @@ export const addProduct = async (productData: FormData): Promise<Product> => {
   return response.data.product;
 };
 
+export const fetchProductOwnerByUserId = async () => {
+  const response = await authApiClient.get(
+    "/product/owner/productOwnerByUserId",
+  );
+  return response.data.productOwner;
+};
+
 export const addProductOwner = async (
   productOwnerData: FormData,
 ): Promise<ProductOwner> => {

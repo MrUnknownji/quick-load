@@ -8,6 +8,7 @@ import CheckBoxDropdownWithDialog from "@/components/input-fields/CheckBoxDropdo
 import {
   useAddProductOwner,
   useUpdateProductOwner,
+  useFetchProductOwnerByUserId,
 } from "@/hooks/useFetchProduct";
 import { responsive, vh, vw } from "@/utils/responsive";
 import Colors from "@/constants/Colors";
@@ -23,6 +24,11 @@ const MyShopPage = () => {
   const { addProductOwner, loading: addLoading } = useAddProductOwner();
   const { updateProductOwner, loading: updateLoading } =
     useUpdateProductOwner();
+  const {
+    productOwner,
+    loading: fetchLoading,
+    error: fetchError,
+  } = useFetchProductOwnerByUserId();
 
   const [formState, setFormState] = useState({
     productOwnerName: "",
@@ -43,43 +49,36 @@ const MyShopPage = () => {
     message: "",
     type: "info" as "error" | "success" | "info",
   });
-  const [isLoading, setIsLoading] = useState(true);
 
   const states = ["State 1", "State 2", "State 3"];
   const cities = ["City 1", "City 2", "City 3", "Other"];
   const productTypes = ["Bricks", "Grit", "Bajri", "Cement"];
 
   useEffect(() => {
-    const fetchShopData = async () => {
-      try {
-        if (user?.productOwnerId) {
-          const shopData = {
-            productOwnerName: "Sample Shop",
-            phoneNumber: "1234567890",
-            gstNumber: "GST1234567",
-            shopImage: "",
-            shopAddress: "123 Main St",
-            state: "State 1",
-            city: "City 1",
-            otherCity: "",
-            productType: ["Bricks", "Grit"],
-          };
-          setFormState(shopData);
-        }
-      } catch (error) {
-        console.error("Error fetching shop data:", error);
-        setAlertState({
-          visible: true,
-          message: "Failed to fetch shop information. Please try again.",
-          type: "error",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (productOwner) {
+      setFormState({
+        productOwnerName: productOwner.productOwnerName,
+        phoneNumber: productOwner.phoneNumber.toString(),
+        gstNumber: productOwner.gstNumber,
+        shopImage: productOwner.shopImage,
+        shopAddress: productOwner.shopAddress,
+        state: productOwner.state,
+        city: productOwner.city,
+        otherCity: "",
+        productType: productOwner.productType,
+      });
+    }
+  }, [productOwner]);
 
-    fetchShopData();
-  }, [user]);
+  useEffect(() => {
+    if (fetchError) {
+      setAlertState({
+        visible: true,
+        message: "Failed to fetch shop information. Please try again.",
+        type: "error",
+      });
+    }
+  }, [fetchError]);
 
   const handleInputChange = (field: string) => (value: string | string[]) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -138,8 +137,8 @@ const MyShopPage = () => {
       });
 
       let result;
-      if (user?.productOwnerId) {
-        result = await updateProductOwner(user.productOwnerId, formData);
+      if (productOwner && productOwner.userId) {
+        result = await updateProductOwner(productOwner?._id ?? "", formData);
       } else {
         result = await addProductOwner(formData);
       }
@@ -170,7 +169,7 @@ const MyShopPage = () => {
     setAlertState((prev) => ({ ...prev, visible: false }));
   };
 
-  if (isLoading || addLoading || updateLoading) {
+  if (fetchLoading || addLoading || updateLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.light.primary} />
@@ -256,7 +255,9 @@ const MyShopPage = () => {
         />
       </ScrollView>
       <Button
-        title={user?.productOwnerId ? t("Update Shop") : t("Add Shop")}
+        title={
+          productOwner && productOwner.userId ? t("Update Shop") : t("Add Shop")
+        }
         onPress={handleSubmit}
         style={styles.submitButton}
         disabled={addLoading || updateLoading}
