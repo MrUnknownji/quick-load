@@ -79,9 +79,9 @@ const UserInformationPage: React.FC = () => {
           message: "Please save your details before leaving the page.",
           type: "warning",
         });
-        return true; // Prevent default behavior
+        return true;
       }
-      return false; // Allow default behavior
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener(

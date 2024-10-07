@@ -44,7 +44,7 @@ const CustomSplashScreen = ({ onFinish }: any) => {
           ]).start(() => {
             onFinish();
           });
-        }, 1000); // Delay before starting fade out
+        }, 1000);
       });
     });
   }, []);
