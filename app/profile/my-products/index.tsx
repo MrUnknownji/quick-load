@@ -51,7 +51,9 @@ const ProductItem: React.FC<{
       style={[styles.listItem, { backgroundColor: listItemBackgroundColor }]}
     >
       <Image
-        source={{ uri: product.productImage }}
+        source={{
+          uri: `https://quick-load.onrender.com${product.productImage}`,
+        }}
         style={styles.listItemImage}
       />
       <View style={styles.listItemDetails}>

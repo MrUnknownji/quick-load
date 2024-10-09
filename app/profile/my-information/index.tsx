@@ -16,6 +16,7 @@ import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import FileUploadField from "@/components/input-fields/FileUploadField";
+import ImageUploadField from "@/components/input-fields/ImageUploadField";
 import { ThemedView } from "@/components/ThemedView";
 import { User } from "@/types/User";
 import { useUser } from "@/hooks/useUser";
@@ -27,7 +28,7 @@ import Sizes from "@/constants/Sizes";
 import { useContextUser } from "@/contexts/userContext";
 
 const userTypeOptions = [
-  { label: "None", value: "customer" },
+  { label: "Default", value: "customer" },
   { label: "Driver", value: "driver" },
   { label: "Merchant", value: "merchant" },
   { label: "Merchant-Driver", value: "merchant-driver" },
@@ -164,8 +165,18 @@ const UserInformationPage: React.FC = () => {
 
   const handleCloseAlert = () => {
     setAlertState((prev) => ({ ...prev, visible: false }));
-    if (alertState.type === "success" && canLeave !== "false") {
-      router.replace("/");
+    if (alertState.type === "success") {
+      if (canLeave === "false") {
+        router.replace({
+          pathname: "/thank-you",
+          params: {
+            message:
+              "Your profile has been submitted and is currently under review. We'll notify you once it's approved.",
+          },
+        });
+      } else {
+        router.back();
+      }
     }
   };
 
@@ -174,6 +185,7 @@ const UserInformationPage: React.FC = () => {
       <TextInputField
         label={t("First Name")}
         value={formState.firstName}
+        isMandatory
         onChangeText={handleInputChange("firstName")}
       />
       <TextInputField
@@ -184,14 +196,12 @@ const UserInformationPage: React.FC = () => {
       <TextInputField
         label={t("Email")}
         subLabel={t("For communication purposes")}
-        isMandatory={true}
         iconName="mail"
         value={formState.email}
         onChangeText={handleInputChange("email")}
       />
       <TextInputField
         label={t("Phone")}
-        subLabel={t("With country code")}
         isMandatory={true}
         iconName="call"
         value={formState.phone || "+91"}
@@ -200,51 +210,53 @@ const UserInformationPage: React.FC = () => {
       />
       <TextInputField
         label={t("Address")}
-        subLabel={t("Current residential address")}
-        isMandatory={true}
         iconName="location"
         value={formState.address}
         onChangeText={handleInputChange("address")}
       />
       <TextInputField
         label={t("City")}
-        subLabel={t("Current city of residence")}
         isMandatory={true}
         iconName="business"
         value={formState.city}
         onChangeText={handleInputChange("city")}
       />
-      <FileUploadField
+      <ImageUploadField
         label={t("Pan Card")}
-        isMandatory
-        onFileSelect={handleFileSelect("panCard")}
-        selectedFile={formState.panCard}
-        allowedExtensions={["jpg", "png", "pdf"]}
-        subLabel={t("Only .jpg, .png, .pdf of max 10MB allowed")}
+        subLabel={t("Upload a Pan Card picture")}
+        onImageSelect={(image) => {
+          setFormState((prev) => ({ ...prev, panCard: image }));
+          setUpdatedFields((prev) => ({ ...prev, panCard: image }));
+        }}
+        selectedImage={formState.panCard}
       />
       <FileUploadField
         label={t("Aadhaar Card")}
-        isMandatory
         onFileSelect={handleFileSelect("aadharCard")}
         selectedFile={formState.aadharCard}
         allowedExtensions={["jpg", "png", "pdf"]}
         subLabel={t("Only .jpg, .png, .pdf of max 10MB allowed")}
       />
-      <SelectListWithDialog
-        label={t("User Type")}
-        subLabel={t("Select your primary role")}
-        isMandatory={true}
-        iconName="people"
-        options={userTypeOptions}
-        selectedOption={formState.type || "customer"}
-        onSelect={(value: string) => {
-          handleInputChange("type")(value);
-        }}
-        displayValue={(value: string) => {
-          const option = userTypeOptions.find((opt) => opt.value === value);
-          return option ? option.label : "None";
-        }}
-      />
+      {!(Boolean(canLeave) || canLeave === null || canLeave === undefined) && (
+        <SelectListWithDialog
+          label={t("User Type")}
+          subLabel={t("Select your primary role")}
+          isMandatory={true}
+          iconName="people"
+          options={userTypeOptions}
+          selectedOption={formState.type || "customer"}
+          onSelect={(value: string) => {
+            handleInputChange("type")(value);
+          }}
+          displayValue={(value: string) => {
+            const option = userTypeOptions.find((opt) => opt.value === value);
+            return option ? option.label : "Default";
+          }}
+          disabled={
+            Boolean(canLeave) || canLeave === null || canLeave === undefined
+          }
+        />
+      )}
     </ScrollView>
   );
 

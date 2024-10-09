@@ -30,13 +30,18 @@ import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { responsive } from "@/utils/responsive";
 import { useUser } from "@/hooks/useUser";
 import Alert from "@/components/popups/Alert";
+import { useContextUser } from "@/contexts/userContext";
+import { useAddLocation, useUpdateLocation } from "@/hooks/useLocation";
+import { getCurrentLocation, getLocationPermission } from "@/utils/permissions";
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
   const { user } = useUser();
+  const { user: contextUser } = useContextUser();
   const [startingPoint, setStartingPoint] = useState("");
   const [endingPoint, setEndingPoint] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [selectedLabel, setSelectedLabel] = useState("");
   const [formError, setFormError] = useState("");
   const { addRoute, loading, error } = useAddRoute();
   const [alertVisible, setAlertVisible] = useState(false);
@@ -55,6 +60,16 @@ const RouteFinder = () => {
     loading: vehicleTypesLoading,
     error: vehicleTypesError,
   } = useFetchVehicleTypes();
+  const {
+    addLocation,
+    loading: addLocationLoading,
+    error: addLocationError,
+  } = useAddLocation();
+  const {
+    updateLocation,
+    loading: updateLocationLoading,
+    error: updateLocationError,
+  } = useUpdateLocation();
 
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
@@ -70,14 +85,17 @@ const RouteFinder = () => {
     if (userType.toLowerCase() === "driver") {
       requestLocationPermission();
     }
-    if (userType.toLowerCase() === "driver" && vehicles.length === 1) {
-      setSelectedVehicle(vehicles[0].vehicleId);
+  }, []);
+
+  useEffect(() => {
+    if (userType.toLowerCase() === "driver" && contextUser) {
+      handleLocationUpdate();
     }
-  }, [userType, vehicles]);
+  }, [userType, contextUser]);
 
   const requestLocationPermission = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
+    const hasPermission = await getLocationPermission();
+    if (!hasPermission) {
       setAlertMessage(
         t(
           "As a driver, enabling GPS is crucial for providing accurate route information and ensuring a smooth experience. Would you like to enable GPS now?",
@@ -93,6 +111,34 @@ const RouteFinder = () => {
       );
       setAlertType("success");
       setAlertVisible(true);
+      handleLocationUpdate();
+    }
+  };
+
+  const handleLocationUpdate = async () => {
+    if (!contextUser) return;
+
+    try {
+      const hasPermission = await getLocationPermission();
+      if (!hasPermission) {
+        console.log("Permission to access location was denied");
+        return;
+      }
+
+      const location = await getCurrentLocation();
+      const { latitude, longitude } = location.coords;
+
+      if (contextUser.location) {
+        await updateLocation(contextUser._id || "", { latitude, longitude });
+      } else {
+        await addLocation({
+          userId: contextUser._id || "",
+          latitude,
+          longitude,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating location:", error);
     }
   };
 
@@ -126,7 +172,7 @@ const RouteFinder = () => {
             type: "route",
             from: startingPoint,
             to: endingPoint,
-            vehicle: selectedVehicle,
+            vehicle: selectedLabel,
           },
         });
       } catch (err) {
@@ -155,6 +201,7 @@ const RouteFinder = () => {
             variant="transparent"
             title={t("Add vehicle to continue")}
             style={{ width: "100%", padding: 5 }}
+            onPress={() => router.push("/profile/vehicles/add-vehicles")}
           />
         );
       } else {
@@ -168,6 +215,9 @@ const RouteFinder = () => {
             containerStyle={{ paddingHorizontal: 0 }}
             onSelect={(value) => setSelectedVehicle(value)}
             selectedOption={selectedVehicle}
+            getLabel={(label) => {
+              setTimeout(() => setSelectedLabel(label), 0);
+            }}
           />
         );
       }
@@ -188,6 +238,7 @@ const RouteFinder = () => {
             containerStyle={{ paddingHorizontal: 0 }}
             onSelect={(value) => setSelectedVehicle(value)}
             selectedOption={selectedVehicle}
+            getLabel={(label) => setSelectedLabel(label)}
           />
         );
       }
@@ -270,9 +321,9 @@ const RouteFinder = () => {
             onPress={handleSend}
             disabled={loading || !isFormValid()}
           />
-          {(error || formError) && (
+          {(error || formError || addLocationError || updateLocationError) && (
             <ThemedText style={styles.errorText}>
-              {error || formError}
+              {error || formError || addLocationError || updateLocationError}
             </ThemedText>
           )}
         </ScrollView>
@@ -294,6 +345,8 @@ const RouteFinder = () => {
                   await Location.requestForegroundPermissionsAsync();
                 if (status !== "granted") {
                   router.replace("/");
+                } else {
+                  handleLocationUpdate();
                 }
               }
             : undefined

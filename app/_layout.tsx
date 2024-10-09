@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ThemeProvider } from "@/contexts/AppThemeProvider";
 import NavigationBarManager from "@/components/NavigationBarManager";
 import CustomSplashScreen from "@/components/CustomSplashScreen";
+import { UserProvider } from "@/contexts/userContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -56,47 +57,49 @@ export default function RootLayout() {
     <ThemeProvider>
       <ForceUpdateProvider>
         <LanguageProvider>
-          <I18nextProvider i18n={i18n}>
-            <StatusBarManager />
-            <NavigationBarManager />
-            <GestureHandlerRootView>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: "fade_from_bottom",
-                }}
-              >
-                <Stack.Screen
-                  name="thank-you/index"
-                  options={{ title: "Thank You" }}
-                />
-                <Stack.Screen
-                  name="find-route/index"
-                  options={{ title: "Find Route" }}
-                />
-                <Stack.Screen
-                  name="onboarding/index"
-                  options={{ title: "Onboarding" }}
-                />
-                <Stack.Screen
-                  name="product-items/index"
-                  options={{ title: "Product Items" }}
-                />
-                <Stack.Screen
-                  name="authentication/index"
-                  options={{ title: "Authentication" }}
-                />
-                <Stack.Screen
-                  name="order-detail/order-track/index"
-                  options={{ title: "Order Detail" }}
-                />
-                <Stack.Screen
-                  name="product-detail/[productId]"
-                  options={{ title: "Product Detail" }}
-                />
-              </Stack>
-            </GestureHandlerRootView>
-          </I18nextProvider>
+          <UserProvider>
+            <I18nextProvider i18n={i18n}>
+              <StatusBarManager />
+              <NavigationBarManager />
+              <GestureHandlerRootView>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    animation: "fade_from_bottom",
+                  }}
+                >
+                  <Stack.Screen
+                    name="thank-you/index"
+                    options={{ title: "Thank You" }}
+                  />
+                  <Stack.Screen
+                    name="find-route/index"
+                    options={{ title: "Find Route" }}
+                  />
+                  <Stack.Screen
+                    name="onboarding/index"
+                    options={{ title: "Onboarding" }}
+                  />
+                  <Stack.Screen
+                    name="product-items/index"
+                    options={{ title: "Product Items" }}
+                  />
+                  <Stack.Screen
+                    name="authentication/index"
+                    options={{ title: "Authentication" }}
+                  />
+                  <Stack.Screen
+                    name="order-detail/order-track/index"
+                    options={{ title: "Order Detail" }}
+                  />
+                  <Stack.Screen
+                    name="product-detail/[productId]"
+                    options={{ title: "Product Detail" }}
+                  />
+                </Stack>
+              </GestureHandlerRootView>
+            </I18nextProvider>
+          </UserProvider>
         </LanguageProvider>
       </ForceUpdateProvider>
     </ThemeProvider>

@@ -53,7 +53,7 @@ const VehicleItem: React.FC<{
       style={[styles.listItem, { backgroundColor: listItemBackgroundColor }]}
     >
       <Image
-        source={{ uri: vehicle.vehicleImage }}
+        source={require("@/assets/images/icon.png")}
         style={styles.listItemImage}
       />
       <View style={styles.listItemDetails}>

@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from "react";
+import React, { memo, useState, useCallback, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -62,6 +62,7 @@ interface SelectListProps<T extends Option | string> {
   defaultText?: string;
   initialSelectedOption?: string;
   displayValue?: (value: string) => string;
+  getLabel?: (label: string) => void;
 }
 
 function SelectListWithDialog<T extends Option | string>({
@@ -88,6 +89,7 @@ function SelectListWithDialog<T extends Option | string>({
   defaultText = "Select an option",
   initialSelectedOption,
   displayValue,
+  getLabel,
 }: SelectListProps<T>) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [selectedOption, setSelectedOption] = useState(
@@ -137,6 +139,13 @@ function SelectListWithDialog<T extends Option | string>({
       ? selectedItem
       : selectedItem?.label || defaultText;
   }, [selectedOption, options, defaultText, displayValue]);
+
+  useEffect(() => {
+    if (getLabel) {
+      const label = getSelectedLabel();
+      getLabel(label);
+    }
+  }, [getSelectedLabel, getLabel]);
 
   return (
     <View style={[styles.container, containerStyle]}>

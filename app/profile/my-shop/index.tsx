@@ -20,7 +20,6 @@ import { useContextUser } from "@/contexts/userContext";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
-  const { user } = useContextUser();
   const { addProductOwner, loading: addLoading } = useAddProductOwner();
   const { updateProductOwner, loading: updateLoading } =
     useUpdateProductOwner();
@@ -74,7 +73,7 @@ const MyShopPage = () => {
     if (fetchError) {
       setAlertState({
         visible: true,
-        message: "Failed to fetch shop information. Please try again.",
+        message: t("Either shop won't exist or error fetching details."),
         type: "error",
       });
     }

@@ -37,6 +37,10 @@ import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { responsive, vw, vh } from "@/utils/responsive";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import { useContextUser } from "@/contexts/userContext";
+import { getCurrentLocation, getLocationPermission } from "@/utils/permissions";
+import { useAddLocation, useUpdateLocation } from "@/hooks/useLocation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 if (
   Platform.OS === "android" &&
@@ -54,6 +58,36 @@ const HomeScreen: React.FC = () => {
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
+  const { user } = useContextUser();
+  const { addLocation } = useAddLocation();
+  const { updateLocation } = useUpdateLocation();
+
+  useEffect(() => {
+    const checkLocationPermission = async () => {
+      if (user?.type === "driver" || user?.type === "merchant-driver") {
+        const hasPermission = await getLocationPermission();
+        if (hasPermission) {
+          const location = await getCurrentLocation();
+          const locationData = {
+            userId: user._id!,
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          };
+
+          if (user.location === null) {
+            await addLocation(locationData);
+          } else {
+            await updateLocation(user._id!, {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            });
+          }
+        }
+      }
+    };
+
+    checkLocationPermission();
+  }, [user]);
 
   const {
     products,

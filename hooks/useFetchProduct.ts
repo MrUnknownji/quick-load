@@ -194,7 +194,6 @@ export const useAddProductOwner = () => {
   const [error, setError] = useState<string | null>(null);
 
   const addProductOwner = async (productOwnerData: FormData) => {
-    console.log("addProductOwner", productOwnerData);
     setLoading(true);
     try {
       const result = await addNewProductOwner(productOwnerData);
@@ -298,7 +297,6 @@ export const useDeleteProduct = () => {
     setLoading(true);
     setError(null);
     try {
-      // Simulating API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       console.log(`Product ${productId} deleted`);
       setLoading(false);

@@ -268,7 +268,8 @@
   "Rs. per quintal": "क्विंटल प्रति रू",
   "Rs. per 1000 pieces": "टुकड़ा प्रति 1000 रू",
   "Update Product": "उत्पाद अपडेट करें",
-  "As a driver, enabling GPS is crucial for providing accurate route information and ensuring a smooth experience. Would you like to enable GPS now?": "चालक के लिए, GPS को सक्षम करने के लिए संभव रूप से सटीक रूप से पता लगाने के लिए एक महत्वपूर्ण अनुभव है. क्या आप अब GPS को सक्षम करना चाहते हैं?",
-  "Thank you for enabling GPS. This will help us provide you with better route suggestions and improve your overall experience.": "GPS को सक्षम करने के लिए धन्यवाद। यह आपको सुनिश्चित रूप सेटअप करने में ",
-  "Select Options": "विकल्प चुनें"
+  "As a driver, enabling GPS is crucial for providing accurate route information and ensuring a smooth experience. Would you like to enable GPS now?": "चालक के रूप में, सटीक मार्ग जानकारी प्रदान करने और बेहतर अनुभव सुनिश्चित करने के लिए GPS सक्षम करना महत्वपूर्ण है। क्या आप अभी GPS सक्षम करना चाहेंगे?",
+  "Thank you for enabling GPS. This will help us provide you with better route suggestions and improve your overall experience.": "GPS सक्षम करने के लिए धन्यवाद। यह हमें आपको बेहतर मार्ग सुझाव प्रदान करने और आपके समग्र अनुभव में सुधार करने में मदद करेगा।",
+  "Select Options": "विकल्प चुनें",
+  "Either shop won't exist or error fetching details.": "या तो दुकान मौजूद नहीं है या विवरण लाने में त्रुटि हुई है।"
 }
