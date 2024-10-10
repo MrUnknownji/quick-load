@@ -161,6 +161,7 @@ export const useFetchVehiclesByUserId = (userId: string) => {
       setVehicles(data);
     } catch (err) {
       setError("Failed to fetch vehicles for user");
+      console.log("Error fetching vehicle: ", err, userId);
     } finally {
       setLoading(false);
     }

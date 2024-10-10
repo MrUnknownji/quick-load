@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   ScrollView,
+  StyleSheet,
   BackHandler,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
@@ -16,16 +16,15 @@ import IconButton from "@/components/button/IconButton";
 import TextInputField from "@/components/input-fields/TextInputField";
 import SelectListWithDialog from "@/components/input-fields/SelectListWithDialog";
 import FileUploadField from "@/components/input-fields/FileUploadField";
-import ImageUploadField from "@/components/input-fields/ImageUploadField";
 import { ThemedView } from "@/components/ThemedView";
 import { User } from "@/types/User";
 import { useUser } from "@/hooks/useUser";
 import Colors from "@/constants/Colors";
-import { responsive, vw, vh } from "@/utils/responsive";
 import { t } from "i18next";
 import * as DocumentPicker from "expo-document-picker";
-import Sizes from "@/constants/Sizes";
 import { useContextUser } from "@/contexts/userContext";
+import Sizes from "@/constants/Sizes";
+import { responsive, vw } from "@/utils/responsive";
 
 const userTypeOptions = [
   { label: "Default", value: "customer" },
@@ -98,21 +97,24 @@ const UserInformationPage: React.FC = () => {
     setUpdatedFields((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleFileSelect = (field: "panCard" | "aadharCard") => async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ["image/*", "application/pdf"],
-        copyToCacheDirectory: true,
-      });
+  const handleFileSelect = (
+    field: "panCard" | "aadharCard",
+    result: DocumentPicker.DocumentPickerResult,
+  ) => {
+    // try {
+    // const result = await DocumentPicker.getDocumentAsync({
+    //   type: ["image/*", "application/pdf"],
+    //   copyToCacheDirectory: true,
+    // });
 
-      if (!result.canceled) {
-        const selectedFile = result.assets[0];
-        setFormState((prev) => ({ ...prev, [field]: selectedFile.name }));
-        setUpdatedFields((prev) => ({ ...prev, [field]: selectedFile }));
-      }
-    } catch (error) {
-      console.error("Error selecting file:", error);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedFile = result.assets[0];
+      setFormState((prev) => ({ ...prev, [field]: selectedFile.name }));
+      setUpdatedFields((prev) => ({ ...prev, [field]: selectedFile }));
     }
+    // } catch (error) {
+    //   console.error("Error selecting file:", error);
+    // }
   };
 
   const handleSave = async () => {
@@ -149,7 +151,7 @@ const UserInformationPage: React.FC = () => {
         });
         setUpdatedFields({});
         setIsDetailsSaved(true);
-        setUser({ ...user, ...formState });
+        setUser((prevUser) => ({ ...prevUser, ...formState }));
       } else {
         throw new Error("Profile update failed");
       }
@@ -221,23 +223,25 @@ const UserInformationPage: React.FC = () => {
         value={formState.city}
         onChangeText={handleInputChange("city")}
       />
-      <ImageUploadField
+      <FileUploadField
         label={t("Pan Card")}
         subLabel={t("Upload a Pan Card picture")}
-        onImageSelect={(image) => {
-          setFormState((prev) => ({ ...prev, panCard: image }));
-          setUpdatedFields((prev) => ({ ...prev, panCard: image }));
+        onFileSelect={(result) => {
+          handleFileSelect("panCard", result);
         }}
-        selectedImage={formState.panCard}
+        selectedFile={formState.panCard}
+        allowedExtensions={["jpg", "png", "pdf"]}
       />
       <FileUploadField
         label={t("Aadhaar Card")}
-        onFileSelect={handleFileSelect("aadharCard")}
+        onFileSelect={(result) => {
+          handleFileSelect("aadharCard", result);
+        }}
         selectedFile={formState.aadharCard}
         allowedExtensions={["jpg", "png", "pdf"]}
         subLabel={t("Only .jpg, .png, .pdf of max 10MB allowed")}
       />
-      {!(Boolean(canLeave) || canLeave === null || canLeave === undefined) && (
+      {canLeave === "false" && (
         <SelectListWithDialog
           label={t("User Type")}
           subLabel={t("Select your primary role")}

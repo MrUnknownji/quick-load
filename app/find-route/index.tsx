@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -33,6 +33,9 @@ import Alert from "@/components/popups/Alert";
 import { useContextUser } from "@/contexts/userContext";
 import { useAddLocation, useUpdateLocation } from "@/hooks/useLocation";
 import { getCurrentLocation, getLocationPermission } from "@/utils/permissions";
+import { debounce } from "lodash";
+
+const LOCATION_UPDATE_INTERVAL = 5 * 60 * 1000;
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
@@ -49,6 +52,7 @@ const RouteFinder = () => {
   const [alertType, setAlertType] = useState<
     "success" | "error" | "warning" | "info"
   >("info");
+  const [lastUpdateTime, setLastUpdateTime] = useState(0);
 
   const {
     vehicles,
@@ -81,6 +85,44 @@ const RouteFinder = () => {
     "text",
   );
 
+  const handleLocationUpdate = useCallback(
+    debounce(async () => {
+      if (!contextUser) return;
+
+      const currentTime = Date.now();
+      if (currentTime - lastUpdateTime < LOCATION_UPDATE_INTERVAL) {
+        console.log("Skipping location update due to time interval");
+        return;
+      }
+
+      try {
+        const hasPermission = await getLocationPermission();
+        if (!hasPermission) {
+          console.log("Permission to access location was denied");
+          return;
+        }
+
+        const location = await getCurrentLocation();
+        const { latitude, longitude } = location.coords;
+
+        if (contextUser.location) {
+          await updateLocation(contextUser._id || "", { latitude, longitude });
+        } else {
+          await addLocation({
+            userId: contextUser._id || "",
+            latitude,
+            longitude,
+          });
+        }
+
+        setLastUpdateTime(currentTime);
+      } catch (error) {
+        console.error("Error updating location:", error);
+      }
+    }, 1000),
+    [contextUser, lastUpdateTime, updateLocation, addLocation],
+  );
+
   useEffect(() => {
     if (userType.toLowerCase() === "driver") {
       requestLocationPermission();
@@ -91,7 +133,7 @@ const RouteFinder = () => {
     if (userType.toLowerCase() === "driver" && contextUser) {
       handleLocationUpdate();
     }
-  }, [userType, contextUser]);
+  }, [userType, contextUser, handleLocationUpdate]);
 
   const requestLocationPermission = async () => {
     const hasPermission = await getLocationPermission();
@@ -112,33 +154,6 @@ const RouteFinder = () => {
       setAlertType("success");
       setAlertVisible(true);
       handleLocationUpdate();
-    }
-  };
-
-  const handleLocationUpdate = async () => {
-    if (!contextUser) return;
-
-    try {
-      const hasPermission = await getLocationPermission();
-      if (!hasPermission) {
-        console.log("Permission to access location was denied");
-        return;
-      }
-
-      const location = await getCurrentLocation();
-      const { latitude, longitude } = location.coords;
-
-      if (contextUser.location) {
-        await updateLocation(contextUser._id || "", { latitude, longitude });
-      } else {
-        await addLocation({
-          userId: contextUser._id || "",
-          latitude,
-          longitude,
-        });
-      }
-    } catch (error) {
-      console.error("Error updating location:", error);
     }
   };
 

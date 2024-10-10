@@ -6,7 +6,6 @@ import React, {
   useEffect,
 } from "react";
 import {
-  StyleSheet,
   View,
   TouchableOpacity,
   ScrollView,
@@ -15,6 +14,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  StyleSheet,
 } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -40,7 +40,6 @@ import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 import { useContextUser } from "@/contexts/userContext";
 import { getCurrentLocation, getLocationPermission } from "@/utils/permissions";
 import { useAddLocation, useUpdateLocation } from "@/hooks/useLocation";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 if (
   Platform.OS === "android" &&
@@ -51,9 +50,11 @@ if (
 
 const HomeScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [categoryChangeToFetch, setCategoryChangeToFetch] =
+    useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
-  const [showOwners, setShowOwners] = useState(false);
-  const listItemsAnim = useRef(new Animated.Value(0)).current;
+  // const [showOwners, setShowOwners] = useState(false);
+  const listItemsAnim = useRef(new Animated.Value(1)).current;
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
@@ -100,16 +101,15 @@ const HomeScreen: React.FC = () => {
     productOwners,
     loading: ownersLoading,
     fetchOwners,
-  } = useFetchProductOwnersByType(selectedCategory);
+  } = useFetchProductOwnersByType(categoryChangeToFetch);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchOwners(selectedCategory);
-      setTimeout(() => setShowOwners(true), 50);
-    } else {
-      setShowOwners(false);
-    }
-  }, [selectedCategory, fetchOwners]);
+  // useEffect(() => {
+  //   if (categoryForFetch) {
+  //     fetchOwners(categoryForFetch).then(() => {
+  //       setShowOwners(true);
+  //     });
+  //   }
+  // }, [categoryForFetch, fetchOwners]);
 
   const uniqueCategories = useMemo(() => {
     if (productsLoading || productsError || !products) return [];
@@ -127,17 +127,20 @@ const HomeScreen: React.FC = () => {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setSelectedCategory("");
-    setShowOwners(false);
+    setCategoryChangeToFetch("");
+    // setShowOwners(false);
     await Promise.all([fetchProducts(), fetchOwners("")]);
     setRefreshing(false);
   }, [fetchProducts, fetchOwners]);
 
   const handleCategoryPress = useCallback(
     (category: any) => {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
       if (selectedCategory === "") {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedCategory(category.name);
-        listItemsAnim.setValue(0);
+        setCategoryChangeToFetch(category.name);
+        listItemsAnim.setValue(1);
         Animated.spring(listItemsAnim, {
           toValue: 1,
           tension: 50,
@@ -145,17 +148,16 @@ const HomeScreen: React.FC = () => {
           useNativeDriver: true,
         }).start();
       } else if (selectedCategory === category.name) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setSelectedCategory("");
-        setShowOwners(false);
+        setCategoryChangeToFetch("");
+        // setShowOwners(false);
       } else {
-        setShowOwners(false);
-        setTimeout(() => {
-          setSelectedCategory(category.name);
-        }, 50);
+        // setShowOwners(false);
+        setSelectedCategory(category.name);
+        setCategoryChangeToFetch(category.name);
       }
     },
-    [selectedCategory, listItemsAnim],
+    [selectedCategory],
   );
 
   const getMeasurementType = useCallback((category: string): string => {
@@ -170,10 +172,6 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   const renderProductOwners = useCallback(() => {
-    if (!selectedCategory || !showOwners) {
-      return null;
-    }
-
     if (ownersLoading) {
       return Array(3)
         .fill(0)
@@ -225,13 +223,7 @@ const HomeScreen: React.FC = () => {
         rating={owner.shopRating}
       />
     ));
-  }, [
-    productOwners,
-    ownersLoading,
-    selectedCategory,
-    getMeasurementType,
-    showOwners,
-  ]);
+  }, [productOwners, ownersLoading, selectedCategory, getMeasurementType]);
 
   return (
     <SafeAreaWrapper>
