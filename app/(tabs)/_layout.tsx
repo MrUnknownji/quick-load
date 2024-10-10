@@ -371,14 +371,16 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   customButton: {
-    top: responsive(-Sizes.customButtonOffset),
+    bottom: vw(10),
     justifyContent: "center",
     alignItems: "center",
+    width: vw(20),
+    height: vw(20),
   },
   customButtonInner: {
-    width: responsive(Sizes.customButtonSize),
-    height: responsive(Sizes.customButtonSize),
-    borderRadius: responsive(Sizes.customButtonSize / 2),
+    width: "100%",
+    height: "100%",
+    borderRadius: vw(10),
     backgroundColor: Colors.light.primary,
   },
   iconContainer: {

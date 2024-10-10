@@ -21,6 +21,7 @@ import {
   useUpdateNotification,
 } from "@/hooks/useNotification";
 import { Notification as NotificationType } from "@/types/Notification";
+import { ScrollView } from "react-native-gesture-handler";
 
 const NotificationItem = ({
   item,
@@ -30,7 +31,7 @@ const NotificationItem = ({
   onPress: (notification: NotificationType) => void;
 }) => {
   const backgroundColor = useThemeColor(
-    { light: Colors.light.cardBackground, dark: Colors.dark.cardBackground },
+    { light: Colors.light.background, dark: Colors.dark.background },
     "cardBackground",
   );
   const textColor = useThemeColor(
@@ -46,10 +47,24 @@ const NotificationItem = ({
     "primary",
   );
 
+  const unreadStyle = item.isRead
+    ? {}
+    : {
+        backgroundColor: useThemeColor(
+          {
+            light: Colors.light.cardBackground,
+            dark: Colors.dark.cardBackground,
+          },
+          "cardBackground",
+        ),
+        borderLeftWidth: 4,
+        borderLeftColor: iconColor,
+      };
+
   return (
     <TouchableOpacity
       onPress={() => onPress(item)}
-      style={[styles.notificationItem, { backgroundColor }]}
+      style={[styles.notificationItem, { backgroundColor }, unreadStyle]}
     >
       <Ionicons
         name="notifications"
@@ -211,7 +226,10 @@ const Notifications = () => {
           {notifications.length > 0 && (
             <View style={styles.notificationBadge}>
               <Text style={styles.notificationBadgeText}>
-                {notifications.length}
+                {
+                  notifications.filter((notification) => !notification.isRead)
+                    .length
+                }
               </Text>
             </View>
           )}
@@ -237,20 +255,35 @@ const Notifications = () => {
               ]}
             >
               {loading ? (
-                <Text>Loading...</Text>
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                  }}
+                >
+                  <Text>Loading...</Text>
+                </View>
               ) : error ? (
-                <Text>Error: {error}</Text>
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100%",
+                  }}
+                >
+                  <Text>Error: {error}</Text>
+                </View>
               ) : (
-                <FlatList
-                  data={notifications}
-                  renderItem={({ item }) => (
+                <ScrollView>
+                  {notifications.map((item) => (
                     <NotificationItem
+                      key={item._id}
                       item={item}
                       onPress={handleNotificationPress}
                     />
-                  )}
-                  keyExtractor={(item) => item._id}
-                />
+                  ))}
+                </ScrollView>
               )}
             </Animated.View>
           </TouchableWithoutFeedback>
@@ -298,8 +331,8 @@ const styles = StyleSheet.create({
     width: vw(80),
     maxWidth: vw(80),
     maxHeight: vh(50),
+    minHeight: vh(10),
     borderRadius: responsive(Sizes.borderRadiusLarge),
-    overflow: "hidden",
     ...Platform.select({
       ios: {
         shadowColor: Colors.light.shadow,
@@ -312,6 +345,7 @@ const styles = StyleSheet.create({
       },
     }),
     zIndex: 100,
+    overflow: "hidden",
   },
   notificationItem: {
     flexDirection: "row",
@@ -370,6 +404,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: 0,
     height: 0,
+  },
+  dropdownListContainer: {
+    maxHeight: vh(50),
   },
 });
 
