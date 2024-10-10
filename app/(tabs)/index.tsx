@@ -53,8 +53,7 @@ const HomeScreen: React.FC = () => {
   const [categoryChangeToFetch, setCategoryChangeToFetch] =
     useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
-  // const [showOwners, setShowOwners] = useState(false);
-  const listItemsAnim = useRef(new Animated.Value(1)).current;
+  const listItemsAnim = useRef(new Animated.Value(0)).current;
   const borderColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
@@ -103,14 +102,6 @@ const HomeScreen: React.FC = () => {
     fetchOwners,
   } = useFetchProductOwnersByType(categoryChangeToFetch);
 
-  // useEffect(() => {
-  //   if (categoryForFetch) {
-  //     fetchOwners(categoryForFetch).then(() => {
-  //       setShowOwners(true);
-  //     });
-  //   }
-  // }, [categoryForFetch, fetchOwners]);
-
   const uniqueCategories = useMemo(() => {
     if (productsLoading || productsError || !products) return [];
 
@@ -128,36 +119,29 @@ const HomeScreen: React.FC = () => {
     setRefreshing(true);
     setSelectedCategory("");
     setCategoryChangeToFetch("");
-    // setShowOwners(false);
     await Promise.all([fetchProducts(), fetchOwners("")]);
     setRefreshing(false);
   }, [fetchProducts, fetchOwners]);
 
   const handleCategoryPress = useCallback(
-    (category: any) => {
+    async (category: any) => {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 
-      if (selectedCategory === "") {
-        setSelectedCategory(category.name);
-        setCategoryChangeToFetch(category.name);
-        listItemsAnim.setValue(1);
-        Animated.spring(listItemsAnim, {
-          toValue: 1,
-          tension: 50,
-          friction: 7,
-          useNativeDriver: true,
-        }).start();
-      } else if (selectedCategory === category.name) {
+      if (selectedCategory === category.name) {
         setSelectedCategory("");
-        setCategoryChangeToFetch("");
-        // setShowOwners(false);
       } else {
-        // setShowOwners(false);
         setSelectedCategory(category.name);
-        setCategoryChangeToFetch(category.name);
       }
+
+      listItemsAnim.setValue(0);
+      Animated.spring(listItemsAnim, {
+        toValue: 1,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }).start();
     },
-    [selectedCategory],
+    [selectedCategory, fetchOwners, listItemsAnim],
   );
 
   const getMeasurementType = useCallback((category: string): string => {
@@ -172,6 +156,9 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   const renderProductOwners = useCallback(() => {
+    if (selectedCategory === "") {
+      return null;
+    }
     if (ownersLoading) {
       return Array(3)
         .fill(0)
@@ -277,11 +264,13 @@ const HomeScreen: React.FC = () => {
           </ScrollView>
           <SafeAreaView edges={["bottom"]}>
             {selectedCategory === "" ? (
-              <LargeImageView
-                imageUrl="https://quick-load.onrender.com/assets/fast-deliver-truck.png"
-                style={styles.largeImageView}
-                key={Date.now()}
-              />
+              <View style={styles.largeImageContainer}>
+                <Image
+                  source="https://quick-load.onrender.com/assets/fast-deliver-truck.png"
+                  style={styles.largeImage}
+                  contentFit="contain"
+                />
+              </View>
             ) : (
               <View style={styles.itemsContainer}>{renderProductOwners()}</View>
             )}
@@ -359,6 +348,25 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: vw(3),
     justifyContent: "space-between",
+  },
+  largeImageContainer: {
+    height: vh(25),
+    marginVertical: vh(2),
+    marginHorizontal: vw(4),
+    borderRadius: responsive(Sizes.borderRadiusLarge),
+    overflow: "hidden",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  largeImage: {
+    width: "100%",
+    height: "65%",
   },
 });
 
