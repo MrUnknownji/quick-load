@@ -26,6 +26,7 @@ import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 import { responsive, vw, vh } from "@/utils/responsive";
 import { useContextUser } from "@/contexts/userContext";
+import { useUser } from "@/hooks/useUser";
 
 const VehicleItem: React.FC<{
   vehicle: Vehicle;
@@ -90,7 +91,7 @@ const VehicleItem: React.FC<{
 };
 
 const Vehicles: React.FC = () => {
-  const { user } = useContextUser();
+  const { user } = useUser();
   const { vehicles, loading, error, fetchVehicles } = useFetchVehiclesByUserId(
     user?._id ?? "",
   );
@@ -99,7 +100,6 @@ const Vehicles: React.FC = () => {
     loading: deleteLoading,
     error: deleteError,
   } = useDeleteVehicle();
-
   const [alertVisible, setAlertVisible] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -173,7 +173,7 @@ const Vehicles: React.FC = () => {
       );
     }
 
-    if (error) {
+    if (error && vehicles.length === 0) {
       return <ThemedText>Error: {error}</ThemedText>;
     }
 

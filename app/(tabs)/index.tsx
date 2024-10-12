@@ -190,26 +190,28 @@ const HomeScreen: React.FC = () => {
         ));
     }
 
-    return productOwners.map((owner) => (
-      <LargeListItem
-        key={owner._id}
-        heading={owner.productOwnerName}
-        imageUrl={`https://quick-load.onrender.com${owner.shopImage}`}
-        onPress={() =>
-          router.push({
-            pathname: "/product-items",
-            params: {
-              productOwnerId: owner._id,
-              productType: selectedCategory,
-            },
-          })
-        }
-        measurementType={getMeasurementType(selectedCategory)}
-        buttonTitle={t("More Information")}
-        location={owner.shopAddress}
-        rating={owner.shopRating}
-      />
-    ));
+    return productOwners
+      .filter((owner) => owner.isVerified)
+      .map((owner) => (
+        <LargeListItem
+          key={owner._id}
+          heading={owner.productOwnerName}
+          imageUrl={`https://quick-load.onrender.com${owner.shopImage}`}
+          onPress={() =>
+            router.push({
+              pathname: "/product-items",
+              params: {
+                productOwnerId: owner._id,
+                productType: selectedCategory,
+              },
+            })
+          }
+          measurementType={getMeasurementType(selectedCategory)}
+          buttonTitle={t("More Information")}
+          location={owner.shopAddress}
+          rating={owner.shopRating}
+        />
+      ));
   }, [productOwners, ownersLoading, selectedCategory, getMeasurementType]);
 
   return (

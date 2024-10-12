@@ -35,12 +35,12 @@ import { useAddLocation, useUpdateLocation } from "@/hooks/useLocation";
 import { getCurrentLocation, getLocationPermission } from "@/utils/permissions";
 import { debounce } from "lodash";
 
-const LOCATION_UPDATE_INTERVAL = 5 * 60 * 1000;
+const LOCATION_UPDATE_INTERVAL = 15 * 60 * 1000;
 
 const RouteFinder = () => {
   const { userType } = useLocalSearchParams<{ userType: string }>();
   const { user } = useUser();
-  const { user: contextUser } = useContextUser();
+  const { user: contextUser, setUser } = useContextUser();
   const [startingPoint, setStartingPoint] = useState("");
   const [endingPoint, setEndingPoint] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState("");
@@ -114,14 +114,30 @@ const RouteFinder = () => {
             longitude,
           });
         }
+        setUser({
+          ...contextUser,
+          location: `${latitude} ${longitude}`,
+        });
 
         setLastUpdateTime(currentTime);
       } catch (error) {
         console.error("Error updating location:", error);
       }
     }, 1000),
-    [contextUser, lastUpdateTime, updateLocation, addLocation],
+    [contextUser, lastUpdateTime, updateLocation, addLocation, setUser],
   );
+
+  useEffect(() => {
+    if (userType.toLowerCase() === "driver" && contextUser) {
+      handleLocationUpdate();
+
+      const intervalId = setInterval(() => {
+        handleLocationUpdate();
+      }, LOCATION_UPDATE_INTERVAL);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [userType, contextUser, handleLocationUpdate]);
 
   useEffect(() => {
     if (userType.toLowerCase() === "driver") {
@@ -222,10 +238,12 @@ const RouteFinder = () => {
       } else {
         return (
           <SelectListWithDialog
-            options={vehicles.map((v) => ({
-              label: `${v.vehicleNumber} (${v.vehicleType})`,
-              value: v.vehicleId,
-            }))}
+            options={vehicles
+              .filter((v) => v.isVerified)
+              .map((v) => ({
+                label: `${v.vehicleNumber} (${v.vehicleType})`,
+                value: v.vehicleId,
+              }))}
             label={t("Select Vehicle")}
             containerStyle={{ paddingHorizontal: 0 }}
             onSelect={(value) => setSelectedVehicle(value)}

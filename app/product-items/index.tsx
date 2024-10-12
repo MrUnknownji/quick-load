@@ -67,6 +67,9 @@ const ProductItems: React.FC = () => {
     }
   }, [productOwners, productOwnerId, products]);
 
+  const verifiedProducts =
+    products?.filter((product) => product.isVerified) || [];
+
   const resetAnimations = useCallback(() => {
     categoriesTranslateY.setValue(50);
     fastDeliveryScaleAnim.setValue(0.9);
@@ -171,7 +174,7 @@ const ProductItems: React.FC = () => {
       <ThemedView style={styles.container}>
         <ProductOwnerHeader heading={selectedOwner?.productOwnerName ?? ""} />
         <FlatList
-          data={products}
+          data={verifiedProducts}
           renderItem={renderItem}
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.listContent}

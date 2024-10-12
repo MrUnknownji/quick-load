@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, View, ViewStyle, Platform, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import Colors from "@/constants/Colors";
@@ -13,7 +13,7 @@ interface SafeAreaWrapperProps {
 
 const SafeAreaWrapper: React.FC<SafeAreaWrapperProps> = ({
   children,
-  edges = ["top"],
+  edges = ["right", "bottom", "left"],
   bgColor,
   style,
 }) => {
@@ -23,20 +23,30 @@ const SafeAreaWrapper: React.FC<SafeAreaWrapperProps> = ({
   );
 
   return (
-    <SafeAreaView
+    <View
       style={[
-        styles.safeArea,
+        styles.container,
         { backgroundColor: bgColor ?? backgroundColor },
         style,
       ]}
-      edges={edges}
     >
-      {children}
-    </SafeAreaView>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <SafeAreaView style={styles.safeArea} edges={edges}>
+        {children}
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
   safeArea: {
     flex: 1,
   },

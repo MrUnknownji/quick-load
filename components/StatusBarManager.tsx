@@ -1,49 +1,55 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
-import usePathChangeListener from "@/hooks/usePathChangeListener";
+// import usePathChangeListener from "@/hooks/usePathChangeListener";
 import { useTheme } from "@/contexts/AppThemeProvider";
+import { usePathname } from "expo-router";
 
 const StatusBarManager = () => {
-  const { activePath } = usePathChangeListener();
+  // const { activePath } = usePathChangeListener();
 
   const getStatusBarStyle = () => {
-    const route = activePath.includes("user") ? "user" : activePath;
-
+    // const route = activePath.includes("user") ? "user" : activePath;
+    const route = usePathname();
     const { appTheme } = useTheme();
 
-    if (appTheme === "dark") {
-      switch (route) {
-        case "vehicles":
-        case "add-vehicles":
-        case "route-map":
-          return "dark";
-        default:
-          return "light";
-      }
+    if (route.includes("profile") || appTheme.includes("dark")) {
+      return "light";
     } else {
-      switch (route) {
-        case "profile":
-        case "my-information":
-        case "union-support":
-        case "vehicles":
-        case "user":
-        case "add-vehicles":
-        case "settings":
-        case "privacy-and-policy":
-        case "admin":
-        case "add-product":
-        case "add-brand":
-        case "add-category":
-        case "remove-product-brand":
-        case "manage-accounts":
-        case "edit-page":
-        case "my-products":
-        case "my-shop":
-          return "light";
-        default:
-          return "dark";
-      }
+      return "dark";
     }
+
+    // if (appTheme === "dark") {
+    //   switch (route) {
+    //     case "vehicles":
+    //     case "route-map":
+    //       return "dark";
+    //     default:
+    //       return "light";
+    //   }
+    // } else {
+    //   switch (route) {
+    //     case "profile":
+    //     case "my-information":
+    //     case "union-support":
+    //     case "vehicles":
+    //     case "user":
+    //     case "add-vehicles":
+    //     case "settings":
+    //     case "privacy-and-policy":
+    //     case "admin":
+    //     case "add-product":
+    //     case "add-brand":
+    //     case "add-category":
+    //     case "remove-product-brand":
+    //     case "manage-accounts":
+    //     case "edit-page":
+    //     case "my-products":
+    //     case "my-shop":
+    //       return "light";
+    //     default:
+    //       return "dark";
+    //   }
+    // }
   };
 
   return <StatusBar style={getStatusBarStyle()} />;

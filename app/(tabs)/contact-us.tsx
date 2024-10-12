@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, View, Linking } from "react-native";
+import { StyleSheet, View, Linking } from "react-native";
 import React from "react";
 import { Image } from "expo-image";
 import Sizes from "@/constants/Sizes";
@@ -8,8 +8,6 @@ import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
-
-const { width: screenWidth } = Dimensions.get("window");
 
 const ContactUs = () => {
   const phoneNumber = "999999999";
@@ -77,7 +75,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 150,
     height: 150,
-    marginTop: 100,
+    marginTop: 50,
   },
   contactCard: {
     elevation: 3,
