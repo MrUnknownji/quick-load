@@ -102,4 +102,4 @@ Git is a version control system that helps manage code.
 
 If you run into any problems or have questions, please open an issue in this GitHub repository. We're here to help!
 
-Happy exploring! 🚀
+Happy exploring! 🚀
