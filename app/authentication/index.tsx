@@ -8,7 +8,7 @@ import { SignInForm } from "./components/SignInForm";
 import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import Alert from "@/components/popups/Alert";
-import * as Clipboard from "expo-clipboard";
+// import * as Clipboard from "expo-clipboard";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/hooks/useUser";
 import { t } from "i18next";
@@ -110,13 +110,13 @@ const Authentication: React.FC = () => {
     }
   };
 
-  const showToast = (message: string) => {
-    if (Platform.OS === "android") {
-      ToastAndroid.show(message, ToastAndroid.SHORT);
-    } else {
-      console.log(message);
-    }
-  };
+  // const showToast = (message: string) => {
+  //   if (Platform.OS === "android") {
+  //     ToastAndroid.show(message, ToastAndroid.SHORT);
+  //   } else {
+  //     console.log(message);
+  //   }
+  // };
 
   const handleOtpVerify = async (otp: string) => {
     if (!confirm) {
@@ -148,8 +148,8 @@ const Authentication: React.FC = () => {
       ) {
         throw new Error("Invalid login response");
       }
-      await Clipboard.setStringAsync(loginResponse.accessToken);
-      showToast("Access Token copied to clipboard");
+      // await Clipboard.setStringAsync(loginResponse.accessToken);
+      // showToast("Access Token copied to clipboard");
 
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);

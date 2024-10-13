@@ -50,7 +50,6 @@ const AddVehicles: React.FC = () => {
   const { updateVehicle, loading: updateLoading } = useUpdateVehicle();
 
   useEffect(() => {
-    console.log("vehicle", vehicle?._id);
     if (isEdit === "true" && vehicle) {
       setFormState(vehicle);
     }

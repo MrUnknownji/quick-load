@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -33,7 +33,6 @@ import Alert from "@/components/popups/Alert";
 import { useContextUser } from "@/contexts/userContext";
 import { useAddLocation, useUpdateLocation } from "@/hooks/useLocation";
 import { getCurrentLocation, getLocationPermission } from "@/utils/permissions";
-import { debounce } from "lodash";
 
 const LOCATION_UPDATE_INTERVAL = 15 * 60 * 1000;
 
@@ -52,7 +51,7 @@ const RouteFinder = () => {
   const [alertType, setAlertType] = useState<
     "success" | "error" | "warning" | "info"
   >("info");
-  const [lastUpdateTime, setLastUpdateTime] = useState(0);
+  const lastUpdateTimeRef = useRef(0);
 
   const {
     vehicles,
@@ -85,58 +84,59 @@ const RouteFinder = () => {
     "text",
   );
 
-  const handleLocationUpdate = useCallback(
-    debounce(async () => {
-      if (!contextUser) return;
+  const handleLocationUpdate = useCallback(async () => {
+    if (!contextUser) return;
 
-      const currentTime = Date.now();
-      if (currentTime - lastUpdateTime < LOCATION_UPDATE_INTERVAL) {
-        console.log("Skipping location update due to time interval");
+    const currentTime = Date.now();
+    if (currentTime - lastUpdateTimeRef.current < LOCATION_UPDATE_INTERVAL) {
+      console.log("Skipping location update due to time interval");
+      return;
+    }
+
+    try {
+      const hasPermission = await getLocationPermission();
+      if (!hasPermission) {
+        console.log("Permission to access location was denied");
         return;
       }
 
-      try {
-        const hasPermission = await getLocationPermission();
-        if (!hasPermission) {
-          console.log("Permission to access location was denied");
-          return;
-        }
+      const location = await getCurrentLocation();
+      const { latitude, longitude } = location.coords;
 
-        const location = await getCurrentLocation();
-        const { latitude, longitude } = location.coords;
-
-        if (contextUser.location) {
-          await updateLocation(contextUser._id || "", { latitude, longitude });
-        } else {
-          await addLocation({
-            userId: contextUser._id || "",
-            latitude,
-            longitude,
-          });
-        }
-        setUser({
-          ...contextUser,
-          location: `${latitude} ${longitude}`,
+      if (contextUser.location) {
+        await updateLocation(contextUser._id || "", { latitude, longitude });
+      } else {
+        await addLocation({
+          userId: contextUser._id || "",
+          latitude,
+          longitude,
         });
-
-        setLastUpdateTime(currentTime);
-      } catch (error) {
-        console.error("Error updating location:", error);
       }
-    }, 1000),
-    [contextUser, lastUpdateTime, updateLocation, addLocation, setUser],
-  );
+      setUser({
+        ...contextUser,
+        location: `${latitude} ${longitude}`,
+      });
+
+      lastUpdateTimeRef.current = currentTime;
+    } catch (error) {
+      console.error("Error updating location:", error);
+    }
+  }, [contextUser, updateLocation, addLocation, setUser]);
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
     if (userType.toLowerCase() === "driver" && contextUser) {
       handleLocationUpdate();
 
-      const intervalId = setInterval(() => {
+      intervalId = setInterval(() => {
         handleLocationUpdate();
       }, LOCATION_UPDATE_INTERVAL);
-
-      return () => clearInterval(intervalId);
     }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [userType, contextUser, handleLocationUpdate]);
 
   useEffect(() => {
@@ -144,12 +144,6 @@ const RouteFinder = () => {
       requestLocationPermission();
     }
   }, []);
-
-  useEffect(() => {
-    if (userType.toLowerCase() === "driver" && contextUser) {
-      handleLocationUpdate();
-    }
-  }, [userType, contextUser, handleLocationUpdate]);
 
   const requestLocationPermission = async () => {
     const hasPermission = await getLocationPermission();
@@ -249,7 +243,7 @@ const RouteFinder = () => {
             onSelect={(value) => setSelectedVehicle(value)}
             selectedOption={selectedVehicle}
             getLabel={(label) => {
-              setTimeout(() => setSelectedLabel(label), 0);
+              setSelectedLabel(label);
             }}
           />
         );

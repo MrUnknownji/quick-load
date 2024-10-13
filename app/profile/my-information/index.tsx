@@ -256,9 +256,7 @@ const UserInformationPage: React.FC = () => {
             const option = userTypeOptions.find((opt) => opt.value === value);
             return option ? option.label : "Default";
           }}
-          disabled={
-            Boolean(canLeave) || canLeave === null || canLeave === undefined
-          }
+          disabled={canLeave !== "false"}
         />
       )}
     </ScrollView>

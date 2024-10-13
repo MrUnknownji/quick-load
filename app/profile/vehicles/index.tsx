@@ -25,7 +25,7 @@ import FlexibleSkeleton from "@/components/Loading/FlexibleSkeleton";
 import { Ionicons } from "@expo/vector-icons";
 import EditDeleteDialog from "@/components/popups/EditDeleteDialog";
 import { responsive, vw, vh } from "@/utils/responsive";
-import { useContextUser } from "@/contexts/userContext";
+// import { useContextUser } from "@/contexts/userContext";
 import { useUser } from "@/hooks/useUser";
 
 const VehicleItem: React.FC<{
@@ -95,6 +95,10 @@ const Vehicles: React.FC = () => {
   const { vehicles, loading, error, fetchVehicles } = useFetchVehiclesByUserId(
     user?._id ?? "",
   );
+
+  useEffect(() => {
+    console.log(user?._id);
+  });
   const {
     deleteVehicle,
     loading: deleteLoading,

@@ -30,11 +30,6 @@ const SafeAreaWrapper: React.FC<SafeAreaWrapperProps> = ({
         style,
       ]}
     >
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent
-      />
       <SafeAreaView style={styles.safeArea} edges={edges}>
         {children}
       </SafeAreaView>
