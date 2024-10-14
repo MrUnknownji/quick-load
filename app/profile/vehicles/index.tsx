@@ -177,7 +177,7 @@ const Vehicles: React.FC = () => {
       );
     }
 
-    if (error && vehicles.length === 0) {
+    if (error && !vehicles) {
       return <ThemedText>Error: {error}</ThemedText>;
     }
 

@@ -142,12 +142,7 @@ const UserInformationPage: React.FC = () => {
         });
         setUpdatedFields({});
         setIsDetailsSaved(true);
-        const updatedUser = await AsyncStorage.getItem("user");
-        if (updatedUser) {
-          const parsedUser = JSON.parse(updatedUser);
-          setUser(parsedUser);
-          console.log(parsedUser);
-        }
+        setUser((prevUser) => ({ ...prevUser, ...formState }));
       } else {
         throw new Error("Profile update failed");
       }

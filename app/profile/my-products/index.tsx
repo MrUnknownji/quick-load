@@ -172,7 +172,7 @@ const MyProducts: React.FC = () => {
       );
     }
 
-    if (error) {
+    if (error && !products) {
       return <ThemedText>Error: {error}</ThemedText>;
     }
 

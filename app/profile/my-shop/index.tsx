@@ -127,6 +127,8 @@ const MyShopPage = () => {
         }
       });
 
+      formData.append("shopRating", formState.shopRating.toString());
+
       let result;
       if (productOwner && productOwner.userId) {
         result = await updateProductOwner(productOwner?._id ?? "", formData);
