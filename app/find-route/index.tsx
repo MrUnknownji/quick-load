@@ -121,7 +121,7 @@ const RouteFinder = () => {
     } catch (error) {
       console.error("Error updating location:", error);
     }
-  }, [contextUser, updateLocation, addLocation, setUser]);
+  }, []);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -163,7 +163,7 @@ const RouteFinder = () => {
       );
       setAlertType("success");
       setAlertVisible(true);
-      handleLocationUpdate();
+      // handleLocationUpdate();
     }
   };
 
@@ -188,8 +188,7 @@ const RouteFinder = () => {
       };
 
       try {
-        const result = await addRoute(routeData);
-        console.log("Route added successfully:", result);
+        await addRoute(routeData);
         router.push({
           pathname: "/thank-you",
           params: {
@@ -201,7 +200,7 @@ const RouteFinder = () => {
           },
         });
       } catch (err) {
-        console.error("Error adding route:", err);
+        console.error("Error in adding route:", err);
         setFormError("Failed to add route. Please try again.");
       }
     } else {
@@ -236,7 +235,7 @@ const RouteFinder = () => {
               .filter((v) => v.isVerified)
               .map((v) => ({
                 label: `${v.vehicleNumber} (${v.vehicleType})`,
-                value: v.vehicleId,
+                value: v._id ?? "",
               }))}
             label={t("Select Vehicle")}
             containerStyle={{ paddingHorizontal: 0 }}
@@ -340,7 +339,7 @@ const RouteFinder = () => {
           {renderVehicleSelection()}
 
           <Button
-            title={loading ? t("Adding...") : t("Find")}
+            title={loading ? t("Adding...") : t("Add")}
             variant="primary"
             size="medium"
             style={styles.findButton}

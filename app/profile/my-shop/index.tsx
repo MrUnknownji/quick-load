@@ -16,7 +16,7 @@ import Sizes from "@/constants/Sizes";
 import FileUploadField from "@/components/input-fields/FileUploadField";
 import Alert from "@/components/popups/Alert";
 import * as DocumentPicker from "expo-document-picker";
-import { useContextUser } from "@/contexts/userContext";
+import { INDIAN_CITIES, INDIAN_STATES } from "@/assets/data/DATA";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
@@ -35,6 +35,7 @@ const MyShopPage = () => {
     gstNumber: "",
     shopImage: "",
     shopAddress: "",
+    shopRating: 0,
     state: "",
     city: "",
     otherCity: "",
@@ -49,8 +50,8 @@ const MyShopPage = () => {
     type: "info" as "error" | "success" | "info",
   });
 
-  const states = ["State 1", "State 2", "State 3"];
-  const cities = ["City 1", "City 2", "City 3", "Other"];
+  const states = INDIAN_STATES;
+  const cities = [...INDIAN_CITIES, "Other"];
   const productTypes = ["Bricks", "Grit", "Bajri", "Cement"];
 
   useEffect(() => {
@@ -61,6 +62,7 @@ const MyShopPage = () => {
         gstNumber: productOwner.gstNumber,
         shopImage: productOwner.shopImage,
         shopAddress: productOwner.shopAddress,
+        shopRating: productOwner.shopRating,
         state: productOwner.state,
         city: productOwner.city,
         otherCity: "",
@@ -68,16 +70,6 @@ const MyShopPage = () => {
       });
     }
   }, [productOwner]);
-
-  useEffect(() => {
-    if (fetchError) {
-      setAlertState({
-        visible: true,
-        message: t("Either shop won't exist or error fetching details."),
-        type: "error",
-      });
-    }
-  }, [fetchError]);
 
   const handleInputChange = (field: string) => (value: string | string[]) => {
     setFormState((prev) => ({ ...prev, [field]: value }));

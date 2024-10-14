@@ -101,20 +101,11 @@ const UserInformationPage: React.FC = () => {
     field: "panCard" | "aadharCard",
     result: DocumentPicker.DocumentPickerResult,
   ) => {
-    // try {
-    // const result = await DocumentPicker.getDocumentAsync({
-    //   type: ["image/*", "application/pdf"],
-    //   copyToCacheDirectory: true,
-    // });
-
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedFile = result.assets[0];
       setFormState((prev) => ({ ...prev, [field]: selectedFile.name }));
       setUpdatedFields((prev) => ({ ...prev, [field]: selectedFile }));
     }
-    // } catch (error) {
-    //   console.error("Error selecting file:", error);
-    // }
   };
 
   const handleSave = async () => {
@@ -151,7 +142,12 @@ const UserInformationPage: React.FC = () => {
         });
         setUpdatedFields({});
         setIsDetailsSaved(true);
-        setUser((prevUser) => ({ ...prevUser, ...formState }));
+        const updatedUser = await AsyncStorage.getItem("user");
+        if (updatedUser) {
+          const parsedUser = JSON.parse(updatedUser);
+          setUser(parsedUser);
+          console.log(parsedUser);
+        }
       } else {
         throw new Error("Profile update failed");
       }

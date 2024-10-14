@@ -19,6 +19,7 @@ import {
 } from "expo-speech-recognition";
 import LottieView from "lottie-react-native";
 import { responsive, vw, vh } from "@/utils/responsive";
+import usePathChangeListener from "@/hooks/usePathChangeListener";
 
 const SearchHeader = () => {
   const [searchText, setSearchText] = useState("");
@@ -26,6 +27,7 @@ const SearchHeader = () => {
   const [showListeningModal, setShowListeningModal] = useState(false);
   const lottieRef = useRef<LottieView>(null);
   const textInputRef = useRef<TextInput>(null);
+  const activePath = usePathChangeListener();
 
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
@@ -150,7 +152,7 @@ const SearchHeader = () => {
           onPress={toggleListening}
         />
       </View>
-      <Notifications />
+      {activePath && <Notifications />}
       <Modal
         visible={showListeningModal}
         transparent={true}

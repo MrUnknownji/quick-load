@@ -23,7 +23,6 @@ import SearchHeader from "@/components/input-fields/SearchHeader";
 import { ThemedText } from "@/components/ThemedText";
 import LargeListItem from "@/components/list-items/LargeListItem";
 import ImageCarousel from "@/components/image-views/ImageCarousel";
-import LargeImageView from "@/components/image-views/LargeImageView";
 import { Colors } from "@/constants/Colors";
 import Sizes from "@/constants/Sizes";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -87,7 +86,7 @@ const HomeScreen: React.FC = () => {
     };
 
     checkLocationPermission();
-  }, [user]);
+  }, []);
 
   const {
     products,
