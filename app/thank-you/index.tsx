@@ -11,23 +11,41 @@ import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { responsive, vw, vh } from "@/utils/responsive";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ThankYou = () => {
-  const { message, type, from, to, vehicle, orderNumber, issueDetails } =
-    useLocalSearchParams<{
-      message: string;
-      type?: string;
-      from?: string;
-      to?: string;
-      vehicle?: string;
-      orderNumber?: string;
-      issueDetails?: string;
-    }>();
+  const {
+    message,
+    type,
+    from,
+    to,
+    vehicle,
+    orderNumber,
+    issueDetails,
+    loginAgain,
+  } = useLocalSearchParams<{
+    message: string;
+    type?: string;
+    from?: string;
+    to?: string;
+    vehicle?: string;
+    orderNumber?: string;
+    issueDetails?: string;
+    loginAgain?: string;
+  }>();
 
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.light.secondary },
     "text",
   );
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("accessToken");
+    await AsyncStorage.removeItem("refreshToken");
+    await AsyncStorage.removeItem("userId");
+    await AsyncStorage.removeItem("user");
+    router.replace("/authentication");
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -79,10 +97,16 @@ const ThankYou = () => {
       )}
 
       <Button
-        title={t("Back to Home")}
+        title={loginAgain === "true" ? t("Plese login") : t("Back to Home")}
         variant="primary"
         size="medium"
-        onPress={() => router.replace("/(tabs)/")}
+        onPress={() => {
+          if (loginAgain === "true") {
+            handleLogout();
+          } else {
+            router.replace("/(tabs)/");
+          }
+        }}
         style={styles.button}
       />
     </ThemedView>

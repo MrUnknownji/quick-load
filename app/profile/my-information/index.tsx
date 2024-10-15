@@ -165,6 +165,7 @@ const UserInformationPage: React.FC = () => {
           params: {
             message:
               "Your profile has been submitted and is currently under review. We'll notify you once it's approved.",
+            loginAgain: "true",
           },
         });
       } else {

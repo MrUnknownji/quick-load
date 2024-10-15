@@ -17,6 +17,7 @@ import FileUploadField from "@/components/input-fields/FileUploadField";
 import Alert from "@/components/popups/Alert";
 import * as DocumentPicker from "expo-document-picker";
 import { INDIAN_CITIES, INDIAN_STATES } from "@/assets/data/DATA";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ const MyShopPage = () => {
     gstNumber: "",
     shopImage: "",
     shopAddress: "",
-    shopRating: 0,
+    shopRating: 4,
     state: "",
     city: "",
     otherCity: "",
