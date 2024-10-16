@@ -7,7 +7,7 @@ import axios, {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 
-const baseURL = "https://quick-load.onrender.com/api";
+const baseURL = "http://139.59.39.33/api";
 
 const apiClient: AxiosInstance = axios.create({
   baseURL,
