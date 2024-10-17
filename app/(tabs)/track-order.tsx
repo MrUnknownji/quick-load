@@ -53,7 +53,7 @@ const TrackOrder = () => {
           ? t("Track Order")
           : t("Delivered")
       }
-      imageUrl={`https://quick-load.onrender.com/assets/${item.productName.toLowerCase() === "grit" ? "product-grit-3.jpeg" : "product-bricks-3.jpeg"}`}
+      imageUrl={`http://movingrolls.online/assets/${item.productName.toLowerCase() === "grit" ? "product-grit-3.jpeg" : "product-bricks-3.jpeg"}`}
     />
   );
 

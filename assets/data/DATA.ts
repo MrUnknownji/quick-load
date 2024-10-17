@@ -42,13 +42,13 @@ export const ORDERS: Order[] = [
 
 const CAROUSEL_IMAGES = [
   {
-    uri: `http://139.59.39.33/assets/carousal-image-1.png`,
+    uri: `http://movingrolls.online/assets/carousal-image-1.png`,
   },
   {
-    uri: `http://139.59.39.33/assets/carousal-image-2.png`,
+    uri: `http://movingrolls.online/assets/carousal-image-2.png`,
   },
   {
-    uri: `http://139.59.39.33/assets/carousal-image-3.png`,
+    uri: `http://movingrolls.online/assets/carousal-image-3.png`,
   },
 ];
 

@@ -74,7 +74,7 @@ const ProductDetailPage = () => {
         >
           <View style={styles.productContainer}>
             <LargeImageView
-              imageUrl={`http://139.59.39.33${product.productImage}`}
+              imageUrl={`http://movingrolls.online${product.productImage}`}
               style={{ marginHorizontal: responsive(Sizes.marginHorizontal) }}
               height={vh(25)}
             />

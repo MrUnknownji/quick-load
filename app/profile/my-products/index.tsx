@@ -52,7 +52,7 @@ const ProductItem: React.FC<{
     >
       <Image
         source={{
-          uri: `http://139.59.39.33${product.productImage}`,
+          uri: `http://movingrolls.online${product.productImage}`,
         }}
         style={styles.listItemImage}
       />

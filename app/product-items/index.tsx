@@ -127,7 +127,7 @@ const ProductItems: React.FC = () => {
       >
         <LargeListItem
           heading={item.productSize}
-          imageUrl={`http://139.59.39.33${item.productImage}`}
+          imageUrl={`http://movingrolls.online${item.productImage}`}
           price={item.productPrice.toString()}
           location={item.productLocation}
           rating={item.productRating}
