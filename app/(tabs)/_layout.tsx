@@ -27,6 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { responsive, vw, vh } from "@/utils/responsive";
 import { useUser } from "@/hooks/useUser";
+import Alert from "@/components/popups/Alert";
 
 const SCREEN_HEIGHT = vh(100);
 const MAX_TRANSLATE_Y = -SCREEN_HEIGHT + (StatusBar.currentHeight ?? 0);
@@ -163,6 +164,7 @@ function AnimatedTabBarLabel({
 export default function TabLayout() {
   const [isBottomSheetActive, setIsBottomSheetActive] = useState(false);
   const [isOverlayVisible, setIsOverlayVisible] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const translateY = useSharedValue(MIN_TRANSLATE_Y);
   const context = useSharedValue({ y: MIN_TRANSLATE_Y });
   const { activePath, setActivePath } = usePathChangeListener();
@@ -247,8 +249,15 @@ export default function TabLayout() {
         pathname: "/find-route",
         params: { userType: "driver" },
       });
+    } else {
+      setShowAlert(true);
     }
   }, [isBottomSheetActive, scrollTo, closeBottomSheet, user]);
+
+  const handleGoToContactUs = useCallback(() => {
+    setShowAlert(false);
+    router.push("/contact-us");
+  }, []);
 
   const preventTabPress = useCallback(
     (e: { preventDefault: () => void }, tabName: string) => {
@@ -333,6 +342,18 @@ export default function TabLayout() {
             </Animated.View>
           </GestureDetector>
         </>
+      )}
+      {showAlert && (
+        <Alert
+          message={t(
+            "This feature is exclusive to Merchants or Drivers. You can contact admin to change your type.",
+          )}
+          type="info"
+          visible={showAlert}
+          onClose={() => setShowAlert(false)}
+          onConfirm={handleGoToContactUs}
+          confirmTitle={t("Go")}
+        />
       )}
     </>
   );

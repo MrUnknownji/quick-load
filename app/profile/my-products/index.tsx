@@ -52,7 +52,7 @@ const ProductItem: React.FC<{
     >
       <Image
         source={{
-          uri: `https://quick-load.onrender.com${product.productImage}`,
+          uri: `http://139.59.39.33${product.productImage}`,
         }}
         style={styles.listItemImage}
       />

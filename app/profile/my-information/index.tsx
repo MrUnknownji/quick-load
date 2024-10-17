@@ -270,7 +270,7 @@ const UserInformationPage: React.FC = () => {
       <ThemedView style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
           <Image
-            source={"https://quick-load.onrender.com/assets/default-avatar.png"}
+            source={`http://139.59.39.33/assets/default-avatar.png`}
             style={styles.userImage}
           />
         </View>

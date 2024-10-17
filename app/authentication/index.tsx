@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Animated, ToastAndroid, Platform } from "react-native";
+import {
+  StyleSheet,
+  Animated,
+  ToastAndroid,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -8,11 +14,11 @@ import { SignInForm } from "./components/SignInForm";
 import { OTPVerification } from "./components/OTPVerification";
 import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import Alert from "@/components/popups/Alert";
-// import * as Clipboard from "expo-clipboard";
 import { ThemedView } from "@/components/ThemedView";
 import { useUser } from "@/hooks/useUser";
 import { t } from "i18next";
 import { responsive } from "@/utils/responsive";
+import Colors from "@/constants/Colors";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"signin" | "otp">("signin");
@@ -30,9 +36,11 @@ const Authentication: React.FC = () => {
     type: "info",
   });
   const { getUser, login } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuthState = async () => {
+      setIsLoading(true);
       const accessToken = await AsyncStorage.getItem("accessToken");
       const userId = await AsyncStorage.getItem("userId");
 
@@ -59,6 +67,7 @@ const Authentication: React.FC = () => {
       } else {
         console.log("User is signed out");
       }
+      setIsLoading(false);
     };
     checkAuthState();
   }, [getUser]);
@@ -110,14 +119,6 @@ const Authentication: React.FC = () => {
     }
   };
 
-  // const showToast = (message: string) => {
-  //   if (Platform.OS === "android") {
-  //     ToastAndroid.show(message, ToastAndroid.SHORT);
-  //   } else {
-  //     console.log(message);
-  //   }
-  // };
-
   const handleOtpVerify = async (otp: string) => {
     if (!confirm) {
       console.error("No confirmation result");
@@ -148,8 +149,6 @@ const Authentication: React.FC = () => {
       ) {
         throw new Error("Invalid login response");
       }
-      // await Clipboard.setStringAsync(loginResponse.accessToken);
-      // showToast("Access Token copied to clipboard");
 
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
       await AsyncStorage.setItem("refreshToken", loginResponse.refreshToken);
@@ -215,18 +214,27 @@ const Authentication: React.FC = () => {
 
   return (
     <ThemedView style={styles.container}>
-      <Image source={require("@/assets/images/icon.png")} style={styles.icon} />
-      <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
-        {authMode === "signin" && <SignInForm onSubmit={handleSignIn} />}
-        {authMode === "otp" && (
-          <OTPVerification
-            mobileNumber={mobileNumber}
-            onVerify={handleOtpVerify}
-            onResend={handleOtpResend}
-            onBack={handleBackToSignIn}
+      {isLoading ? (
+        <ActivityIndicator size="large" color={Colors.light.primary} />
+      ) : (
+        <>
+          <Image
+            source={require("@/assets/images/icon.png")}
+            style={styles.icon}
           />
-        )}
-      </Animated.View>
+          <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
+            {authMode === "signin" && <SignInForm onSubmit={handleSignIn} />}
+            {authMode === "otp" && (
+              <OTPVerification
+                mobileNumber={mobileNumber}
+                onVerify={handleOtpVerify}
+                onResend={handleOtpResend}
+                onBack={handleBackToSignIn}
+              />
+            )}
+          </Animated.View>
+        </>
+      )}
       <Alert
         message={t(alert.message)}
         type={alert.type}

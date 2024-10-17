@@ -1,5 +1,6 @@
+"use client";
 import { StyleSheet, View, Dimensions } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sizes from "@/constants/Sizes";
 import Colors from "@/constants/Colors";
 import { router, useLocalSearchParams } from "expo-router";
@@ -12,6 +13,8 @@ import LottieView from "lottie-react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { responsive, vw, vh } from "@/utils/responsive";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth } from "@/firebase/firebase";
+import { useUser } from "@/hooks/useUser";
 
 const ThankYou = () => {
   const {
@@ -34,17 +37,50 @@ const ThankYou = () => {
     loginAgain?: string;
   }>();
 
+  const { login } = useUser();
+  const [isLoading, setIsLoading] = useState(loginAgain === "true");
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.light.secondary },
     "text",
   );
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("accessToken");
-    await AsyncStorage.removeItem("refreshToken");
-    await AsyncStorage.removeItem("userId");
-    await AsyncStorage.removeItem("user");
+    await AsyncStorage.multiRemove([
+      "accessToken",
+      "refreshToken",
+      "userId",
+      "user",
+    ]);
     router.replace("/authentication");
+  };
+
+  const handleReLogin = async () => {
+    setIsLoading(true);
+    try {
+      const currentUser = auth().currentUser;
+      if (currentUser) {
+        const firebaseToken = await currentUser.getIdToken(true);
+        const loginResponse = await login(firebaseToken);
+        if (loginResponse && loginResponse.accessToken) {
+          await AsyncStorage.multiSet([
+            ["accessToken", loginResponse.accessToken],
+            ["refreshToken", loginResponse.refreshToken],
+            ["userId", loginResponse.user._id],
+            ["user", JSON.stringify(loginResponse.user)],
+          ]);
+          router.replace("/");
+        } else {
+          throw new Error("Login failed");
+        }
+      } else {
+        throw new Error("No current user");
+      }
+    } catch (error) {
+      console.error("Re-login failed:", error);
+      await handleLogout();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -97,17 +133,19 @@ const ThankYou = () => {
       )}
 
       <Button
-        title={loginAgain === "true" ? t("Plese login") : t("Back to Home")}
+        title={isLoading ? t("Please wait...") : t("Back to Home")}
         variant="primary"
         size="medium"
         onPress={() => {
-          if (loginAgain === "true") {
-            handleLogout();
+          if (from || orderNumber) {
+            router.dismissAll();
+            router.push("/(tabs)/");
           } else {
-            router.replace("/(tabs)/");
+            handleReLogin();
           }
         }}
         style={styles.button}
+        disabled={isLoading}
       />
     </ThemedView>
   );

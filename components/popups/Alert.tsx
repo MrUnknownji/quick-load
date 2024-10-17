@@ -17,6 +17,8 @@ interface AlertProps {
   visible: boolean;
   onClose: () => void;
   onConfirm?: () => void;
+  confirmTitle?: string;
+  cancelTitle?: string;
 }
 
 const Alert: React.FC<AlertProps> = ({
@@ -25,6 +27,8 @@ const Alert: React.FC<AlertProps> = ({
   visible,
   onClose,
   onConfirm,
+  confirmTitle,
+  cancelTitle,
 }) => {
   const backgroundColor = styles[type].backgroundColor;
 
@@ -52,13 +56,17 @@ const Alert: React.FC<AlertProps> = ({
             {onConfirm && (
               <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={onClose}>
-                  <Text style={styles.buttonText}>{t("Cancel")}</Text>
+                  <Text style={styles.buttonText}>
+                    {cancelTitle ?? t("Cancel")}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.button, styles.confirmButton]}
                   onPress={onConfirm}
                 >
-                  <Text style={styles.buttonText}>{t("Confirm")}</Text>
+                  <Text style={styles.buttonText}>
+                    {confirmTitle ?? t("Confirm")}
+                  </Text>
                 </TouchableOpacity>
               </View>
             )}

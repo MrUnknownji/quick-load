@@ -271,5 +271,8 @@
   "As a driver, enabling GPS is crucial for providing accurate route information and ensuring a smooth experience. Would you like to enable GPS now?": "चालक के रूप में, सटीक मार्ग जानकारी प्रदान करने और बेहतर अनुभव सुनिश्चित करने के लिए GPS सक्षम करना महत्वपूर्ण है। क्या आप अभी GPS सक्षम करना चाहेंगे?",
   "Thank you for enabling GPS. This will help us provide you with better route suggestions and improve your overall experience.": "GPS सक्षम करने के लिए धन्यवाद। यह हमें आपको बेहतर मार्ग सुझाव प्रदान करने और आपके समग्र अनुभव में सुधार करने में मदद करेगा।",
   "Select Options": "विकल्प चुनें",
-  "Either shop won't exist or error fetching details.": "या तो दुकान मौजूद नहीं है या विवरण लाने में त्रुटि हुई है।"
+  "Either shop won't exist or error fetching details.": "या तो दुकान मौजूद नहीं है या विवरण लाने में त्रुटि हुई है।",
+  "This feature is exclusive to Merchants or Drivers. You can contact admin to change your type.": "यह सुविधा केवल व्यापारियों या चालकों के लिए है। अपना प्रकार बदलने के लिए आप प्रशासक से संपर्क कर सकते हैं।",
+  "Go": "जाएं",
+  "Thank You!": "धन्यवाद!"
 }

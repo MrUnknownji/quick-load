@@ -74,7 +74,7 @@ const ProductDetailPage = () => {
         >
           <View style={styles.productContainer}>
             <LargeImageView
-              imageUrl={`https://quick-load.onrender.com${product.productImage}`}
+              imageUrl={`http://139.59.39.33${product.productImage}`}
               style={{ marginHorizontal: responsive(Sizes.marginHorizontal) }}
               height={vh(25)}
             />

@@ -31,11 +31,11 @@ const Onboarding = () => {
   );
 
   useEffect(() => {
-    Image.prefetch("https://quick-load.onrender.com/assets/cheep-transport.png")
+    Image.prefetch(`http://139.59.39.33/assets/cheep-transport.png`)
       .then(() => setImagesLoaded((prev) => ({ ...prev, image1: true })))
       .catch((error) => console.error("Error preloading image 1:", error));
 
-    Image.prefetch("https://quick-load.onrender.com/assets/cheep-material.png")
+    Image.prefetch(`http://139.59.39.33/assets/cheep-material.png`)
       .then(() => setImagesLoaded((prev) => ({ ...prev, image2: true })))
       .catch((error) => console.error("Error preloading image 2:", error));
   }, []);
@@ -99,7 +99,7 @@ const Onboarding = () => {
               <OnboardingImageSkeleton />
             ) : (
               <Image
-                source={`https://quick-load.onrender.com/assets/cheep-transport.png`}
+                source={`http://139.59.39.33/assets/cheep-transport.png`}
                 style={styles.fullScreenImage}
                 contentFit="cover"
               />
@@ -112,7 +112,7 @@ const Onboarding = () => {
               <OnboardingImageSkeleton />
             ) : (
               <Image
-                source={`https://quick-load.onrender.com/assets/cheep-material.png`}
+                source={`http://139.59.39.33/assets/cheep-material.png`}
                 style={styles.fullScreenImage}
                 contentFit="cover"
               />

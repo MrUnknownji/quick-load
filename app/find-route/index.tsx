@@ -163,7 +163,6 @@ const RouteFinder = () => {
       );
       setAlertType("success");
       setAlertVisible(true);
-      // handleLocationUpdate();
     }
   };
 

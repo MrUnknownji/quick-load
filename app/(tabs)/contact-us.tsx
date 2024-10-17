@@ -31,7 +31,7 @@ const ContactUs = () => {
         </View>
         <ThemedView style={styles.contactCard}>
           <LargeImageView
-            imageUrl={`https://quick-load.onrender.com/assets/contact-us.jpeg`}
+            imageUrl={`http://139.59.39.33//assets/contact-us.jpeg`}
             height={200}
             style={{
               padding: 0,
