@@ -38,7 +38,7 @@ const ThankYou = () => {
   }>();
 
   const { login } = useUser();
-  const [isLoading, setIsLoading] = useState(loginAgain === "true");
+  const [isLoading, setIsLoading] = useState(false);
   const iconColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.light.secondary },
     "text",
