@@ -11,10 +11,12 @@ import { ThemedView } from "@/components/ThemedView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { responsive, vw } from "@/utils/responsive";
 import { useUser } from "@/hooks/useUser";
+import { useContextUser } from "@/contexts/userContext";
 
 const Profile = () => {
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const { user } = useUser();
+  const { user, loading } = useUser();
+  const { user: contextUser } = useContextUser();
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("accessToken");
@@ -42,7 +44,7 @@ const Profile = () => {
     <View style={styles.container}>
       <View style={styles.profileHeader}>
         <Text style={styles.profileHeading}>
-          {user?.firstName || t("Username")}
+          {contextUser?.firstName || t("Username")}
         </Text>
       </View>
       <ThemedView style={styles.profileDetails}>

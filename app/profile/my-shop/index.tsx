@@ -17,7 +17,7 @@ import FileUploadField from "@/components/input-fields/FileUploadField";
 import Alert from "@/components/popups/Alert";
 import * as DocumentPicker from "expo-document-picker";
 import { INDIAN_CITIES, INDIAN_STATES } from "@/assets/data/DATA";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useContextUser } from "@/contexts/userContext";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
@@ -30,9 +30,11 @@ const MyShopPage = () => {
     error: fetchError,
   } = useFetchProductOwnerByUserId();
 
+  const { user } = useContextUser();
+
   const [formState, setFormState] = useState({
     productOwnerName: "",
-    phoneNumber: "",
+    phoneNumber: user?.phone ?? "",
     gstNumber: "",
     shopImage: "",
     shopAddress: "",
@@ -104,7 +106,7 @@ const MyShopPage = () => {
     if (missingFields.length > 0) {
       setAlertState({
         visible: true,
-        message: `Please fill in all required fields: ${missingFields.join(", ")}`,
+        message: `${t("Please fill in all required fields:")} ${missingFields.join(", ")}`,
         type: "error",
       });
       return;
@@ -140,7 +142,7 @@ const MyShopPage = () => {
       if (result && result._id) {
         setAlertState({
           visible: true,
-          message: "Shop information saved successfully",
+          message: t("Shop information saved successfully"),
           type: "success",
         });
       } else {
@@ -153,7 +155,7 @@ const MyShopPage = () => {
         message:
           error instanceof Error
             ? error.message
-            : "Failed to save shop information. Please try again.",
+            : t("Failed to save shop information. Please try again."),
         type: "error",
       });
     }
@@ -198,7 +200,7 @@ const MyShopPage = () => {
         />
         <FileUploadField
           label={t("Shop Photo")}
-          subLabel={t(".jpeg, .jpg, .png of less than 10MB")}
+          // subLabel={t(".jpeg, .jpg, .png of less than 1MB")}
           isMandatory
           onFileSelect={handleFileSelect}
           selectedFile={formState.shopImage}

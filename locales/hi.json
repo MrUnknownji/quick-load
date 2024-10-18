@@ -274,5 +274,20 @@
   "Either shop won't exist or error fetching details.": "या तो दुकान मौजूद नहीं है या विवरण लाने में त्रुटि हुई है।",
   "This feature is exclusive to Merchants or Drivers. You can contact admin to change your type.": "यह सुविधा केवल व्यापारियों या चालकों के लिए है। अपना प्रकार बदलने के लिए आप प्रशासक से संपर्क कर सकते हैं।",
   "Go": "जाएं",
-  "Thank You!": "धन्यवाद!"
+  "Thank You!": "धन्यवाद!",
+  "Image size must be less than 500KB": "छवि का आकार 500KB से कम होना चाहिए",
+  "File size must be less than 500KB": "फ़ाइल का आकार 500KB से कम होना चाहिए",
+  "Unable to verify file size. Please try again": "फ़ाइल का आकार सत्यापित करने में असमर्थ। कृपया पुनः प्रयास करें",
+  "Please select a file with one of the following extensions:": "कृपया निम्नलिखित एक्सटेंशन में से किसी एक वाली फ़ाइल चुनें:",
+  "An error occurred while selecting the file": "फ़ाइल चुनते समय एक त्रुटि हुई",
+  "Shop information saved successfully": "Shop information saved successfully",
+  "Failed to save shop information. Please try again.": "व्यवसाय की सूचना संग्रहित करने में असफल। कृपया पुनः प्रयास करें।",
+  "Product owner information not found": "उत्पाद मालिक की जानकारी नहीं मिली",
+  "Product saved successfully": "उत्पाद सफलतापूर्वक सहेजा गया",
+  "Failed to save product data. Please try again.": "उत्पाद डेटा सहेजने में विफल। कृपया पुनः प्रयास करें।",
+  "Please save your details before leaving the page.": "पृष्ठ छोड़ने से पहले कृपया अपनी जानकारी सहेज लें।",
+  "User ID not found. Please try logging in again.": "उपयोगकर्ता आईडी नहीं मिली। कृपया फिर से लॉग इन करने का प्रयास करें।",
+  "Your information has been saved successfully.": "आपकी जानकारी सफलतापूर्वक सहेज ली गई है।",
+  "Failed to save user data. Please try again.": "उपयोगकर्ता डेटा सहेजने में विफल। कृपया पुनः प्रयास करें।",
+  "Your profile has been submitted and is currently under review. We'll notify you once it's approved.": "आपका विवरण प्रस्तुत किया गया है और इस समय समीक्षाधीन है। स्वीकृति मिलने पर हम आपको अवगत कराएंगे।"
 }

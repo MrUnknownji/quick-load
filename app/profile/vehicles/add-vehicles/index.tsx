@@ -26,13 +26,17 @@ import Alert from "@/components/popups/Alert";
 import Colors from "@/constants/Colors";
 import { responsive } from "@/utils/responsive";
 import FileUploadField from "@/components/input-fields/FileUploadField";
+import { useContextUser } from "@/contexts/userContext";
 
 const AddVehicles: React.FC = () => {
   const { vehicleId, isEdit } = useLocalSearchParams<{
     vehicleId: string;
     isEdit: string;
   }>();
-  const [formState, setFormState] = useState<Partial<Vehicle>>({});
+  const { user } = useContextUser();
+  const [formState, setFormState] = useState<Partial<Vehicle>>({
+    phoneNumber: user?.phone ?? "",
+  });
   const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
     {},
   );

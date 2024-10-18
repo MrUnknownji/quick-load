@@ -62,7 +62,7 @@ const UserInformationPage: React.FC = () => {
         console.error("Error fetching user data:", error);
         setAlertState({
           visible: true,
-          message: "Failed to fetch user information. Please try again.",
+          message: t("Failed to fetch user information. Please try again."),
           type: "error",
         });
       }
@@ -76,7 +76,7 @@ const UserInformationPage: React.FC = () => {
       if (canLeave === "false" && !isDetailsSaved) {
         setAlertState({
           visible: true,
-          message: "Please save your details before leaving the page.",
+          message: t("Please save your details before leaving the page."),
           type: "warning",
         });
         return true;
@@ -112,7 +112,7 @@ const UserInformationPage: React.FC = () => {
     if (!userId) {
       setAlertState({
         visible: true,
-        message: "User ID not found. Please try logging in again.",
+        message: t("User ID not found. Please try logging in again."),
         type: "error",
       });
       return;
@@ -137,7 +137,7 @@ const UserInformationPage: React.FC = () => {
       if (success) {
         setAlertState({
           visible: true,
-          message: "Your information has been saved successfully.",
+          message: t("Your information has been saved successfully."),
           type: "success",
         });
         setUpdatedFields({});
@@ -150,7 +150,7 @@ const UserInformationPage: React.FC = () => {
       console.error("Error saving user data:", error);
       setAlertState({
         visible: true,
-        message: "Failed to save user data. Please try again.",
+        message: t("Failed to save user data. Please try again."),
         type: "error",
       });
     }

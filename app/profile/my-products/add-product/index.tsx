@@ -97,7 +97,7 @@ const AddProductPage: React.FC = () => {
     if (!productOwner) {
       setAlertState({
         visible: true,
-        message: "Product owner information not found",
+        message: t("Product owner information not found"),
         type: "error",
       });
       return;
@@ -132,7 +132,7 @@ const AddProductPage: React.FC = () => {
       if (result && result._id) {
         setAlertState({
           visible: true,
-          message: "Product saved successfully",
+          message: t("Product saved successfully"),
           type: "success",
         });
       } else {
@@ -145,7 +145,7 @@ const AddProductPage: React.FC = () => {
         message:
           error instanceof Error
             ? error.message
-            : "Failed to save product data. Please try again.",
+            : t("Failed to save product data. Please try again."),
         type: "error",
       });
     }

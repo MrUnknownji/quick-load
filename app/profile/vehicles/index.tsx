@@ -96,9 +96,6 @@ const Vehicles: React.FC = () => {
     user?._id ?? "",
   );
 
-  useEffect(() => {
-    console.log(user?._id);
-  });
   const {
     deleteVehicle,
     loading: deleteLoading,

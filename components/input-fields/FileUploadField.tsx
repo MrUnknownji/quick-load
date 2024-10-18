@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from "react-native";
 import {
   FontAwesome,
@@ -13,6 +13,8 @@ import { t } from "i18next";
 import { ThemedText } from "../ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { responsive, vw, vh } from "@/utils/responsive";
+import * as FileSystem from "expo-file-system";
+import Alert from "@/components/popups/Alert";
 
 interface FileUploadFieldProps {
   iconName?:
@@ -41,7 +43,7 @@ const FileUploadField = ({
   iconName = "attach",
   iconType = "Ionicons",
   label,
-  subLabel,
+  subLabel = t("Image size must be less than 500KB"),
   isMandatory = false,
   placeholder = t("Select a file"),
   onFileSelect,
@@ -57,30 +59,60 @@ const FileUploadField = ({
     FontAwesome,
     MaterialCommunityIcons,
   }[iconType];
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<
+    "success" | "error" | "warning" | "info"
+  >("error");
 
   const handleFileUpload = async () => {
-    const result = await DocumentPicker.getDocumentAsync({
-      type: "*/*",
-      copyToCacheDirectory: true,
-    });
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: "*/*",
+        copyToCacheDirectory: true,
+      });
 
-    if (result.canceled === false && onFileSelect) {
-      if (result.assets && result.assets.length > 0) {
-        const file = result.assets[0];
+      if (result.canceled === false && onFileSelect) {
+        if (result.assets && result.assets.length > 0) {
+          const file = result.assets[0];
+          const fileInfo = await FileSystem.getInfoAsync(file.uri);
+          if (fileInfo.exists) {
+            const fileSizeInBytes = fileInfo.size;
+            const fileSizeInKB = fileSizeInBytes / 1024;
 
-        if (allowedExtensions) {
-          const fileExtension = file.name.split(".").pop()?.toLowerCase();
-          if (fileExtension && allowedExtensions.includes(fileExtension)) {
-            onFileSelect(result);
+            if (fileSizeInKB > 500) {
+              setAlertMessage(t("File size must be less than 500KB"));
+              setAlertType("error");
+              setAlertVisible(true);
+              return;
+            }
           } else {
-            alert(
-              `Please select a file with one of the following extensions: ${allowedExtensions.join(", ")}`,
-            );
+            setAlertMessage(t("Unable to verify file size. Please try again"));
+            setAlertType("warning");
+            setAlertVisible(true);
+            return;
           }
-        } else {
-          onFileSelect(result);
+          if (allowedExtensions) {
+            const fileExtension = file.name.split(".").pop()?.toLowerCase();
+            if (fileExtension && allowedExtensions.includes(fileExtension)) {
+              onFileSelect(result);
+            } else {
+              setAlertMessage(
+                `${t("Please select a file with one of the following extensions:")} ${allowedExtensions.join(", ")}`,
+              );
+              setAlertType("warning");
+              setAlertVisible(true);
+            }
+          } else {
+            onFileSelect(result);
+          }
         }
       }
+    } catch (error) {
+      console.error("Error picking document:", error);
+      setAlertMessage(t("An error occurred while selecting the file"));
+      setAlertType("error");
+      setAlertVisible(true);
     }
   };
 
@@ -104,9 +136,9 @@ const FileUploadField = ({
         <View style={styles.labelContainer}>
           <ThemedText style={styles.label}>
             {label}
-            {subLabel && (
-              <ThemedText style={styles.subLabel}> ({subLabel})</ThemedText>
-            )}
+            {/* {subLabel && ( */}
+            <ThemedText style={styles.subLabel}> ({subLabel})</ThemedText>
+            {/* )} */}
             {isMandatory && (
               <ThemedText style={styles.mandatoryIndicator}>*</ThemedText>
             )}
@@ -139,6 +171,12 @@ const FileUploadField = ({
           {getDisplayText()}
         </ThemedText>
       </TouchableOpacity>
+      <Alert
+        message={alertMessage}
+        type={alertType}
+        visible={alertVisible}
+        onClose={() => setAlertVisible(false)}
+      />
     </View>
   );
 };
