@@ -31,7 +31,7 @@ const FindRouteBottomSheet = () => {
     >
       <Image
         style={styles.image}
-        source={`http://movingrolls.online/assets/${imageName}.png`}
+        source={`https://movingrolls.online/assets/${imageName}.png`}
       />
       <View style={styles.textContainer}>
         <ThemedText style={styles.labelText}>{t(label)}</ThemedText>

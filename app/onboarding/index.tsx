@@ -31,11 +31,11 @@ const Onboarding = () => {
   );
 
   useEffect(() => {
-    Image.prefetch(`http://movingrolls.online/assets/cheep-transport.png`)
+    Image.prefetch(`https://movingrolls.online/assets/cheep-transport.png`)
       .then(() => setImagesLoaded((prev) => ({ ...prev, image1: true })))
       .catch((error) => console.error("Error preloading image 1:", error));
 
-    Image.prefetch(`http://movingrolls.online/assets/cheep-material.png`)
+    Image.prefetch(`https://movingrolls.online/assets/cheep-material.png`)
       .then(() => setImagesLoaded((prev) => ({ ...prev, image2: true })))
       .catch((error) => console.error("Error preloading image 2:", error));
   }, []);
@@ -99,7 +99,7 @@ const Onboarding = () => {
               <OnboardingImageSkeleton />
             ) : (
               <Image
-                source={`http://movingrolls.online/assets/cheep-transport.png`}
+                source={`https://movingrolls.online/assets/cheep-transport.png`}
                 style={styles.fullScreenImage}
                 contentFit="cover"
               />
@@ -112,7 +112,7 @@ const Onboarding = () => {
               <OnboardingImageSkeleton />
             ) : (
               <Image
-                source={`http://movingrolls.online/assets/cheep-material.png`}
+                source={`https://movingrolls.online/assets/cheep-material.png`}
                 style={styles.fullScreenImage}
                 contentFit="cover"
               />

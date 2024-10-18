@@ -108,7 +108,7 @@ const HomeScreen: React.FC = () => {
     products.forEach((product) => categorySet.add(product.productType));
     return Array.from(categorySet).map((categoryName) => ({
       name: categoryName,
-      url: `http://movingrolls.online/assets/${
+      url: `https://movingrolls.online/assets/${
         categoryName === "Bricks" ? "bricks.webp" : "grit.png"
       }`,
     }));
@@ -195,7 +195,7 @@ const HomeScreen: React.FC = () => {
         <LargeListItem
           key={owner._id}
           heading={owner.productOwnerName}
-          imageUrl={`http://movingrolls.online${owner.shopImage}`}
+          imageUrl={`https://movingrolls.online${owner.shopImage}`}
           onPress={() =>
             router.push({
               pathname: "/product-items",
@@ -267,7 +267,7 @@ const HomeScreen: React.FC = () => {
             {selectedCategory === "" ? (
               <View style={styles.largeImageContainer}>
                 <Image
-                  source="http://movingrolls.online/assets/fast-deliver-truck.png"
+                  source="https://movingrolls.online/assets/fast-deliver-truck.png"
                   style={styles.largeImage}
                   contentFit="contain"
                 />

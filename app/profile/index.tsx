@@ -48,7 +48,7 @@ const Profile = () => {
       <ThemedView style={styles.profileDetails}>
         <View style={styles.userImageContainer}>
           <Image
-            source={`http://movingrolls.online/assets/default-avatar.png`}
+            source={`https://movingrolls.online/assets/default-avatar.png`}
             style={styles.userImage}
           />
         </View>

@@ -31,7 +31,7 @@ const ContactUs = () => {
         </View>
         <ThemedView style={styles.contactCard}>
           <LargeImageView
-            imageUrl={`http://movingrolls.online/assets/contact-us.jpeg`}
+            imageUrl={`https://movingrolls.online/assets/contact-us.jpeg`}
             height={200}
             style={{
               padding: 0,
