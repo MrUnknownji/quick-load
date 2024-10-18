@@ -74,6 +74,10 @@ const AddVehicles: React.FC = () => {
     };
 
   const handleSaveVehicle = async () => {
+    if (Object.keys(updatedFields).length === 0) {
+      router.back();
+      return;
+    }
     const requiredFields: (keyof Vehicle)[] = [
       "driverName",
       "phoneNumber",

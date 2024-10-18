@@ -118,6 +118,11 @@ const UserInformationPage: React.FC = () => {
       return;
     }
 
+    if (Object.keys(updatedFields).length === 0) {
+      router.back();
+      return;
+    }
+
     try {
       const formData = new FormData();
       Object.entries(updatedFields).forEach(([key, value]) => {
@@ -210,7 +215,6 @@ const UserInformationPage: React.FC = () => {
       />
       <TextInputField
         label={t("City")}
-        isMandatory={true}
         iconName="business"
         value={formState.city}
         onChangeText={handleInputChange("city")}

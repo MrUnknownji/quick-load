@@ -18,6 +18,7 @@ import Alert from "@/components/popups/Alert";
 import * as DocumentPicker from "expo-document-picker";
 import { INDIAN_CITIES, INDIAN_STATES } from "@/assets/data/DATA";
 import { useContextUser } from "@/contexts/userContext";
+import { router } from "expo-router";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
@@ -88,6 +89,10 @@ const MyShopPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (Object.keys(updatedFields).length === 0) {
+      router.back();
+      return;
+    }
     const requiredFields = [
       "productOwnerName",
       "phoneNumber",

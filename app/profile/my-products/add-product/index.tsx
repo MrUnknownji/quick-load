@@ -72,6 +72,11 @@ const AddProductPage: React.FC = () => {
   };
 
   const handleAddProduct = async () => {
+    if (Object.keys(updatedFields).length === 0) {
+      router.back();
+      return;
+    }
+
     const requiredFields: (keyof Product)[] = [
       "productPrice",
       "productSize",
