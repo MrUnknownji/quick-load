@@ -168,6 +168,9 @@ const MyShopPage = () => {
 
   const handleCloseAlert = () => {
     setAlertState((prev) => ({ ...prev, visible: false }));
+    if (alertState.type === "success") {
+      router.back();
+    }
   };
 
   if (fetchLoading || addLoading || updateLoading) {
