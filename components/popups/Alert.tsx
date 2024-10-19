@@ -136,6 +136,9 @@ const styles = StyleSheet.create({
   message: {
     color: "#FFFFFF",
     fontSize: responsive(16),
+    flex: 1,
+    paddingRight: vw(1),
+    flexWrap: "wrap",
   },
   buttonContainer: {
     flexDirection: "row",

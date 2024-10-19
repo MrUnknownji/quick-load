@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Animated,
-  ToastAndroid,
-  Platform,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, Animated, ActivityIndicator } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -19,6 +13,7 @@ import { useUser } from "@/hooks/useUser";
 import { t } from "i18next";
 import { responsive } from "@/utils/responsive";
 import Colors from "@/constants/Colors";
+import { refreshTokens } from "@/api/apiClient";
 
 const Authentication: React.FC = () => {
   const [authMode, setAuthMode] = useState<"signin" | "otp">("signin");
@@ -41,10 +36,16 @@ const Authentication: React.FC = () => {
   useEffect(() => {
     const checkAuthState = async () => {
       setIsLoading(true);
-      const accessToken = await AsyncStorage.getItem("accessToken");
-      const userId = await AsyncStorage.getItem("userId");
+      try {
+        let accessToken = await AsyncStorage.getItem("accessToken");
+        const userId = await AsyncStorage.getItem("userId");
 
-      if (accessToken && userId) {
+        if (!accessToken || !userId) {
+          console.log("User is signed out");
+          setIsLoading(false);
+          return;
+        }
+
         try {
           const userData = await getUser(userId);
           if (userData) {
@@ -59,15 +60,37 @@ const Authentication: React.FC = () => {
           } else {
             throw new Error("User data is null");
           }
-        } catch (error) {
-          console.error("Failed to fetch user data:", error);
-          showAlert("Session expired. Please sign in again.", "error");
-          await handleLogout();
+        } catch (error: any) {
+          if (error.response) {
+            try {
+              const newTokens = await refreshTokens();
+              const userData = await getUser(userId);
+              if (userData) {
+                if (userData.firstName && userData.firstName !== "") {
+                  router.replace("/");
+                } else {
+                  router.replace({
+                    pathname: "/profile/my-information",
+                    params: { canLeave: "false" },
+                  });
+                }
+              } else {
+                throw new Error("User data is null after token refresh");
+              }
+            } catch (refreshError) {
+              console.error("Failed to refresh tokens:", refreshError);
+              showAlert("Session expired. Please sign in again.", "error");
+              await handleLogout();
+            }
+          } else {
+            console.error("Failed to fetch user data:", error);
+            showAlert("An error occurred. Please try again.", "error");
+            await handleLogout();
+          }
         }
-      } else {
-        console.log("User is signed out");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     checkAuthState();
   }, [getUser]);

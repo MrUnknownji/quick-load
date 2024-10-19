@@ -6,6 +6,7 @@ import axios, {
 } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import { RefreshTokenResponse } from "@/types/User";
 
 export const baseURL = "https://movingrolls.online/api";
 
@@ -19,98 +20,92 @@ const authApiClient: AxiosInstance = axios.create({
   timeout: 10000,
 });
 
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (value?: unknown) => void;
-  reject: (reason?: Error | string) => void;
-}> = [];
-
-const processQueue = (
-  error: AxiosError | null,
-  token: string | null = null,
-) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-
-  failedQueue = [];
-};
-
 authApiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const token = await AsyncStorage.getItem("accessToken");
     if (token) {
+      console.log("Request interceptor - Token used:", token);
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log("Request config:", JSON.stringify(config, null, 2));
     return config;
   },
   (error: unknown) => {
+    console.error("Request interceptor error:", error);
     return Promise.reject(error);
   },
 );
 
 authApiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(
+      "Response interceptor - Success:",
+      response.status,
+      response.data,
+    );
+    return response;
+  },
   async (error: AxiosError) => {
+    console.log(
+      "Response interceptor - Error:",
+      error.response?.status,
+      error.response?.data,
+    );
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
     };
+
     if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            if (originalRequest.headers) {
-              originalRequest.headers["Authorization"] = `Bearer ${token}`;
-            }
-            return authApiClient(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
       originalRequest._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = await AsyncStorage.getItem("refreshToken");
-      if (!refreshToken) {
-        return Promise.reject(error);
-      }
 
       try {
-        const response = await apiClient.post("/user/refresh-token", {
-          refreshToken,
-        });
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
+        console.log("Attempting to refresh tokens...");
+        const { accessToken, refreshToken } = await refreshTokens();
         await AsyncStorage.setItem("accessToken", accessToken);
-        await AsyncStorage.setItem("refreshToken", newRefreshToken);
+        await AsyncStorage.setItem("refreshToken", refreshToken);
+        console.log(
+          "Tokens refreshed successfully. New access token:",
+          accessToken,
+        );
 
-        authApiClient.defaults.headers.common["Authorization"] =
-          `Bearer ${accessToken}`;
         if (originalRequest.headers) {
           originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
         }
-        processQueue(null, accessToken);
+        console.log("Retrying original request with new token");
         return authApiClient(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError as AxiosError, null);
+        console.error("Token refresh failed:", refreshError);
         await AsyncStorage.removeItem("accessToken");
         await AsyncStorage.removeItem("refreshToken");
         router.dismissAll();
         router.push("/authentication");
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   },
 );
+
+export const refreshTokens = async () => {
+  const refreshToken = await AsyncStorage.getItem("refreshToken");
+  if (!refreshToken) {
+    throw new Error("No refresh token available");
+  }
+
+  try {
+    console.log("Sending refresh token request");
+    const response = await apiClient.post<RefreshTokenResponse>(
+      "/user/refresh-token",
+      { refreshToken },
+    );
+    console.log("Refresh token response:", response.data);
+    const { accessToken, refreshToken: newRefreshToken } = response.data;
+    return { accessToken, refreshToken: newRefreshToken };
+  } catch (error) {
+    console.error("Failed to refresh tokens:", error);
+    throw error;
+  }
+};
 
 export { apiClient, authApiClient };

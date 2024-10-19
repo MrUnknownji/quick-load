@@ -35,7 +35,7 @@ const AddVehicles: React.FC = () => {
   }>();
   const { user } = useContextUser();
   const [formState, setFormState] = useState<Partial<Vehicle>>({
-    phoneNumber: user?.phone ?? "",
+    phoneNumber: user?.phone ?? "+910000000000",
   });
   const [updatedFields, setUpdatedFields] = useState<{ [key: string]: any }>(
     {},
@@ -61,7 +61,11 @@ const AddVehicles: React.FC = () => {
 
   const handleInputChange = (field: keyof Vehicle) => (value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    setUpdatedFields((prev) => ({ ...prev, [field]: value }));
+    setUpdatedFields((prev) => ({
+      ...prev,
+      [field]: value,
+      phoneNumber: formState.phoneNumber,
+    }));
   };
 
   const handleFileSelect =

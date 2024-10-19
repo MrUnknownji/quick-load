@@ -240,7 +240,7 @@ const UserInformationPage: React.FC = () => {
       {canLeave === "false" && (
         <SelectListWithDialog
           label={t("User Type")}
-          subLabel={t("Select your primary role")}
+          subLabel={t("You can only choose role first time")}
           isMandatory={true}
           iconName="people"
           options={userTypeOptions}

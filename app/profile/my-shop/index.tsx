@@ -77,7 +77,11 @@ const MyShopPage = () => {
 
   const handleInputChange = (field: string) => (value: string | string[]) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    setUpdatedFields((prev) => ({ ...prev, [field]: value }));
+    setUpdatedFields((prev) => ({
+      ...prev,
+      [field]: value,
+      phoneNumber: formState.phoneNumber,
+    }));
   };
 
   const handleFileSelect = (result: DocumentPicker.DocumentPickerResult) => {

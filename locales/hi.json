@@ -289,5 +289,6 @@
   "User ID not found. Please try logging in again.": "उपयोगकर्ता आईडी नहीं मिली। कृपया फिर से लॉग इन करने का प्रयास करें।",
   "Your information has been saved successfully.": "आपकी जानकारी सफलतापूर्वक सहेज ली गई है।",
   "Failed to save user data. Please try again.": "उपयोगकर्ता डेटा सहेजने में विफल। कृपया पुनः प्रयास करें।",
-  "Your profile has been submitted and is currently under review. We'll notify you once it's approved.": "आपका विवरण प्रस्तुत किया गया है और इस समय समीक्षाधीन है। स्वीकृति मिलने पर हम आपको अवगत कराएंगे।"
+  "Your profile has been submitted and is currently under review. We'll notify you once it's approved.": "आपका विवरण प्रस्तुत किया गया है और इस समय समीक्षाधीन है। स्वीकृति मिलने पर हम आपको अवगत कराएंगे।",
+  "You can only choose role first time": "आप केवल पहली बार भूमिका चुन सकते हैं।"
 }

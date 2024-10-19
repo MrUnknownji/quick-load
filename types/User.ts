@@ -34,3 +34,13 @@ export interface UserEdit {
   birthDate?: string;
   image?: File;
 }
+
+export interface RefreshTokenResponse {
+  resultMessage: {
+    en: string;
+    tr: string;
+  };
+  resultCode: string;
+  accessToken: string;
+  refreshToken: string;
+}
