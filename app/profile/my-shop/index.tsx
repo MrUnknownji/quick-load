@@ -60,6 +60,7 @@ const MyShopPage = () => {
 
   useEffect(() => {
     if (productOwner) {
+      const isKnownCity = cities.includes(productOwner.city);
       setFormState({
         productOwnerName: productOwner.productOwnerName,
         phoneNumber: productOwner.phoneNumber.toString(),
@@ -68,20 +69,46 @@ const MyShopPage = () => {
         shopAddress: productOwner.shopAddress,
         shopRating: productOwner.shopRating,
         state: productOwner.state,
-        city: productOwner.city,
-        otherCity: "",
+        city: isKnownCity ? productOwner.city : "Other",
+        otherCity: isKnownCity ? "" : productOwner.city,
         productType: productOwner.productType,
       });
     }
   }, [productOwner]);
 
   const handleInputChange = (field: string) => (value: string | string[]) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-    setUpdatedFields((prev) => ({
-      ...prev,
-      [field]: value,
-      phoneNumber: formState.phoneNumber,
-    }));
+    setFormState((prev) => {
+      if (field === "city") {
+        return {
+          ...prev,
+          city: value as string,
+          otherCity: value === "Other" ? prev.otherCity : "",
+        };
+      }
+      return { ...prev, [field]: value };
+    });
+
+    setUpdatedFields((prev) => {
+      if (field === "city") {
+        return {
+          ...prev,
+          city: value as string,
+          otherCity: value === "Other" ? prev.otherCity : "",
+        };
+      }
+      if (field === "otherCity") {
+        return {
+          ...prev,
+          city: "Other",
+          otherCity: value as string,
+        };
+      }
+      return {
+        ...prev,
+        [field]: value,
+        phoneNumber: formState.phoneNumber,
+      };
+    });
   };
 
   const handleFileSelect = (result: DocumentPicker.DocumentPickerResult) => {
@@ -124,6 +151,7 @@ const MyShopPage = () => {
     try {
       const formData = new FormData();
       Object.entries(updatedFields).forEach(([key, value]) => {
+        if (key === "otherCity") return;
         if (key === "productType") {
           (value as string[]).forEach((type) =>
             formData.append("productType[]", type),
@@ -134,6 +162,9 @@ const MyShopPage = () => {
             type: value.mimeType,
             name: value.name,
           } as any);
+        } else if (key === "city") {
+          const cityValue = value === "Other" ? formState.otherCity : value;
+          formData.append(key, cityValue?.toString() ?? "");
         } else if (value !== undefined && value !== null) {
           formData.append(key, value.toString());
         }
@@ -212,7 +243,6 @@ const MyShopPage = () => {
         />
         <FileUploadField
           label={t("Shop Photo")}
-          // subLabel={t(".jpeg, .jpg, .png of less than 1MB")}
           isMandatory
           onFileSelect={handleFileSelect}
           selectedFile={formState.shopImage}
@@ -246,7 +276,7 @@ const MyShopPage = () => {
             containerStyle={styles.halfWidth}
           />
         </View>
-        {formState.city === "Other" && (
+        {(formState.city === "Other" || !cities.includes(formState.city)) && (
           <TextInputField
             label={t("Other City")}
             isMandatory

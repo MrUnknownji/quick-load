@@ -21,6 +21,7 @@ import {
 } from "@/hooks/useNotification";
 import { Notification as NotificationType } from "@/types/Notification";
 import { ScrollView } from "react-native-gesture-handler";
+import { ThemedText } from "../ThemedText";
 
 const NotificationItem = ({
   item,
@@ -72,9 +73,9 @@ const NotificationItem = ({
         style={styles.notificationIcon}
       />
       <View style={styles.notificationContent}>
-        <Text style={[styles.notificationTitle, { color: textColor }]}>
+        <ThemedText style={[styles.notificationTitle, { color: textColor }]}>
           {t(item.type)}
-        </Text>
+        </ThemedText>
         <Text
           style={[styles.notificationText, { color: secondaryTextColor }]}
           numberOfLines={2}
@@ -261,7 +262,7 @@ const Notifications = () => {
                     height: "100%",
                   }}
                 >
-                  <Text>Loading...</Text>
+                  <ThemedText>Loading...</ThemedText>
                 </View>
               ) : error ? (
                 <View
@@ -271,7 +272,7 @@ const Notifications = () => {
                     height: "100%",
                   }}
                 >
-                  <Text>Error: {error}</Text>
+                  <ThemedText>Error: {error}</ThemedText>
                 </View>
               ) : (
                 <ScrollView>
@@ -356,11 +357,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationTitle: {
-    fontSize: responsive(Sizes.textNormal),
+    fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
   },
   notificationText: {
-    fontSize: responsive(Sizes.textSmall),
+    fontSize: responsive(Sizes.textNormal),
   },
   notificationTimestamp: {
     fontSize: responsive(Sizes.textSmall),

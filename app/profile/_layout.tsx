@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, StatusBar } from "react-native";
 import { router, Slot, usePathname } from "expo-router";
 import IconButton from "@/components/button/IconButton";
 import Colors from "@/constants/Colors";
@@ -7,6 +7,7 @@ import Sizes from "@/constants/Sizes";
 import { t } from "i18next";
 import { ThemedView } from "@/components/ThemedView";
 import { responsive } from "@/utils/responsive";
+import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 
 const ProfileLayout = () => {
   const pathname = usePathname();
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: responsive(Sizes.marginMedium),
-    paddingVertical: responsive(Sizes.paddingLarge),
+    paddingVertical: StatusBar.currentHeight,
   },
   headerText: {
     textAlign: "center",
