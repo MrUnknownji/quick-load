@@ -19,6 +19,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { INDIAN_CITIES, INDIAN_STATES } from "@/assets/data/DATA";
 import { useContextUser } from "@/contexts/userContext";
 import { router } from "expo-router";
+import { useGetCities } from "@/hooks/useLocation";
 
 const MyShopPage = () => {
   const { t } = useTranslation();
@@ -55,8 +56,34 @@ const MyShopPage = () => {
   });
 
   const states = INDIAN_STATES;
-  const cities = [...INDIAN_CITIES, "Other"];
+  const { getCities, loading: citiesLoading } = useGetCities();
+  const [dynamicCities, setDynamicCities] = useState<string[]>([]);
+  const cities = [...dynamicCities, "Other"];
   const productTypes = ["Bricks", "Grit", "Bajri", "Cement"];
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      if (formState.state) {
+        try {
+          const response = await getCities(formState.state);
+          if (response.cities) {
+            setDynamicCities(response.cities);
+          }
+        } catch (error) {
+          console.error("Error fetching cities:", error);
+          setAlertState({
+            visible: true,
+            message: t("Failed to fetch cities"),
+            type: "error",
+          });
+        }
+      } else {
+        setDynamicCities([]);
+      }
+    };
+
+    fetchCities();
+  }, [formState.state]);
 
   useEffect(() => {
     if (productOwner) {
@@ -268,14 +295,16 @@ const MyShopPage = () => {
           />
           <SelectListWithDialog
             label={t("Select City")}
-            defaultText={t("City")}
+            defaultText={citiesLoading ? t("Loading...") : t("City")}
             isMandatory
             options={cities}
             selectedOption={formState.city}
             onSelect={handleInputChange("city")}
             containerStyle={styles.halfWidth}
+            disabled={citiesLoading || !formState.state}
           />
         </View>
+
         {(formState.city === "Other" || !cities.includes(formState.city)) && (
           <TextInputField
             label={t("Other City")}

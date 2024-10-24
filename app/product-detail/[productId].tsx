@@ -25,14 +25,83 @@ import { useFetchProductById } from "@/hooks/useFetchProduct";
 import { Product } from "@/types/Product";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
 import { responsive, vw, vh } from "@/utils/responsive";
+import { useContextUser } from "@/contexts/userContext";
+import { useOrder } from "@/hooks/useOrder";
 
 const ProductDetailPage = () => {
-  const { productId } = useLocalSearchParams<{ productId: string }>();
+  const { productId } = useLocalSearchParams<{
+    productId: string;
+  }>();
   const [isPricingVisible, setIsPricingVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { user } = useContextUser();
+  const { createOrder } = useOrder();
 
   const { product, loading, error, fetchProduct } =
     useFetchProductById(productId);
+
+  const [quantity, setQuantity] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("paymentNow");
+
+  const calculateCharges = useCallback(() => {
+    if (!product)
+      return {
+        loadingCharges: 0,
+        brokerCharges: 0,
+        platformFees: 0,
+        totalPrice: 0,
+      };
+
+    const itemPrice = Number(product.productPrice ?? 0);
+    const loadingCharges = Number((quantity * itemPrice * 0.05).toFixed(2));
+    const brokerCharges = Number((quantity * itemPrice * 0.1).toFixed(2));
+    const platformFees = Number((quantity * itemPrice * 0.2).toFixed(2));
+    const extraCharges = loadingCharges + brokerCharges + platformFees;
+    const totalPriceRaw =
+      Number(quantity * itemPrice) + (quantity < 1 ? 0 : extraCharges);
+    const discount = totalPriceRaw * 0.1;
+    const totalPrice = Number((totalPriceRaw - discount).toFixed(2));
+
+    return {
+      loadingCharges,
+      brokerCharges,
+      platformFees,
+      totalPrice,
+    };
+  }, [product, quantity]);
+
+  const handleBookOrder = async () => {
+    if (!user?._id || !product) return;
+
+    const { loadingCharges, brokerCharges, platformFees, totalPrice } =
+      calculateCharges();
+
+    try {
+      await createOrder({
+        userId: user._id,
+        productOwnerId: product.productOwner,
+        productId: product._id!,
+        productPrice: Number(product.productPrice),
+        productSize: "standard",
+        productQuantity: quantity,
+        productType: product.productType,
+        loadingCharge: loadingCharges,
+        brokerCharge: brokerCharges,
+        platformCharge: platformFees,
+      });
+
+      router.push({
+        pathname: "/thank-you",
+        params: {
+          message: t(
+            "Thank you for the purchase. You will receive your product shortly.",
+          ),
+        },
+      });
+    } catch (error) {
+      console.error("Failed to create order:", error);
+    }
+  };
 
   const togglePricingVisibility = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -44,6 +113,11 @@ const ProductDetailPage = () => {
     await fetchProduct();
     setRefreshing(false);
   }, [fetchProduct, productId]);
+
+  const isOrderValid = useCallback(() => {
+    if (!product) return false;
+    return quantity > 0 && Number(product.productPrice) > 0;
+  }, [quantity, product]);
 
   if (loading && !refreshing)
     return (
@@ -86,7 +160,15 @@ const ProductDetailPage = () => {
                 <ProductFeaturesCard price={Number(product.productPrice)} />
               </>
             )}
-            {isPricingVisible && <PricingCard item={product} />}
+            {isPricingVisible && (
+              <PricingCard
+                item={product}
+                quantity={quantity}
+                setQuantity={setQuantity}
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+              />
+            )}
           </View>
         </ScrollView>
         <Button
@@ -94,18 +176,13 @@ const ProductDetailPage = () => {
           variant="primary"
           size="medium"
           style={styles.bottomButton}
+          disabled={isPricingVisible && !isOrderValid()}
           onPress={() => {
             if (isPricingVisible) {
-              router.push({
-                pathname: "/thank-you",
-                params: {
-                  message: t(
-                    "Thank you for the purchase. You will receive your product shortly.",
-                  ),
-                },
-              });
+              handleBookOrder();
+            } else {
+              togglePricingVisibility();
             }
-            togglePricingVisibility();
           }}
         />
       </ThemedView>
@@ -177,9 +254,19 @@ const ProductFeaturesCard = ({ price }: { price?: number }) => {
   );
 };
 
-const PricingCard = ({ item }: { item: Product }) => {
-  const [quantity, setQuantity] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState("paymentNow");
+const PricingCard = ({
+  item,
+  quantity,
+  setQuantity,
+  paymentMethod,
+  setPaymentMethod,
+}: {
+  item: Product;
+  quantity: number;
+  setQuantity: (quantity: number) => void;
+  paymentMethod: string;
+  setPaymentMethod: (method: string) => void;
+}) => {
   const itemPrice = Number(item.productPrice ?? 0);
   const loadingCharges = (quantity * itemPrice * 0.05).toFixed(2);
   const brokerCharges = (quantity * itemPrice * 0.1).toFixed(2);

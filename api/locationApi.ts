@@ -1,5 +1,10 @@
-import { authApiClient } from "./apiClient";
-import { Location, LocationUpdate, ApiResponse } from "../types/Location";
+import { apiClient, authApiClient } from "./apiClient";
+import {
+  Location,
+  LocationUpdate,
+  ApiResponse,
+  CitiesResponse,
+} from "../types/Location";
 
 export const addLocation = async (
   locationData: Location,
@@ -23,5 +28,12 @@ export const updateLocation = async (
     `/location/update/${userId}`,
     locationUpdate,
   );
+  return response.data;
+};
+
+export const getCitiesByState = async (
+  state: string,
+): Promise<CitiesResponse> => {
+  const response = await apiClient.get(`/location/${state}`);
   return response.data;
 };

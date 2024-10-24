@@ -193,7 +193,7 @@ const HomeScreen: React.FC = () => {
       .filter((owner) => owner.isVerified)
       .map((owner) => (
         <LargeListItem
-          key={owner._id}
+          key={`${owner._id}-${selectedCategory}`} // Add selectedCategory to the key
           heading={owner.productOwnerName}
           imageUrl={`https://movingrolls.online${owner.shopImage}`}
           onPress={() =>

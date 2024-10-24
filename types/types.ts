@@ -14,6 +14,8 @@ interface ListItemProps {
   location?: string;
   imageUrl: string;
   rating?: number;
+  totalAmount?: string;
+  contentFit?: "contain" | "cover" | "fill" | "none" | "scale-down";
   measurementType?:
     | "Qui."
     | "Piece"

@@ -134,7 +134,9 @@ const ProductItems: React.FC = () => {
           onPress={() =>
             router.push({
               pathname: "/product-detail/[productId]",
-              params: { productId: item._id ?? "" },
+              params: {
+                productId: item._id ?? "",
+              },
             })
           }
           measurementType={productType ? getMeasurementType(productType) : ""}

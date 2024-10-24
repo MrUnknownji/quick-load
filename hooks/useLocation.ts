@@ -2,9 +2,15 @@ import { useState, useCallback } from "react";
 import {
   createNewLocation,
   getLocation,
+  getStateCities,
   updateUserLocation,
 } from "../services/locationService";
-import { Location, LocationUpdate, ApiResponse } from "../types/Location";
+import {
+  Location,
+  LocationUpdate,
+  ApiResponse,
+  CitiesResponse,
+} from "../types/Location";
 
 export const useAddLocation = () => {
   const [loading, setLoading] = useState(false);
@@ -69,4 +75,27 @@ export const useUpdateLocation = () => {
   };
 
   return { updateLocation, loading, error };
+};
+
+export const useGetCities = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getCities = useCallback(
+    async (state: string): Promise<CitiesResponse> => {
+      setLoading(true);
+      setError(null);
+      try {
+        return await getStateCities(state);
+      } catch (err) {
+        setError("Failed to get cities");
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return { loading, error, getCities };
 };

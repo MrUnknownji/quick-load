@@ -18,22 +18,18 @@ const OrderStatus = () => {
     {
       title: "Order",
       date: "Fri, 24th Aug 2024",
-      time: "Payment Completed - 06:02pm",
+      time: `${t("Payment Completed")} - 06:02pm`,
     },
     {
-      title: "Loaded",
+      title: "Pending",
       date: "Sat, 25th Aug 2024",
-      time: "Loaded successfully - 07:30am",
+      time: `${t("Loaded successfully")} - 07:30am`,
     },
-    { title: "Abc", date: "Sat, 25th Aug 2024", time: "Arrived - 07:30am" },
-    { title: "Efg", date: "Sat, 25th Aug 2024", time: "Arrived - 07:30am" },
-    { title: "Ijk", date: "Sat, 25th Aug 2024", time: "Arrived - 07:30am" },
-    { title: "Mno", date: "Sat, 25th Aug 2024", time: "Arrived - 07:30am" },
     { title: "Delivery Expected", date: "Sat, 25th Aug 2024", time: "" },
     {
       title: "Delivered",
       date: "Sat, 25th Aug 2024",
-      time: "Arrived - 07:30am",
+      time: `${t("Arrived")} - 07:30am`,
     },
   ];
 

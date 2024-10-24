@@ -1,5 +1,5 @@
-import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import Sizes from "@/constants/Sizes";
 import LargeListItem from "@/components/list-items/LargeListItem";
@@ -7,23 +7,26 @@ import { router } from "expo-router";
 import { t } from "i18next";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-// import { ORDERS } from "@/assets/data/DATA";
-import { Order } from "@/types/Order";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
+import { useOrder } from "@/hooks/useOrder";
+import { useContextUser } from "@/contexts/userContext";
+import { Order } from "@/types/Order";
 
 const TrackOrder = () => {
-  // const { currentUser } = useUser();
+  const { user } = useContextUser();
+  const { orders, fetchUserOrders, loading } = useOrder();
 
-  // const userOrders = ORDERS.filter((order) => order.userId === currentUser?.id);
-  // const userOrders = ORDERS;
-  // const pendingOrders = userOrders.filter(
-  //   (order) => order.status === "pending",
-  // );
-  // const deliveredOrders = userOrders.filter(
-  //   (order) => order.status === "delivered",
-  // );
-  const pendingOrders: Order[] = [];
-  const deliveredOrders: Order[] = [];
+  useEffect(() => {
+    if (user?._id) {
+      fetchUserOrders(user._id);
+    }
+  }, [user?._id]);
+
+  const pendingOrders = orders.filter((order) => order.status === "pending");
+  const deliveredOrders = orders.filter(
+    (order) => order.status === "completed",
+  );
+  const canceledOrders = orders.filter((order) => order.status === "canceled");
 
   const onItemPress = (orderId: string) => {
     router.push({
@@ -44,22 +47,25 @@ const TrackOrder = () => {
     section: { title: string };
   }) => (
     <LargeListItem
-      heading={item.productName}
-      price={item.price.toString()}
-      onPress={() => onItemPress(item.id)}
+      heading={item.productType}
+      price={item.productPrice.toString()}
+      onPress={() => onItemPress(item._id!)}
+      totalAmount={item.totalAmount?.toFixed(2)}
+      contentFit="contain"
       measurementType="Qui."
       buttonTitle={
         section.title === t("Pending Orders")
           ? t("Track Order")
           : t("Delivered")
       }
-      imageUrl={`https://movingrolls.online/assets/${item.productName.toLowerCase() === "grit" ? "product-grit-3.jpeg" : "product-bricks-3.jpeg"}`}
+      imageUrl={`https://movingrolls.online/assets/quick-load-icon.png`}
     />
   );
 
-  const sections: { title: string; data: Order[] }[] = [
+  const sections = [
     { title: t("Pending Orders"), data: pendingOrders },
     { title: t("Delivered Orders"), data: deliveredOrders },
+    { title: t("Canceled Orders"), data: canceledOrders },
   ];
 
   return (
@@ -78,7 +84,7 @@ const TrackOrder = () => {
               <FlatList
                 data={section.data}
                 renderItem={({ item }) => renderItem({ item, section })}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item._id!}
               />
             </View>
           )}

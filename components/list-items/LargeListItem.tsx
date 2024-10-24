@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -16,14 +16,21 @@ const LargeListItem: React.FC<ListItemProps> = memo(
     heading,
     price,
     location,
+    totalAmount,
     rating,
     imageUrl,
     measurementType = "Qui.",
+    contentFit = "cover",
     onPress,
     buttonTitle,
     style,
   }) => {
     const [isImageLoading, setIsImageLoading] = useState(true);
+
+    useEffect(() => {
+      setIsImageLoading(true);
+    }, [imageUrl]);
+
     const backgroundColor = useThemeColor(
       {
         light: Colors.light.cardBackground,
@@ -61,8 +68,10 @@ const LargeListItem: React.FC<ListItemProps> = memo(
           <Image
             source={imageUrl || `https://placehold.co/150x150?text=${heading}`}
             style={[styles.image, isImageLoading && styles.hiddenImage]}
-            contentFit="cover"
+            contentFit={contentFit}
             onLoadEnd={() => setIsImageLoading(false)}
+            cachePolicy="none"
+            recyclingKey={imageUrl}
           />
         </View>
         <View style={styles.contentContainer}>
@@ -103,6 +112,13 @@ const LargeListItem: React.FC<ListItemProps> = memo(
                 />
                 <Text style={[styles.infoText, { color: textColor }]}>
                   {rating.toFixed(1)}
+                </Text>
+              </View>
+            )}
+            {totalAmount && (
+              <View style={styles.totalContainer}>
+                <Text style={[styles.totalText, { color: textColor }]}>
+                  {t("Total")}: {totalAmount}
                 </Text>
               </View>
             )}
@@ -181,5 +197,10 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: responsive(Sizes.textSmall),
     marginLeft: vw(1),
+  },
+  totalContainer: {},
+  totalText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

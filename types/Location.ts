@@ -18,3 +18,12 @@ export interface ApiResponse<T> {
   resultCode: string;
   data: T;
 }
+
+export interface CitiesResponse {
+  resultMessage: {
+    en: string;
+    hi: string;
+  };
+  resultCode: string;
+  cities: string[];
+}

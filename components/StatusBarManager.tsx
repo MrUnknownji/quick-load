@@ -1,18 +1,24 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "react-native";
 import { useTheme } from "@/contexts/AppThemeProvider";
 import { usePathname } from "expo-router";
 
 const StatusBarManager = () => {
-  const getStatusBarStyle = () => {
-    const route = usePathname();
-    const { appTheme } = useTheme();
+  const { appTheme } = useTheme();
+  const systemColorScheme = useColorScheme();
+  const route = usePathname();
 
-    if (route.includes("profile") || appTheme.includes("dark")) {
+  const getStatusBarStyle = () => {
+    if (route.includes("profile")) {
       return "light";
-    } else {
-      return "dark";
     }
+
+    if (appTheme === "system") {
+      return systemColorScheme === "dark" ? "light" : "dark";
+    }
+
+    return appTheme === "dark" ? "light" : "dark";
   };
 
   return <StatusBar style={getStatusBarStyle()} />;

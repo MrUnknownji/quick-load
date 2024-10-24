@@ -1,5 +1,15 @@
-import { addLocation, fetchLocation, updateLocation } from "../api/locationApi";
-import { Location, LocationUpdate, ApiResponse } from "../types/Location";
+import {
+  addLocation,
+  fetchLocation,
+  getCitiesByState,
+  updateLocation,
+} from "../api/locationApi";
+import {
+  Location,
+  LocationUpdate,
+  ApiResponse,
+  CitiesResponse,
+} from "../types/Location";
 
 export const createNewLocation = async (
   locationData: Location,
@@ -18,4 +28,10 @@ export const updateUserLocation = async (
   locationUpdate: LocationUpdate,
 ): Promise<ApiResponse<Location>> => {
   return await updateLocation(userId, locationUpdate);
+};
+
+export const getStateCities = async (
+  state: string,
+): Promise<CitiesResponse> => {
+  return await getCitiesByState(state);
 };
