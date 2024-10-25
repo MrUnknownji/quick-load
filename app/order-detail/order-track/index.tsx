@@ -1,5 +1,11 @@
-import React from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import IconButton from "@/components/button/IconButton";
 import Sizes from "@/constants/Sizes";
@@ -9,39 +15,88 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import SafeAreaWrapper from "@/components/SafeAreaWrapper";
-import { responsive, vw, vh } from "@/utils/responsive";
+import { responsive } from "@/utils/responsive";
+import { useOrder } from "@/hooks/useOrder";
+import { useContextUser } from "@/contexts/userContext";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import * as Clipboard from "expo-clipboard";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
 const OrderStatus = () => {
-  const { productId } = useLocalSearchParams<{ productId: string }>();
+  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const { user } = useContextUser();
+  const { orders, fetchUserOrders, loading } = useOrder();
+  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
-  const orderSteps = [
-    {
-      title: "Order",
-      date: "Fri, 24th Aug 2024",
-      time: `${t("Payment Completed")} - 06:02pm`,
-    },
-    {
-      title: "Pending",
-      date: "Sat, 25th Aug 2024",
-      time: `${t("Loaded successfully")} - 07:30am`,
-    },
-    { title: "Delivery Expected", date: "Sat, 25th Aug 2024", time: "" },
-    {
-      title: "Delivered",
-      date: "Sat, 25th Aug 2024",
-      time: `${t("Arrived")} - 07:30am`,
-    },
-  ];
+  useEffect(() => {
+    if (user?._id) {
+      fetchUserOrders(user._id);
+    }
+  }, [user?._id]);
+
+  const currentOrder = orders.find((order) => order._id === orderId);
+
+  const copyToClipboard = async () => {
+    await Clipboard.setStringAsync(currentOrder?._id || "");
+    setCopiedToClipboard(true);
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setTimeout(() => setCopiedToClipboard(false), 2000);
+  };
+
+  const getOrderSteps = () => {
+    switch (currentOrder?.status) {
+      case "pending":
+        return [
+          { title: "Order Placed", isCompleted: true },
+          { title: "Order Processing", isCompleted: true },
+          { title: "Out for Delivery", isCompleted: false },
+          { title: "Delivered", isCompleted: false },
+        ];
+      case "completed":
+        return [
+          { title: "Order Placed", isCompleted: true },
+          { title: "Order Processing", isCompleted: true },
+          { title: "Out for Delivery", isCompleted: true },
+          { title: "Delivered", isCompleted: true },
+        ];
+      case "canceled":
+        return [
+          { title: "Order Placed", isCompleted: true },
+          { title: "Order Canceled", isCompleted: true },
+        ];
+      default:
+        return [
+          { title: "Order Placed", isCompleted: false },
+          { title: "Order Processing", isCompleted: false },
+          { title: "Out for Delivery", isCompleted: false },
+          { title: "Delivered", isCompleted: false },
+        ];
+    }
+  };
 
   const primaryColor = useThemeColor(
     { light: Colors.light.primary, dark: Colors.dark.secondary },
     "primary",
   );
 
+  if (loading) {
+    return (
+      <SafeAreaWrapper>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={primaryColor} />
+          <ThemedText style={styles.loadingText}>
+            {t("Loading order details...")}
+          </ThemedText>
+        </View>
+      </SafeAreaWrapper>
+    );
+  }
+
   return (
     <SafeAreaWrapper>
       <ThemedView style={styles.container}>
-        <View style={styles.header}>
+        <Animated.View entering={FadeIn} style={styles.header}>
           <IconButton
             iconName="chevron-back"
             size="small"
@@ -53,29 +108,60 @@ const OrderStatus = () => {
           <ThemedText style={styles.headingText}>
             {t("Order Status")}
           </ThemedText>
-        </View>
-        <View style={styles.secondaryHeader}>
-          <Text
-            style={styles.routeText}
-          >{`${t("Your Route")}:- ${t("abc")} > ${t(
-            "efg",
-          )} > ${t("ijk")} > ${t("mno")}...`}</Text>
-        </View>
+        </Animated.View>
+
+        <Animated.View
+          entering={FadeInDown.delay(200)}
+          style={styles.secondaryHeader}
+        >
+          <View style={styles.orderIdContainer}>
+            <ThemedText style={styles.orderInfoText}>
+              {t("Order ID")}: {currentOrder?._id}
+            </ThemedText>
+            <TouchableOpacity
+              onPress={copyToClipboard}
+              style={styles.copyButton}
+            >
+              <Ionicons
+                name={copiedToClipboard ? "checkmark-circle" : "copy-outline"}
+                size={20}
+                color="white"
+              />
+            </TouchableOpacity>
+          </View>
+          <ThemedText style={styles.orderInfoText}>
+            {t("Total Amount")}: {t("Rs.")}
+            {currentOrder?.totalAmount?.toFixed(2)}
+          </ThemedText>
+        </Animated.View>
+
         <ScrollView style={styles.content}>
           <View style={styles.timeline}>
-            {orderSteps.map((step, index) => (
-              <View key={index} style={styles.timelineItem}>
+            {getOrderSteps().map((step, index) => (
+              <Animated.View
+                key={index}
+                entering={FadeInDown.delay(300 + index * 100)}
+                style={styles.timelineItem}
+              >
                 <View
                   style={[
                     styles.timelineDot,
-                    { backgroundColor: primaryColor },
+                    {
+                      backgroundColor: step.isCompleted
+                        ? primaryColor
+                        : Colors.light.textSecondary,
+                    },
                   ]}
                 />
-                {index !== orderSteps.length - 1 && (
+                {index !== getOrderSteps().length - 1 && (
                   <View
                     style={[
                       styles.timelineLine,
-                      { backgroundColor: primaryColor },
+                      {
+                        backgroundColor: step.isCompleted
+                          ? primaryColor
+                          : Colors.light.textSecondary,
+                      },
                     ]}
                   />
                 )}
@@ -83,14 +169,8 @@ const OrderStatus = () => {
                   <ThemedText style={styles.timelineTitle}>
                     {t(step.title)}
                   </ThemedText>
-                  <ThemedText style={styles.timelineDate}>
-                    {t(step.date)}
-                  </ThemedText>
-                  {step.time && (
-                    <Text style={styles.timelineTime}>{t(step.time)}</Text>
-                  )}
                 </View>
-              </View>
+              </Animated.View>
             ))}
           </View>
         </ScrollView>
@@ -111,12 +191,13 @@ const styles = StyleSheet.create({
   backButton: {
     position: "absolute",
     left: responsive(Sizes.marginHorizontal),
+    top: responsive(5),
     borderRadius: responsive(Sizes.borderRadiusFull),
   },
   headingText: {
     fontSize: responsive(Sizes.textLarge),
     fontWeight: "bold",
-    marginTop: responsive(Sizes.marginLarge),
+    paddingTop: responsive(Sizes.paddingSmall),
   },
   secondaryHeader: {
     backgroundColor: Colors.light.primary,
@@ -125,9 +206,10 @@ const styles = StyleSheet.create({
     marginVertical: responsive(Sizes.marginExtraSmall),
     borderRadius: responsive(Sizes.borderRadiusLarge),
   },
-  routeText: {
+  orderInfoText: {
     color: "white",
     fontSize: responsive(Sizes.textNormal),
+    marginVertical: 2,
   },
   content: {
     flex: 1,
@@ -162,12 +244,22 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: responsive(4),
   },
-  timelineDate: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: responsive(Sizes.marginMedium),
     fontSize: responsive(Sizes.textNormal),
   },
-  timelineTime: {
-    fontSize: responsive(14),
-    color: Colors.light.textSecondary,
+  orderIdContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  copyButton: {
+    padding: responsive(Sizes.paddingSmall),
   },
 });
 

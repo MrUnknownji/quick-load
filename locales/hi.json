@@ -296,5 +296,18 @@
   "Payment Completed": "भुगतान पूर्ण हुआ",
   "Loaded successfully": "सफलतापूर्वक लोड किया गया",
   "Arrived": "प्राप्त किया गया",
-  "Pieces(1000)": "नग (1000)"
+  "Pieces(1000)": "नग (1000)",
+  "Add vehicle to continue": "जारी रखने के लिए वाहन जोड़ें",
+  "Total(approx.)": "कुल (लगभग)",
+  "Pricing": "मूल्य",
+  "Quintal(100kg)": "क्विंटल (100kg)",
+  "Price/quintal": "मूल्य/क्विंटल",
+  "Owner not found": "मालिक नहीं मिला",
+  "Product not found": "उत्पाद नहीं मिला",
+  "Loading order details...": "ऑर्डर का विवरण लोड हो रहा है...",
+  "Order ID": "ऑर्डर आईडी",
+  "Order Placed": "ऑर्डर कर दिया गया है",
+  "Order Processing": "ऑर्डर पर काम चल रहा है",
+  "Out for Delivery": "डिलीवरी के लिए निकल गया है",
+  "Total Amount": "कुल राशि"
 }

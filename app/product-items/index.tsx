@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   productHeading: {
     fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
-    paddingTop: responsive(Sizes.paddingLarge),
+    paddingTop: responsive(Sizes.paddingSmall),
   },
 });
 

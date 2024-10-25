@@ -1,7 +1,8 @@
 export interface Notification {
   _id: string;
   type: string;
-  message: string;
+  hi_message: string;
+  en_message: string;
   userId: string;
   isRead: boolean;
   createdAt: string;
@@ -9,7 +10,8 @@ export interface Notification {
 
 export interface NotificationRequest {
   type: string;
-  message: string;
+  hi_message: string;
+  en_message: string;
   userId: string;
 }
 

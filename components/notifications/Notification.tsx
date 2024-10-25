@@ -22,6 +22,7 @@ import {
 import { Notification as NotificationType } from "@/types/Notification";
 import { ScrollView } from "react-native-gesture-handler";
 import { ThemedText } from "../ThemedText";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const NotificationItem = ({
   item,
@@ -30,6 +31,7 @@ const NotificationItem = ({
   item: NotificationType;
   onPress: (notification: NotificationType) => void;
 }) => {
+  const { appLanguage } = useLanguage();
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
     "cardBackground",
@@ -80,7 +82,7 @@ const NotificationItem = ({
           style={[styles.notificationText, { color: secondaryTextColor }]}
           numberOfLines={2}
         >
-          {t(item.message)}
+          {appLanguage === "hi" ? item.hi_message : item.en_message}
         </Text>
         <Text
           style={[styles.notificationTimestamp, { color: secondaryTextColor }]}
@@ -101,6 +103,7 @@ const NotificationDialog = ({
   visible: boolean;
   onClose: () => void;
 }) => {
+  const { appLanguage } = useLanguage();
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
     "background",
@@ -149,7 +152,11 @@ const NotificationDialog = ({
               {t(notification?.type ?? "")}
             </Text>
             <Text style={[styles.modalContent, { color: textColor }]}>
-              {t(notification?.message ?? "")}
+              {notification
+                ? appLanguage === "hi"
+                  ? notification.hi_message
+                  : notification.en_message
+                : ""}
             </Text>
             <Text
               style={[styles.modalTimestamp, { color: secondaryTextColor }]}

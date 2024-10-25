@@ -297,7 +297,13 @@ const PricingCard = ({
         <ThemedText style={styles2.pricingCardHeading}>
           {t("Pricing")}
         </ThemedText>
-        <PricingCardItem label={t("Pieces(1000)")}>
+        <PricingCardItem
+          label={
+            item.productType === "Bricks"
+              ? t("Pieces(1000)")
+              : t("Quintal(100kg)")
+          }
+        >
           <TextInput
             style={styles2.piecesInput}
             placeholder={t("Qty")}
@@ -307,16 +313,22 @@ const PricingCard = ({
             placeholderTextColor={placeholderColor}
           />
         </PricingCardItem>
-        <PricingCardItem label={t("Price/piece")}>
+        <PricingCardItem
+          label={
+            item.productType === "Bricks"
+              ? t("Price/piece")
+              : t("Price/quintal")
+          }
+        >
           <ThemedText style={styles2.perPiecePriceText}>
             {t("Rs.")} {itemPrice.toFixed(2)}
           </ThemedText>
         </PricingCardItem>
-        <PricingCardItem label={t("Offer")} offer>
+        {/* <PricingCardItem label={t("Offer")} offer>
           <ThemedText style={styles2.offerText}>
             {t("Rs.")} {discount.toFixed(2)}
           </ThemedText>
-        </PricingCardItem>
+        </PricingCardItem> */}
         <PricingCardItem label={t("Loading Charges")}>
           <ThemedText style={styles2.offerText}>
             {t("Rs.")} {quantity < 1 ? "0.00" : loadingCharges}
@@ -332,7 +344,7 @@ const PricingCard = ({
             {t("Rs.")} {quantity < 1 ? "0.00" : platformFees}
           </ThemedText>
         </PricingCardItem>
-        <PricingCardItem label={t("Total")}>
+        <PricingCardItem label={t("Total(approx.)")}>
           <ThemedText style={styles2.totalPrice}>
             {t("Rs.")}{" "}
             {(parseFloat(totalPrice) - parseFloat(discount.toString())).toFixed(
@@ -341,7 +353,7 @@ const PricingCard = ({
           </ThemedText>
         </PricingCardItem>
       </ThemedView>
-      <View>
+      {/* <View>
         <ThemedText style={styles2.paymentMethodHeading}>
           {t("Select Your Payment method")}
         </ThemedText>
@@ -354,7 +366,7 @@ const PricingCard = ({
           onSelect={(value) => setPaymentMethod(value)}
           initialSelection={paymentMethod}
         />
-      </View>
+      </View> */}
     </ScrollView>
   );
 };
@@ -393,7 +405,7 @@ const styles = StyleSheet.create({
   productHeading: {
     fontSize: responsive(Sizes.textExtraLarge),
     fontWeight: "bold",
-    paddingTop: responsive(Sizes.paddingLarge),
+    paddingTop: responsive(Sizes.paddingSmall),
   },
   productContainer: {
     marginTop: responsive(Sizes.marginMedium),
