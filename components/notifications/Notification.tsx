@@ -23,6 +23,7 @@ import { Notification as NotificationType } from "@/types/Notification";
 import { ScrollView } from "react-native-gesture-handler";
 import { ThemedText } from "../ThemedText";
 import { useLanguage } from "@/contexts/LanguageContext";
+import usePathChangeListener from "@/hooks/usePathChangeListener";
 
 const NotificationItem = ({
   item,
@@ -176,6 +177,7 @@ const Notifications = () => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [selectedNotification, setSelectedNotification] =
     useState<NotificationType | null>(null);
+  const { activePath } = usePathChangeListener();
   const backgroundColor = useThemeColor(
     { light: Colors.light.background, dark: Colors.dark.background },
     "background",
@@ -188,6 +190,10 @@ const Notifications = () => {
 
   const { notifications, loading, error, refetch } = useFetchNotifications();
   const { updateNotification } = useUpdateNotification();
+
+  useEffect(() => {
+    refetch();
+  }, [activePath]);
 
   useEffect(() => {
     Animated.timing(dropdownAnim, {
@@ -269,7 +275,7 @@ const Notifications = () => {
                     height: "100%",
                   }}
                 >
-                  <ThemedText>Loading...</ThemedText>
+                  <ThemedText>{t("Loading...")}</ThemedText>
                 </View>
               ) : error ? (
                 <View
@@ -279,7 +285,7 @@ const Notifications = () => {
                     height: "100%",
                   }}
                 >
-                  <ThemedText>Error: {error}</ThemedText>
+                  <ThemedText>{t("No notifications")}</ThemedText>
                 </View>
               ) : (
                 <ScrollView>
