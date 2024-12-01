@@ -2,7 +2,7 @@
   "expo": {
     "name": "Quick Load",
     "slug": "quick-load",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -32,7 +32,8 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.RECORD_AUDIO"
       ],
-      "googleServicesFile": "./firebase/google-services.json"
+      "googleServicesFile": "./firebase/google-services.json",
+      "versionCode": 2
     },
     "web": {
       "bundler": "metro",

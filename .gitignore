@@ -20,5 +20,7 @@ ios
 
 expo-env.d.ts
 # @end expo-cli
-/firebase/google-services.json
+credentials.json
+build-*
+/firebase/google-services*.json
 /firebase/GoogleService-Info.plist
